@@ -1,0 +1,13 @@
+{
+  "name": "@ledgic/db-types",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated Supabase database types for Ledgic.",
+  "license": "MIT",
+  "main": "src/database.ts",
+  "types": "src/database.ts",
+  "exports": { ".": "./src/database.ts" },
+  "scripts": {
+    "generate": "npx supabase@latest gen types typescript --local > src/database.ts && npx --yes prettier@3.3.3 --write src/database.ts"
+  }
+}

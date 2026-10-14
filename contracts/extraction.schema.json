@@ -1,0 +1,1219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/alihdrndm/ledgic/contracts/extraction.schema.json",
+  "title": "InvoiceExtraction",
+  "description": "Output of the extraction agent (spec 06 \u00a75.1). OpenAI strict structured-outputs compatible: every property required, additionalProperties false, nullability via type unions. Every extracted value is a string or null; money as decimal strings; bbox normalized 0..1 to the rendered page. Departure from 06 \u00a75.1: remit_to and bank_details are flattened into remit_to_name/remit_to_address and bank_routing/bank_account so every value stays a string.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "vendor_name",
+    "invoice_number",
+    "invoice_date",
+    "due_date",
+    "terms",
+    "po_reference",
+    "subtotal",
+    "tax",
+    "freight",
+    "total",
+    "currency",
+    "remit_to_name",
+    "remit_to_address",
+    "bank_routing",
+    "bank_account",
+    "lines",
+    "document_type",
+    "multiple_invoices_detected"
+  ],
+  "properties": {
+    "vendor_name": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Vendor name as printed",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "invoice_number": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Invoice number exactly as printed",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "invoice_date": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "ISO date YYYY-MM-DD",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "due_date": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "ISO date YYYY-MM-DD",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Payment terms, e.g. 'Net 14'",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "po_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Purchase order reference as printed, e.g. 'PO-RS-1866'",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Decimal string, e.g. '491.60' (no currency symbol, no thousands separators)",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "tax": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Decimal string",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "freight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Decimal string",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "total": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Decimal string",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "currency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "ISO 4217 code, e.g. 'USD'",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "remit_to_name": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Remit-to name",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "remit_to_address": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Remit-to address, single line",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "bank_routing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Bank routing number (digits only)",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "bank_account": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "confidence",
+        "bbox"
+      ],
+      "description": "Bank account number (digits only)",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confidence": {
+          "type": "number",
+          "description": "0..1 legibility/unambiguity; 0 when value is null"
+        },
+        "bbox": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "page",
+            "x",
+            "y",
+            "w",
+            "h"
+          ],
+          "properties": {
+            "page": {
+              "type": "integer",
+              "description": "1-based page index"
+            },
+            "x": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "y": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "w": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            },
+            "h": {
+              "type": "number",
+              "description": "normalized 0..1 of rendered page"
+            }
+          }
+        }
+      }
+    },
+    "lines": {
+      "type": "array",
+      "description": "One entry per printed line, in order; fees are lines too.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "description",
+          "qty",
+          "uom",
+          "unit_price",
+          "amount"
+        ],
+        "properties": {
+          "description": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "confidence",
+              "bbox"
+            ],
+            "description": "Line description exactly as printed",
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "description": "0..1 legibility/unambiguity; 0 when value is null"
+              },
+              "bbox": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": false,
+                "required": [
+                  "page",
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ],
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "1-based page index"
+                  },
+                  "x": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "w": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "h": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  }
+                }
+              }
+            }
+          },
+          "qty": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "confidence",
+              "bbox"
+            ],
+            "description": "Decimal string",
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "description": "0..1 legibility/unambiguity; 0 when value is null"
+              },
+              "bbox": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": false,
+                "required": [
+                  "page",
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ],
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "1-based page index"
+                  },
+                  "x": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "w": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "h": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  }
+                }
+              }
+            }
+          },
+          "uom": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "confidence",
+              "bbox"
+            ],
+            "description": "Unit of measure copied literally (lb, cs, ea, gal)",
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "description": "0..1 legibility/unambiguity; 0 when value is null"
+              },
+              "bbox": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": false,
+                "required": [
+                  "page",
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ],
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "1-based page index"
+                  },
+                  "x": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "w": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "h": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  }
+                }
+              }
+            }
+          },
+          "unit_price": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "confidence",
+              "bbox"
+            ],
+            "description": "Decimal string (up to 4 dp)",
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "description": "0..1 legibility/unambiguity; 0 when value is null"
+              },
+              "bbox": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": false,
+                "required": [
+                  "page",
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ],
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "1-based page index"
+                  },
+                  "x": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "w": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "h": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  }
+                }
+              }
+            }
+          },
+          "amount": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "value",
+              "confidence",
+              "bbox"
+            ],
+            "description": "Decimal string extended amount",
+            "properties": {
+              "value": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "confidence": {
+                "type": "number",
+                "description": "0..1 legibility/unambiguity; 0 when value is null"
+              },
+              "bbox": {
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "additionalProperties": false,
+                "required": [
+                  "page",
+                  "x",
+                  "y",
+                  "w",
+                  "h"
+                ],
+                "properties": {
+                  "page": {
+                    "type": "integer",
+                    "description": "1-based page index"
+                  },
+                  "x": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "y": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "w": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  },
+                  "h": {
+                    "type": "number",
+                    "description": "normalized 0..1 of rendered page"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "invoice",
+        "credit_memo",
+        "statement",
+        "other"
+      ]
+    },
+    "multiple_invoices_detected": {
+      "type": "boolean"
+    }
+  }
+}
