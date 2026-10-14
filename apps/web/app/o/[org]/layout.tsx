@@ -47,6 +47,8 @@ export default async function OrgLayout({
       orgs={context.orgs}
       exceptionsCount={count ?? 0}
       version={workflowVersion()}
+      showVendors={false}
+      showSettings={false}
     >
       {children}
     </AppShell>

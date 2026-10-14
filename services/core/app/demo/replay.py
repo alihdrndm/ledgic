@@ -45,6 +45,20 @@ UNLISTED_VENDOR_KEY = "unlisted"
 LIVE_WINDOW = timedelta(minutes=10)
 DOCS_PER_DAY = 180
 
+# Set while /v1/admin/reset-demo purges and rebuilds the org. Scheduled ticks stop releasing documents
+# so they cannot race the purge (a tick that persisted today's POs before the purge would otherwise
+# release every document against deleted POs → all "No PO found").
+_reset_in_progress = False
+
+
+def set_reset_in_progress(value: bool) -> None:
+    global _reset_in_progress
+    _reset_in_progress = value
+
+
+def reset_in_progress() -> bool:
+    return _reset_in_progress
+
 
 def local_today(now: datetime | None = None) -> date:
     return (now or datetime.now(UTC)).astimezone(TZ).date()
@@ -482,6 +496,7 @@ async def tick(
     on_live: Callable[[], None] | None = None,
     n: int = DOCS_PER_DAY,
     version: str = "v1",
+    respect_reset: bool = False,
 ) -> ReplayStats:
     """Release every planned doc of today due by `now` that is not in the database yet; docs within
     `live_window` go to the worker, older ones are processed synchronously (catch-up). Then simulated
@@ -496,8 +511,15 @@ async def tick(
         await refresh_unlisted_vendor(conn, cat)
         await persist_masters(conn, org_id, schedule_for(today, n))
     for d in docs:
+        if respect_reset and reset_in_progress():
+            log.info("replay tick stopped: demo reset in progress")
+            return stats
         live = (now - d.release_at) <= live_window
         try:
+            if d.po:  # idempotent; re-assert in case the org was purged since the tick started
+                async with connection() as conn, conn.transaction():
+                    if not await val(conn, "select 1 from documents where id = %s", (d.document_id,)):
+                        await persist_masters(conn, org_id, [d])
             rel = await release_doc(d, org_id=org_id, render=render, live=live, workflow_version=version)
         except Exception as e:
             log.warning("release of %s failed: %s", d.key, e)

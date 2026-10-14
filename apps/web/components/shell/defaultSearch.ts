@@ -70,7 +70,7 @@ export function makeDefaultSearch(orgId: string, orgSlug: string): PaletteSearch
           id: r.id,
           title: r.display_name,
           meta: r.category ?? undefined,
-          href: `${base}/vendors/${r.id}`,
+          href: `${base}/invoices?vendor=${r.id}`,
         })),
       },
       {

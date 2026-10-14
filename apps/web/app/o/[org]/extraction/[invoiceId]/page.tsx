@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getSessionContext } from "@/lib/supabase/session";
-import { getExtractionStats, getInvoiceDetail, getReviewQueue, pageImagePath, signedDocumentUrl } from "@/lib/queries/extraction";
+import { getExtractionStats, getInvoiceDetail, getReviewQueue, pageImagePath, poOnFile, signedDocumentUrl } from "@/lib/queries/extraction";
 import { ExtractionReview } from "@/components/extraction/ExtractionReview";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,11 @@ export default async function ExtractionItem({ params }: { params: Promise<{ org
   const [invoice, queue, stats] = await Promise.all([getInvoiceDetail(orgId, invoiceId), getReviewQueue(orgId), getExtractionStats(orgId)]);
   if (!invoice) notFound();
   const img = pageImagePath(invoice);
-  const imageUrl = img ? await signedDocumentUrl(img.path) : null;
+  const poRef = invoice.fields?.po_reference?.value ?? invoice.po_number;
+  const [imageUrl, poExists] = await Promise.all([
+    img ? signedDocumentUrl(img.path) : Promise.resolve(null),
+    invoice.po_id ? Promise.resolve(true) : poOnFile(orgId, poRef == null ? null : String(poRef)),
+  ]);
   return (
     <ExtractionReview
       orgSlug={session.context.org.slug}
@@ -31,6 +35,7 @@ export default async function ExtractionItem({ params }: { params: Promise<{ org
       imageUrl={imageUrl}
       imageKind={img?.kind ?? null}
       inQueue={queue.some((q) => q.invoice_id === invoiceId)}
+      poExists={poExists}
     />
   );
 }

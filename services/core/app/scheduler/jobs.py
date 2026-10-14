@@ -96,7 +96,11 @@ class Scheduler:
 
         if not await replay.demo_org_exists():
             return "no demo org"
-        stats = await replay.tick(on_live=self.on_live_docs, version=self.settings.orchestrator_version)
+        if replay.reset_in_progress():
+            return "demo reset in progress"
+        stats = await replay.tick(
+            on_live=self.on_live_docs, version=self.settings.orchestrator_version, respect_reset=True
+        )
         return {"dropped": len(stats.dropped), "decided": stats.decided}
 
     async def _nightly(self) -> Any:

@@ -76,7 +76,7 @@ export async function searchOrg(orgId: string, orgSlug: string, query: string): 
         id: r.id,
         title: r.display_name,
         meta: r.category ?? undefined,
-        href: `${base}/vendors/${r.id}`,
+        href: `${base}/invoices?vendor=${r.id}`,
       })),
     },
     {

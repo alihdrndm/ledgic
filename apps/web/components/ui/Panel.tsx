@@ -24,7 +24,10 @@ export function Panel({ label, meta, footer, width, className, children, style, 
         <h2 className="section-label section-header-title">{label}</h2>
         {meta ? <span className="meta">{meta}</span> : null}
       </header>
-      <div className="panel-body">{children}</div>
+      {/* Focusable so keyboard users can scroll it (axe scrollable-region-focusable). */}
+      <div className="panel-body" tabIndex={0}>
+        {children}
+      </div>
       {footer ? <footer className="panel-footer meta">{footer}</footer> : null}
     </section>
   );

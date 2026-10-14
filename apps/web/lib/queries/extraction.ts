@@ -193,6 +193,15 @@ export async function getExtractionStats(orgId: string): Promise<ExtractionStats
   };
 }
 
+/** Whether a purchase order with this number exists for the org (the review happens before enrichment links it). */
+export async function poOnFile(orgId: string, poNumber: string | null | undefined): Promise<boolean> {
+  const n = (poNumber ?? "").trim();
+  if (!n) return false;
+  const db = await untypedClient();
+  const { data } = await db.from("purchase_orders").select("id").eq("org_id", orgId).eq("po_number", n).limit(1);
+  return Array.isArray(data) && data.length > 0;
+}
+
 /** Storage path of the rendered page image (preprocessing.pages[n-1]) or the original image. */
 export function pageImagePath(d: InvoiceDetail, page = 1): { path: string; kind: "image" | "pdf" } | null {
   const pages = d.preprocessing?.pages;

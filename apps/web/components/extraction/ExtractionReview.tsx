@@ -24,6 +24,8 @@ export interface ExtractionReviewProps {
   imageKind: "image" | "pdf" | null;
   /** False when the invoice is no longer waiting for review (already confirmed). */
   inQueue: boolean;
+  /** The referenced PO exists in the org's purchase orders (before enrichment links it). */
+  poExists?: boolean;
 }
 
 type LineKey = "qty" | "unit_price" | "amount" | "description";
@@ -143,7 +145,7 @@ export function ExtractionReview(props: ExtractionReviewProps) {
   );
 }
 
-function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, imageKind, inQueue }: ExtractionReviewProps) {
+function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, imageKind, inQueue, poExists = false }: ExtractionReviewProps) {
   const { org, role } = useShell();
   const router = useRouter();
   const { toast } = useToast();
@@ -203,7 +205,9 @@ function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, 
     const out: Flag[] = [];
     for (const [name, f] of Object.entries(fields)) {
       const c = dec(f.confidence);
-      if (c && c.lt(floor) && f.source !== "human") {
+      // An optional field absent from the document (e.g. no freight line) has no value to confirm.
+      const absent = f.value === null || f.value === undefined || f.value === "";
+      if (c && c.lt(floor) && f.source !== "human" && !absent) {
         out.push({ id: `h:${name}`, label: FIELD_LABEL[name] ?? name.replace(/_/g, " "), conf: c, bbox: f.bbox ?? null, field: name });
       }
     }
@@ -501,7 +505,7 @@ function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, 
       ids: [`h:${poName}`],
       display: headerValue(poName, inv.po_number) ?? "—",
       conf: dec(fields[poName]?.confidence),
-      note: inv.po_id ? "exists" : "not found",
+      note: inv.po_id || poExists ? "exists" : "not found",
       bbox: fields[poName]?.bbox,
     },
     {

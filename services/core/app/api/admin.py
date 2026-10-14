@@ -147,6 +147,38 @@ async def seed_master(org_id: str) -> dict[str, Any]:
 _reset_task: asyncio.Task[Any] | None = None
 
 
+async def _restore_kb_and_token(org: str) -> dict[str, Any]:
+    """Re-index the knowledge base and re-mint the public MCP demo token after a purge."""
+    out: dict[str, Any] = {}
+    try:
+        from app.ai.rag.index import index_kb
+
+        stats = await index_kb(org)
+        out["kb_documents"], out["kb_chunks"] = stats.documents, stats.chunks
+    except Exception as e:
+        log.exception("reset-demo: KB re-index failed")
+        out["kb_error"] = str(e)
+    try:
+        from app.mcp.auth import ensure_demo_token
+
+        out["mcp_demo_token"] = bool(await ensure_demo_token())
+    except Exception as e:
+        log.exception("reset-demo: MCP demo token re-mint failed")
+        out["mcp_token_error"] = str(e)
+    return out
+
+
+async def _precompute_copilot(org: str) -> None:
+    """Cached answers for the suggested questions, once today's data (heroes) exists."""
+    try:
+        from app.ai.copilot import SUGGESTED_QUESTIONS, ask, cache_put
+
+        for q in SUGGESTED_QUESTIONS:
+            await cache_put(org, q, await ask(org, q, use_cache=False))
+    except Exception:
+        log.exception("reset-demo: copilot cache precompute failed")
+
+
 @router.post("/v1/admin/reset-demo")
 async def reset_demo(body: ResetBody, _: Principal = Depends(service_only)) -> Any:
     """Purge the demo org, reseed master data, then backfill history + today in the background."""
@@ -154,11 +186,20 @@ async def reset_demo(body: ResetBody, _: Principal = Depends(service_only)) -> A
     org = _demo_only(body.org_id)
     if _reset_task is not None and not _reset_task.done():
         raise ApiError("CONFLICT", "A reset is already running")
+    from app.demo import replay as _replay
+
+    _replay.set_reset_in_progress(True)
     purged: dict[str, Any] = {}
-    async with connection() as conn, conn.transaction():
-        if await val(conn, "select 1 from orgs where id = %s", (org,)):
-            purged = await val(conn, "select public.demo_purge_org(%s) as r", (org,)) or {}
-    seeded = await seed_master(org)
+    try:
+        async with connection() as conn, conn.transaction():
+            if await val(conn, "select 1 from orgs where id = %s", (org,)):
+                purged = await val(conn, "select public.demo_purge_org(%s) as r", (org,)) or {}
+        seeded = await seed_master(org)
+    except BaseException:
+        _replay.set_reset_in_progress(False)
+        raise
+    # The purge cascades the org's KB (kb_documents/kb_chunks), copilot cache and MCP tokens: restore them.
+    seeded["kb"] = await _restore_kb_and_token(org)
 
     async def _history() -> None:
         from app.demo import backfill
@@ -167,8 +208,11 @@ async def reset_demo(body: ResetBody, _: Principal = Depends(service_only)) -> A
             if body.backfill_days > 0:
                 await backfill.backfill(body.backfill_days, org_id=org, progress=False)
             await backfill.seed_today(org_id=org)
+            await _precompute_copilot(org)
         except Exception:
             log.exception("reset-demo history failed")
+        finally:
+            _replay.set_reset_in_progress(False)
 
     _reset_task = asyncio.create_task(_history(), name="ledgic-reset-demo")
     return ok(

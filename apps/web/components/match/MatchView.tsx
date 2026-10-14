@@ -140,7 +140,7 @@ function MatchViewInner({ orgSlug, invoice: inv, match, workflowVersion, degrade
       </div>
 
       <div className="mt-body">
-        <section className="mt-compare" aria-label="Line-level comparison">
+        <section className="mt-compare" aria-label="Line-level comparison" tabIndex={0}>
           <SectionHeader label="Line-level comparison" meta={`Auto-approve within ${pctLabel} or ${absLabel}, whichever is lower`} rule={false} />
           <MatchTable lines={lines} invoiceTotal={inv.total} poTotal={inv.po_total ?? head?.expected_total} />
           <div className="mt-tolerance">

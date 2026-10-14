@@ -163,11 +163,11 @@ export const SourceViewer = forwardRef<SourceViewerHandle, { src: string | null;
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
         onDoubleClick={() => setView(fit())}
-        role="img"
-        aria-label={`${alt}. Scroll to zoom, drag to pan, double-click to fit.`}
       >
         <div
           className="ex-viewer-layer"
+          role="img"
+          aria-label={`${alt}. Scroll to zoom, drag to pan, double-click to fit.`}
           style={{ width: base.w, height: base.h, transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.s})` }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- signed, short-lived Storage URL; next/image can't optimize it */}
