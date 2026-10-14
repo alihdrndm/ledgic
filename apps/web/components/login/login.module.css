@@ -1,0 +1,119 @@
+/* /login — split ink/ground layout (03-screens §7.1). Mobile-first: stacked, 180px ink panel. */
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.brand {
+  background: var(--color-text);
+  color: var(--color-bg);
+  height: 180px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-6);
+  box-sizing: border-box;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+.wordmark svg { flex: none; display: block; }
+
+.tagline {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--color-bg);
+  max-width: 30em;
+}
+
+.formSide {
+  flex: 1;
+  display: flex;
+  padding: var(--space-8) var(--space-6);
+}
+.formCol {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.block { display: flex; flex-direction: column; gap: var(--space-2); }
+.blockLabel { margin: 0 0 var(--space-2); }
+.input { width: 100%; min-height: 44px; box-sizing: border-box; }
+.tall { min-height: 44px; }
+
+.note { margin: 0; font-size: 12px; color: var(--color-neutral-700); }
+.status { margin: 0; min-height: 1.5em; font-size: 12.5px; color: var(--color-text); }
+.error {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--color-text);
+  border-left: 3px solid var(--color-text);
+  padding-left: var(--space-3);
+}
+.status:empty, .error:empty { border: 0; padding: 0; }
+
+.signedIn { margin: 0; font-size: 12.5px; color: var(--color-neutral-700); }
+
+.rule {
+  border: 0;
+  border-top: 2px solid var(--color-divider);
+  margin: 0;
+  width: 100%;
+}
+
+.demoTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 17px;
+}
+.demoText { margin: 0 0 var(--space-2); font-size: 13px; }
+.demoActions { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.footer {
+  margin-top: auto;
+  padding-top: var(--space-6);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: 11.5px;
+  color: var(--color-neutral-700);
+}
+
+/* Links in chrome are ink, never accent (02-design-system §3). */
+.inkLink { color: var(--color-text); text-decoration: underline; text-underline-offset: 2px; }
+.inkLink:hover { color: var(--color-text); text-decoration-thickness: 2px; }
+
+@media (min-width: 900px) {
+  .page { flex-direction: row; }
+  .brand {
+    width: 50%;
+    height: auto;
+    min-height: 100vh;
+    padding: 0 var(--space-8) 0 calc(var(--space-8) * 2);
+    gap: var(--space-4);
+  }
+  .tagline { font-size: 20px; }
+  .formSide {
+    width: 50%;
+    align-items: center;
+    padding: var(--space-8) calc(var(--space-8) * 2);
+  }
+}

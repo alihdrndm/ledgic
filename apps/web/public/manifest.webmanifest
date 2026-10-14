@@ -1,0 +1,15 @@
+{
+  "name": "Ledgic Capture",
+  "short_name": "Ledgic",
+  "description": "Photograph paper invoices at the dock and send them to the AP pipeline.",
+  "start_url": "/capture",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f2f2",
+  "theme_color": "#201e1d",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
