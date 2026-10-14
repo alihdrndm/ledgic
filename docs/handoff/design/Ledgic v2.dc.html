@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/modernist-7c6b3c48-83b9-405b-81c4-8179f5abe620/styles.css">
+<script src="_ds/modernist-7c6b3c48-83b9-405b-81c4-8179f5abe620/_ds_bundle.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#d9d7d7;font-variant-numeric:tabular-nums}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent)}
+</style>
+</helmet>
+
+<div style="max-width:1720px;margin:0 auto;padding:40px 56px 96px;display:flex;flex-direction:column;gap:56px">
+
+<div style="width:1600px;background:var(--color-bg);border:2px solid var(--color-divider);padding:24px 28px">
+  <div style="font-family:var(--font-heading);font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase">Ledgic — AP automation console · rebuild</div>
+  <div style="font-size:12.5px;color:var(--color-neutral-700);max-width:1000px;line-height:1.6;margin-top:8px">Five product screens, no cover poster, no architecture diagram. Modernist: paper ground, Archivo, 2px rules, zero radius. <strong style="color:var(--color-text)">Red is reserved for exceptions and money at risk</strong> — never for brand chrome or primary actions, which stay ink on paper. Demo tenant and generic vendor categories are labeled as sample data in the app chrome; performance figures are marked as modeled targets, and the only cited outside number is the public manual-processing baseline.</div>
+</div>
+
+<!-- ══════════ 01 · PIPELINE ══════════ -->
+<div data-screen-label="01-pipeline" style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#565252">01-pipeline.png · 1600×1000</div>
+<div style="width:1600px;height:1000px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;box-shadow:var(--shadow-lg)">
+  <!-- rail -->
+  <div style="width:64px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;padding:14px 0">
+    <svg width="24" height="20" viewBox="0 0 24 20"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-text)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+    <div style="width:36px;height:36px;margin-top:22px;display:grid;place-items:center;background:var(--color-text);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h5a2 2 0 0 1 2 2V14"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6v18h12V7z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h10l-3-3M20 19H10l3 3"></path><path d="M4 5v6M20 19v-6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 1.5 21h21z"></path><path d="M12 10v4M12 17.5v.5"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></div>
+    <div style="margin-top:auto;font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;color:var(--color-neutral-700);writing-mode:vertical-rl">v14</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <!-- top bar -->
+    <div style="height:56px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:18px;padding:0 24px">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:17px">Pipeline</span>
+      <span style="font-size:12.5px;color:var(--color-neutral-700)">ap-invoice-pipeline</span>
+      <span style="display:flex;align-items:center;gap:7px;font-size:12px;border-left:1px solid var(--color-divider);padding-left:18px;white-space:nowrap"><span style="width:8px;height:8px;background:var(--color-text)"></span>running · last run 09:41:23</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--color-divider);padding:6px 12px;font-size:12px;color:var(--color-neutral-700)">Search invoices, vendors<span style="border:1px solid var(--color-divider);padding:0 5px;font-size:10px">⌘K</span></div>
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:3px 8px">Demo · sample data</span>
+        <span style="font-size:12.5px;color:var(--color-neutral-700)">Northside Group</span>
+        <span style="width:28px;height:28px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:11px">EM</span>
+      </div>
+    </div>
+    <!-- attrition ledger -->
+    <div style="flex:none;border-bottom:2px solid var(--color-divider);padding:18px 24px 20px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Today · volume through the pipeline</span><span style="font-size:11.5px;color:var(--color-neutral-700)">orchestrated with n8n + LLM extraction layer · retries and dead-letter on every node</span></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:14px;align-items:end;height:74px">
+        <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">214</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:100%;background:var(--color-text)"></div></div></div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">209</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:97%;background:var(--color-text)"></div></div></div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">198</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:92%;background:var(--color-text)"></div></div></div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">152</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:71%;background:var(--color-text)"></div></div></div>
+        <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1;color:var(--color-accent)">41</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:19%;background:var(--color-accent)"></div></div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:7px;font-size:11px;color:var(--color-neutral-700)">
+        <span>received</span><span>extracted above gate</span><span>enriched, PO linked</span><span>matched clean → ERP</span><span style="color:var(--color-accent-700)">routed to people</span>
+      </div>
+    </div>
+    <!-- stage columns + inspector -->
+    <div style="flex:1;display:flex;min-height:0">
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0"><div style="display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid var(--color-divider)">
+        <!-- 1 intake -->
+        <div style="border-right:1px solid var(--color-divider);padding:16px 18px;display:flex;flex-direction:column">
+          <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">01 Intake</div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Email PDFs</span><span style="font-family:var(--font-heading);font-weight:800">126</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Photo OCR</span><span style="font-family:var(--font-heading);font-weight:800">38</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Vendor portals</span><span style="font-family:var(--font-heading);font-weight:800">29</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>EDI 810</span><span style="font-family:var(--font-heading);font-weight:800">21</span></div>
+          <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-700);line-height:1.5">IMAP polled every 60s · portal scrapes on schedule · every file hashed and stored before parsing.</div>
+        </div>
+        <!-- 2 extraction -->
+        <div style="border-right:1px solid var(--color-divider);padding:16px 18px;display:flex;flex-direction:column">
+          <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">02 Extraction</div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Auto-passed</span><span style="font-family:var(--font-heading);font-weight:800">209</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px;background:var(--color-accent-100);margin:0 -18px;padding-left:18px;padding-right:18px"><span style="color:var(--color-accent-800)">Below gate → review</span><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700)">5</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Median time</span><span style="font-family:var(--font-heading);font-weight:800">11.8s</span></div>
+          <div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:12px;line-height:1.6">Confidence gate at <strong style="color:var(--color-text)">0.90</strong>. Every field carries a score; anything under the gate goes to a person before it moves.</div>
+          <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-700)">model extraction-v14 · prompt p-38</div>
+        </div>
+        <!-- 3 enrichment -->
+        <div style="border-right:1px solid var(--color-divider);padding:16px 18px;display:flex;flex-direction:column">
+          <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">03 Enrichment</div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Vendor resolved</span><span style="font-family:var(--font-heading);font-weight:800">214</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>PO linked</span><span style="font-family:var(--font-heading);font-weight:800">198</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>GL predicted</span><span style="font-family:var(--font-heading);font-weight:800">214</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Duplicate screen</span><span style="font-family:var(--font-heading);font-weight:800">214</span></div>
+          <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-700);line-height:1.5">Entity and location coding applied here, so the ERP write needs no manual touch.</div>
+        </div>
+        <!-- 4 match -->
+        <div style="border-right:1px solid var(--color-divider);padding:16px 18px;display:flex;flex-direction:column">
+          <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">04 Three-way match</div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Clean</span><span style="font-family:var(--font-heading);font-weight:800">152</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px;background:var(--color-accent-100);margin:0 -18px;padding-left:18px;padding-right:18px"><span style="color:var(--color-accent-800)">Price variance</span><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700)">24</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Quantity mismatch</span><span style="font-family:var(--font-heading);font-weight:800">9</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>No PO found</span><span style="font-family:var(--font-heading);font-weight:800">8</span></div>
+          <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-700);line-height:1.5">Tolerance: auto-approve within ±2% or $25, whichever is lower.</div>
+        </div>
+        <!-- 5 post -->
+        <div style="padding:16px 18px;display:flex;flex-direction:column">
+          <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">05 Approve + post</div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px;background:var(--color-accent-100);margin:0 -18px;padding-left:18px;padding-right:18px"><span style="color:var(--color-accent-800)">Awaiting a person</span><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700)">41</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Posted · QuickBooks</span><span style="font-family:var(--font-heading);font-weight:800">104</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Posted · NetSuite</span><span style="font-family:var(--font-heading);font-weight:800">48</span></div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Slack digest</span><span style="font-size:11.5px;color:var(--color-neutral-700)">09:30 sent</span></div>
+          <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-700);line-height:1.5">Nothing posts without entity + location + GL coding attached.</div>
+        </div>
+        </div>
+        <div style="flex:1;min-height:0;padding:16px 18px 0;display:flex;flex-direction:column">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Recent runs</span><span style="font-size:11.5px;color:var(--color-neutral-700)">Last 9 of 214 today · newest first</span></div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:10px">
+            <thead><tr><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Time</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Vendor</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Invoice</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Location</th><th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Amount</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Stage</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Status</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:41:23</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Broadline Distributor</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">BD-104882</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Bayside</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$1,982.47</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Posted</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:40:58</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Janitorial Services</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">JS-3310</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Riverside</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$742.00</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Posted</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:40:12</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Protein Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">PS-88214</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Riverside</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$2,847.60</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Match</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:600">Price variance</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:39:44</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Broadline Distributor</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">BD-104881</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Lakeshore</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$3,104.19</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Posted</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:38:51</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Produce Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">PR-2214</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Riverside</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$491.60</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Extraction</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:600">Below gate</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:38:07</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Equipment Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">ES-7740</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Lakeshore</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$612.18</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Match</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:600">No PO found</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:37:33</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Broadline Distributor</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">BD-104880</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Commissary</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$888.24</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Posted</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:36:50</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Janitorial Services</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">JS-3309</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Bayside</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$742.00</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Posted</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:36:02</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Protein Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">PS-88209</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Old Mill</td><td style="text-align:right;padding:7px 10px;border-bottom:1px solid var(--color-divider)">$1,266.85</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">Posted</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- inspector -->
+      <div style="width:392px;flex:none;border-left:2px solid var(--color-divider);display:flex;flex-direction:column">
+        <div style="padding:14px 20px;border-bottom:2px solid var(--color-divider);display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Run inspector</span><span style="font-size:11.5px;color:var(--color-neutral-700)">run 88,412</span></div>
+        <div style="padding:16px 20px;border-bottom:1px solid var(--color-divider)">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:16px">Broadline Distributor</div>
+          <div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:3px">BD-104882 · $1,982.47 · Bayside</div>
+          <div style="display:flex;gap:8px;margin-top:10px"><span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--color-text);color:var(--color-bg);padding:3px 8px">Touchless</span><span style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--color-divider);padding:2px 8px">16s end to end</span></div>
+        </div>
+        <div style="flex:1;padding:4px 20px;overflow:hidden">
+          <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-divider)"><span style="width:62px;flex:none;font-family:var(--font-heading);font-weight:800;font-size:12px">09:41:07</span><span style="font-size:12px;line-height:1.5"><strong>Received</strong> — email PDF, 2 pages<br><span style="color:var(--color-neutral-700)">ap@northsidegroup.example · SHA-256 stored</span></span></div>
+          <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-divider)"><span style="width:62px;flex:none;font-family:var(--font-heading);font-weight:800;font-size:12px">09:41:19</span><span style="font-size:12px;line-height:1.5"><strong>Extracted</strong> — 14 line items, conf 0.97<br><span style="color:var(--color-neutral-700)">every field above the 0.90 gate</span></span></div>
+          <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-divider)"><span style="width:62px;flex:none;font-family:var(--font-heading);font-weight:800;font-size:12px">09:41:20</span><span style="font-size:12px;line-height:1.5"><strong>Matched</strong> — PO-BS-2041, GRN-BS-5518<br><span style="color:var(--color-neutral-700)">14 of 14 lines within tolerance</span></span></div>
+          <div style="display:flex;gap:14px;padding:12px 0"><span style="width:62px;flex:none;font-family:var(--font-heading);font-weight:800;font-size:12px">09:41:23</span><span style="font-size:12px;line-height:1.5"><strong>Posted</strong> — QuickBooks, JE 18,240<br><span style="color:var(--color-neutral-700)">Entity 2 · loc BS · GL 5000 COGS-Food</span></span></div>
+        </div>
+        <div style="padding:14px 20px;border-top:2px solid var(--color-divider);font-size:11.5px;color:var(--color-neutral-700);line-height:1.5">No person opened this invoice. The 41 that needed one are in the exception queue.</div>
+      </div>
+    </div>
+    <!-- status bar -->
+    <div style="height:34px;flex:none;border-top:2px solid var(--color-divider);display:flex;align-items:center;gap:22px;padding:0 24px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)">
+      <span>Last run 09:41:23</span><span>214 runs today</span><span>Dead-letter queue 0</span><span style="margin-left:auto">v14</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 02 · EXTRACTION REVIEW ══════════ -->
+<div data-screen-label="02-extraction" style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#565252">02-extraction.png · 1600×1000</div>
+<div style="width:1600px;height:1000px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;box-shadow:var(--shadow-lg)">
+  <div style="width:64px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;padding:14px 0">
+    <svg width="24" height="20" viewBox="0 0 24 20"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-text)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+    <div style="width:36px;height:36px;margin-top:22px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h5a2 2 0 0 1 2 2V14"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;background:var(--color-text);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6v18h12V7z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h10l-3-3M20 19H10l3 3"></path><path d="M4 5v6M20 19v-6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 1.5 21h21z"></path><path d="M12 10v4M12 17.5v.5"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <div style="height:56px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:18px;padding:0 24px">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:17px;white-space:nowrap">Extraction review</span>
+      <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">5 of 214 documents need a person today</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--color-divider);padding:6px 12px;font-size:12px;color:var(--color-neutral-700);white-space:nowrap">Search invoices, vendors<span style="border:1px solid var(--color-divider);padding:0 5px;font-size:10px">⌘K</span></div>
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:3px 8px;white-space:nowrap">Demo · sample data</span>
+        <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">Northside Group</span>
+        <span style="width:28px;height:28px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:11px">EM</span>
+      </div>
+    </div>
+    <!-- stats rule -->
+    <div style="flex:none;border-bottom:2px solid var(--color-divider);display:grid;grid-template-columns:repeat(4,1fr)">
+      <div style="padding:14px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Field accuracy, sampled</div><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-top:3px">96.4%</div></div>
+      <div style="padding:14px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Auto-passed today</div><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-top:3px">209 / 214</div></div>
+      <div style="padding:14px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Median extraction</div><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-top:3px">11.8s</div></div>
+      <div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Queue position</div><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;margin-top:3px">3 of 5</div></div><div style="display:flex;gap:6px"><span style="width:30px;height:30px;border:1px solid var(--color-divider);display:grid;place-items:center;font-size:13px">‹</span><span style="width:30px;height:30px;border:1px solid var(--color-divider);display:grid;place-items:center;font-size:13px">›</span></div></div>
+    </div>
+    <div style="flex:1;display:flex;min-height:0">
+      <!-- source document -->
+      <div style="width:600px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;background:var(--color-neutral-200)">
+        <div style="padding:12px 20px;border-bottom:1px solid var(--color-divider);display:flex;justify-content:space-between;font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Source · dock photo</span><span>IMG_4187 · Riverside · 09:12:44</span></div>
+        <div style="flex:1;display:grid;place-items:center;padding:22px">
+          <div class="grayscale" style="width:470px;background:#fff;border:1px solid var(--color-neutral-400);padding:28px 32px;font-size:12px;line-height:1.5;position:relative">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <div><div style="font-family:var(--font-heading);font-weight:800;font-size:17px;letter-spacing:.02em">PRODUCE SUPPLIER</div><div style="font-size:10px;letter-spacing:.14em;color:#666">REGIONAL · DIRECT DELIVERY</div></div>
+              <div style="text-align:right;font-size:11px">INVOICE <strong>PR-2214</strong><br>07/12/2026 · NET 14</div>
+            </div>
+            <div style="height:1px;background:#999;margin:13px 0 10px"></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px"><span>SOLD TO: Northside Group — Riverside<br>Site 12</span><span style="text-align:right">PO REF: PO-RS-1866<br>DELIVERED BY: route 4</span></div>
+            <table style="width:100%;border-collapse:collapse;margin-top:14px;font-size:11px">
+              <tbody>
+                <tr style="border-bottom:1px solid #999"><td style="padding:4px 0;font-weight:700">ITEM</td><td style="font-weight:700">QTY</td><td style="font-weight:700">UNIT</td><td style="text-align:right;font-weight:700">AMOUNT</td></tr>
+                <tr><td style="padding:5px 0">Romaine hearts 24ct</td><td>6</td><td>18.40</td><td style="text-align:right">110.40</td></tr>
+                <tr><td style="padding:5px 0">Heirloom tomato 10lb</td><td style="background:rgba(236,48,19,.18);outline:2px solid var(--color-accent)"><span style="filter:blur(1.1px)">4</span></td><td>31.25</td><td style="text-align:right">125.00</td></tr>
+                <tr><td style="padding:5px 0">Lemons 115ct case</td><td>3</td><td>42.80</td><td style="text-align:right">128.40</td></tr>
+                <tr><td style="padding:5px 0">Shallots 5lb bag</td><td>4</td><td>19.90</td><td style="text-align:right">79.60</td></tr>
+                <tr><td style="padding:5px 0">Flat-leaf parsley 60ct</td><td>2</td><td>24.10</td><td style="text-align:right">48.20</td></tr>
+                <tr style="border-top:1px solid #999"><td style="padding:6px 0;font-weight:800" colspan="3">TOTAL</td><td style="text-align:right;font-weight:800">491.60</td></tr>
+              </tbody>
+            </table>
+            <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:flex-end"><span style="font-size:10px;color:#666">Received in good order:</span><svg width="110" height="26" viewBox="0 0 110 26"><path d="M5 19 C16 3 23 23 34 10 C41 3 47 19 60 12 C73 5 80 21 104 8" stroke="#333" stroke-width="1.5" fill="none"></path></svg></div>
+          </div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--color-divider);font-size:11.5px;color:var(--color-neutral-700)">Skew corrected +2.0°, perspective normalized. The outlined region is the field awaiting confirmation.</div>
+      </div>
+      <!-- extracted -->
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0;padding:18px 24px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Extracted fields</span><span style="font-size:11.5px;color:var(--color-accent-700);white-space:nowrap">Document confidence 0.88 — below the 0.90 gate</span></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--color-divider);margin-top:12px">
+          <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Vendor</div><div style="font-size:12.5px;font-weight:600;margin-top:3px;white-space:nowrap">Produce Supplier</div><div style="font-size:10.5px;color:var(--color-neutral-700)">conf 0.99</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Invoice</div><div style="font-size:12.5px;font-weight:600;margin-top:3px">PR-2214</div><div style="font-size:10.5px;color:var(--color-neutral-700)">conf 0.98</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Date · terms</div><div style="font-size:12.5px;font-weight:600;margin-top:3px;white-space:nowrap">Jul 12 · Net 14</div><div style="font-size:10.5px;color:var(--color-neutral-700)">conf 0.97</div></div>
+          <div style="padding:10px 12px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">PO reference</div><div style="font-size:12.5px;font-weight:600;margin-top:3px">PO-RS-1866</div><div style="font-size:10.5px;color:var(--color-neutral-700)">conf 0.96 · exists</div></div>
+          <div style="padding:10px 12px"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Total</div><div style="font-size:12.5px;font-weight:600;margin-top:3px">$491.60</div><div style="font-size:10.5px;color:var(--color-neutral-700)">conf 0.99 · sums</div></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:18px">
+          <thead><tr>
+            <th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Line item</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Qty</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Unit</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Extended</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Conf</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:9px 10px;border-bottom:1px solid var(--color-divider)">Romaine hearts 24ct</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">6</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$18.40</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$110.40</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">0.98</td></tr>
+            <tr style="background:var(--color-accent-100)"><td style="padding:9px 10px;border-bottom:1px solid var(--color-divider);border-left:3px solid var(--color-accent)"><strong>Heirloom tomato 10lb</strong><span style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-accent-800);border:1px solid var(--color-accent);padding:1px 7px;margin-left:9px">Qty unclear</span></td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:700">4 ?</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$31.25</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$125.00</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:700">0.71</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:1px solid var(--color-divider)">Lemons 115ct case</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">3</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$42.80</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$128.40</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">0.97</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:1px solid var(--color-divider)">Shallots 5lb bag</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">4</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$19.90</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$79.60</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">0.99</td></tr>
+            <tr><td style="padding:9px 10px;border-bottom:1px solid var(--color-divider)">Flat-leaf parsley 60ct</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">2</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$24.10</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider)">$48.20</td><td style="text-align:right;padding:9px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">0.96</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:18px;border:2px solid var(--color-accent);background:var(--color-accent-100);padding:14px 16px;display:flex;align-items:center;gap:18px">
+          <div style="flex:1"><div style="font-family:var(--font-heading);font-weight:800;font-size:13.5px;color:var(--color-accent-800)">One field needs confirmation — quantity, line 2</div><div style="font-size:12px;color:var(--color-accent-900);margin-top:3px;line-height:1.5">Model read <strong>4</strong> at confidence 0.71. Cross-check: $125.00 ÷ $31.25 unit = <strong>4.0</strong>, so the arithmetic agrees with the smudged digit.</div></div>
+          <span style="font-family:var(--font-heading);font-weight:800;font-size:12.5px;background:var(--color-text);color:var(--color-bg);padding:11px 18px;white-space:nowrap">Confirm 4 × $31.25</span>
+          <span style="font-size:12.5px;border:1px solid var(--color-text);padding:10px 18px;white-space:nowrap">Edit value</span>
+        </div>
+        <div style="margin-top:auto;padding-top:14px;border-top:1px solid var(--color-divider);display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700)"><span>On confirm: re-scored, enriched, then matched against PO-RS-1866</span><span>Every correction is logged with actor and timestamp</span></div>
+      </div>
+    </div>
+    <div style="height:34px;flex:none;border-top:2px solid var(--color-divider);display:flex;align-items:center;gap:22px;padding:0 24px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)">
+      <span>Autosaved 09:41:12</span><span>5 documents in queue</span><span style="margin-left:auto">v14</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 03 · THREE-WAY MATCH ══════════ -->
+<div data-screen-label="03-three-way-match" style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#565252">03-three-way-match.png · 1600×1000</div>
+<div style="width:1600px;height:1000px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;box-shadow:var(--shadow-lg)">
+  <div style="width:64px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;padding:14px 0">
+    <svg width="24" height="20" viewBox="0 0 24 20"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-text)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+    <div style="width:36px;height:36px;margin-top:22px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h5a2 2 0 0 1 2 2V14"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6v18h12V7z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;background:var(--color-text);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h10l-3-3M20 19H10l3 3"></path><path d="M4 5v6M20 19v-6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 1.5 21h21z"></path><path d="M12 10v4M12 17.5v.5"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <div style="height:56px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:18px;padding:0 24px">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:17px;white-space:nowrap">Three-way match</span>
+      <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">PS-88214 · Protein Supplier · Riverside</span>
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--color-accent-700);color:var(--color-bg);padding:4px 9px;white-space:nowrap">Price variance</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:3px 8px;white-space:nowrap">Demo · sample data</span>
+        <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">Northside Group</span>
+        <span style="width:28px;height:28px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:11px">EM</span>
+      </div>
+    </div>
+    <!-- document trio -->
+    <div style="flex:none;border-bottom:2px solid var(--color-divider);display:grid;grid-template-columns:repeat(3,1fr) 460px">
+      <div style="padding:14px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Invoice</div><div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-top:3px">PS-88214 · $2,847.60</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">Email PDF, Jul 13 09:41 · extraction conf 0.98</div></div>
+      <div style="padding:14px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Purchase order</div><div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-top:3px">PO-RS-1873 · $2,759.60</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">QuickBooks · contract pricing applied</div></div>
+      <div style="padding:14px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Goods receipt</div><div style="font-family:var(--font-heading);font-weight:800;font-size:17px;margin-top:3px">GRN-RS-4410 · in full</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:2px">Receiving app, Jul 12 18:22</div></div>
+      <div style="padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:var(--color-accent-100)"><div><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent-800)">Difference to purchase order</div><div style="font-family:var(--font-heading);font-weight:800;font-size:30px;color:var(--color-accent);line-height:1.1">+$88.00</div></div><div style="font-size:11.5px;color:var(--color-accent-900);text-align:right;line-height:1.5">one line of five<br>exceeds tolerance</div></div>
+    </div>
+    <div style="flex:1;display:flex;min-height:0">
+      <!-- verdict table -->
+      <div style="flex:1;min-width:0;padding:18px 24px;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Line-level comparison</span><span style="font-size:11.5px;color:var(--color-neutral-700)">Auto-approve within ±2% or $25, whichever is lower</span></div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px">
+          <thead><tr>
+            <th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Line item</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Invoice</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Purchase order</th>
+            <th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Receipt</th>
+            <th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px 8px 20px;border-bottom:2px solid var(--color-divider);width:210px">Verdict</th>
+          </tr></thead>
+          <tbody>
+            <tr style="background:var(--color-accent-100)">
+              <td style="padding:12px 10px;border-bottom:1px solid var(--color-divider);border-left:3px solid var(--color-accent)"><strong>Shrimp 16/20 IQF 2lb × 10</strong><br><span style="font-size:11px;color:var(--color-neutral-700)">200 lb total</span></td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)"><strong style="color:var(--color-accent-800)">$4.12/lb</strong><br>$824.00</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$3.68/lb<br>$736.00</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">200 lb ✓</td>
+              <td style="padding:12px 10px 12px 20px;border-bottom:1px solid var(--color-divider);white-space:nowrap"><span style="font-family:var(--font-heading);font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--color-accent-700);color:var(--color-bg);padding:2px 8px">Price variance</span><br><span style="color:var(--color-accent-800);font-size:11.5px;font-weight:600">+12.0% · $88.00 impact</span></td>
+            </tr>
+            <tr>
+              <td style="padding:12px 10px;border-bottom:1px solid var(--color-divider)">Cod loin 10lb case<br><span style="font-size:11px;color:var(--color-neutral-700)">ordered 12 · received 12 · invoiced 12</span></td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$68.40 · 12<br>$820.80</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$68.40 · 12<br>$820.80</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">12 ✓</td>
+              <td style="padding:12px 10px 12px 20px;border-bottom:1px solid var(--color-divider)">Matched<br><span style="font-size:11px;color:var(--color-neutral-700)">quantity verified against receipt</span></td>
+            </tr>
+            <tr>
+              <td style="padding:12px 10px;border-bottom:1px solid var(--color-divider)">Scallops U-10 dry 2lb</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$54.25 · 8<br>$434.00</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$54.25 · 8<br>$434.00</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">8 ✓</td>
+              <td style="padding:12px 10px 12px 20px;border-bottom:1px solid var(--color-divider)">Matched</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 10px;border-bottom:1px solid var(--color-divider)">Crab claw meat 5lb</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$71.90 · 6<br>$431.40</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">$71.90 · 6<br>$431.40</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:1px solid var(--color-divider)">6 ✓</td>
+              <td style="padding:12px 10px 12px 20px;border-bottom:1px solid var(--color-divider)">Matched</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 10px;border-bottom:2px solid var(--color-divider)">Oysters select 1gal</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:2px solid var(--color-divider)">$84.35 · 4<br>$337.40</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:2px solid var(--color-divider)">$84.35 · 4<br>$337.40</td>
+              <td style="text-align:right;padding:12px 10px;border-bottom:2px solid var(--color-divider)">4 ✓</td>
+              <td style="padding:12px 10px 12px 20px;border-bottom:2px solid var(--color-divider)">Matched</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 10px;font-family:var(--font-heading);font-weight:800">Totals</td>
+              <td style="text-align:right;padding:12px 10px;font-family:var(--font-heading);font-weight:800">$2,847.60</td>
+              <td style="text-align:right;padding:12px 10px;font-family:var(--font-heading);font-weight:800">$2,759.60</td>
+              <td style="text-align:right;padding:12px 10px;color:var(--color-neutral-700)">all received</td>
+              <td style="padding:12px 10px 12px 20px;color:var(--color-accent-800);font-weight:600">Δ $88.00</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;border:1px solid var(--color-divider);padding:12px 16px;display:flex;gap:22px;align-items:center;font-size:12px">
+          <span style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700);flex:none">Tolerance</span>
+          <span>Line 1 is <strong>+12.0%</strong> against a ±2% limit and <strong>$88.00</strong> against a $25 limit — it fails both, so the invoice holds for approval.</span>
+          <span style="margin-left:auto;color:var(--color-neutral-700);white-space:nowrap">4 of 5 lines auto-verified</span>
+        </div>
+        <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--color-divider);font-size:11px;color:var(--color-neutral-700);line-height:1.6">
+          <strong style="color:var(--color-text)">Provenance</strong> — invoice values from extraction-v14 (conf 0.98); purchase order from QuickBooks; receipt from the receiving app. Contract price of $3.68/lb comes from the vendor agreement on file, clause 4.2, in effect through Sep 2026.
+        </div>
+      </div>
+      <!-- decision rail -->
+      <div style="width:400px;flex:none;border-left:2px solid var(--color-divider);display:flex;flex-direction:column">
+        <div style="padding:14px 20px;border-bottom:2px solid var(--color-divider);font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Recommended action</div>
+        <div style="padding:18px 20px;border-bottom:1px solid var(--color-divider)">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:20px;line-height:1.2">Short-pay to contract price</div>
+          <div style="font-size:15px;margin-top:8px">Pay <strong>$2,759.60</strong>, hold <strong style="color:var(--color-accent-800)">$88.00</strong></div>
+          <div style="font-size:11px;color:var(--color-neutral-700);margin-top:6px">Recommendation confidence 0.94, from contract terms and payment history</div>
+        </div>
+        <div style="flex:1;padding:4px 20px;font-size:12px;line-height:1.55">
+          <div style="padding:11px 0;border-bottom:1px solid var(--color-divider)">The agreement on file fixes this item at <strong>$3.68/lb</strong> through September; the invoice bills $4.12.</div>
+          <div style="padding:11px 0;border-bottom:1px solid var(--color-divider)">The same variance appeared twice this quarter ($61.60 and $47.20). Both were short-paid and both were accepted.</div>
+          <div style="padding:11px 0;border-bottom:1px solid var(--color-divider)">Goods were received in full, so there is no quantity basis to dispute — only price.</div>
+          <div style="padding:11px 0">A vendor notice is drafted with the clause reference attached.</div>
+        </div>
+        <div style="padding:18px 20px;border-top:2px solid var(--color-divider)">
+          <div style="font-family:var(--font-heading);font-weight:800;font-size:13px;background:var(--color-text);color:var(--color-bg);padding:13px 16px">Short-pay $2,759.60 and notify vendor</div>
+          <div style="display:flex;gap:9px;margin-top:9px"><span style="flex:1;font-size:12.5px;border:1px solid var(--color-text);padding:11px 14px;text-align:left">Approve as-is</span><span style="flex:1;font-size:12.5px;border:1px solid var(--color-text);padding:11px 14px;text-align:left">Dispute</span></div>
+          <div style="font-size:11px;color:var(--color-neutral-700);margin-top:12px;line-height:1.5">The decision posts to QuickBooks and is written to the audit log with actor and timestamp. Impacts above $500 also notify the controller.</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:34px;flex:none;border-top:2px solid var(--color-divider);display:flex;align-items:center;gap:22px;padding:0 24px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)">
+      <span>Payment on hold</span><span>Matched in 0.4s</span><span style="margin-left:auto">v14</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 04 · EXCEPTIONS ══════════ -->
+<div data-screen-label="04-exceptions" style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#565252">04-exceptions.png · 1600×1000</div>
+<div style="width:1600px;height:1000px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;box-shadow:var(--shadow-lg)">
+  <div style="width:64px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;padding:14px 0">
+    <svg width="24" height="20" viewBox="0 0 24 20"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-text)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+    <div style="width:36px;height:36px;margin-top:22px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h5a2 2 0 0 1 2 2V14"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6v18h12V7z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h10l-3-3M20 19H10l3 3"></path><path d="M4 5v6M20 19v-6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;background:var(--color-text);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 1.5 21h21z"></path><path d="M12 10v4M12 17.5v.5"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <div style="height:56px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:18px;padding:0 24px">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:17px;white-space:nowrap">Exceptions</span>
+      <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">14 open · 41 raised today · 38 cleared</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:3px 8px;white-space:nowrap">Demo · sample data</span>
+        <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">Northside Group</span>
+        <span style="width:28px;height:28px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:11px">EM</span>
+      </div>
+    </div>
+    <div style="flex:1;display:flex;min-height:0">
+      <!-- queue -->
+      <div style="width:412px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column">
+        <div style="padding:12px 20px;border-bottom:2px solid var(--color-divider);display:flex;justify-content:space-between;font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Queue</span><span>Oldest first</span></div>
+        <div style="padding:8px 20px;background:var(--color-neutral-200);border-bottom:1px solid var(--color-divider);display:flex;justify-content:space-between;font-family:var(--font-heading);font-weight:800;font-size:11.5px;letter-spacing:.04em"><span>Price variance</span><span>7</span></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px"><div style="display:flex;justify-content:space-between"><strong>Protein Supplier · PS-88214</strong><span>$88.00</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Riverside · 2h · shrimp 12% over contract</div></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px"><div style="display:flex;justify-content:space-between"><span>Protein Supplier · PS-88251</span><span>$47.20</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Bayside · 1h · same item, same pattern</div></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px"><div style="display:flex;justify-content:space-between"><span>Equipment Supplier · ES-7731</span><span>$132.75</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Commissary · 4h · 6.1% over last paid, no contract</div></div>
+        <div style="padding:7px 20px;border-bottom:1px solid var(--color-divider);font-size:11px;color:var(--color-neutral-700)">4 more</div>
+        <div style="padding:8px 20px;background:var(--color-neutral-200);border-bottom:1px solid var(--color-divider);display:flex;justify-content:space-between;font-family:var(--font-heading);font-weight:800;font-size:11.5px;letter-spacing:.04em"><span>No purchase order</span><span>4</span></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px"><div style="display:flex;justify-content:space-between"><span>Equipment Supplier · ES-7740</span><span>$612.18</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Lakeshore · 6h · ordered without a PO</div></div>
+        <div style="padding:7px 20px;border-bottom:1px solid var(--color-divider);font-size:11px;color:var(--color-neutral-700)">3 more</div>
+        <div style="padding:8px 20px;background:var(--color-accent-100);border-bottom:1px solid var(--color-divider);display:flex;justify-content:space-between;font-family:var(--font-heading);font-weight:800;font-size:11.5px;letter-spacing:.04em;color:var(--color-accent-800)"><span>Suspected duplicate</span><span>2</span></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px;border-left:3px solid var(--color-accent);background:var(--color-neutral-100)"><div style="display:flex;justify-content:space-between"><strong>Produce Supplier · PR-2201 ×2</strong><span>$612.40</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Riverside · 18h · same amount and date, different file</div></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px"><div style="display:flex;justify-content:space-between"><span>Broadline Distributor · BD-104790 ×2</span><span>$1,204.88</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Bayside · 3h · EDI and portal copy collided</div></div>
+        <div style="padding:8px 20px;background:var(--color-accent-100);border-bottom:1px solid var(--color-divider);display:flex;justify-content:space-between;font-family:var(--font-heading);font-weight:800;font-size:11.5px;letter-spacing:.04em;color:var(--color-accent-800)"><span>New vendor screen</span><span>1</span></div>
+        <div style="padding:11px 20px;border-bottom:1px solid var(--color-divider);font-size:12.5px"><div style="display:flex;justify-content:space-between"><span>Unlisted Supplier · NV-0001</span><span>$2,214.85</span></div><div style="color:var(--color-neutral-700);font-size:11px;margin-top:2px">Commissary · 41m · bank details differ from file</div></div>
+        <div style="margin-top:auto;padding:12px 20px;border-top:2px solid var(--color-divider);font-size:11px;color:var(--color-neutral-700)">Anything untouched for 24 hours escalates to the controller.</div>
+      </div>
+      <!-- detail -->
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="padding:16px 24px;border-bottom:1px solid var(--color-divider);display:flex;align-items:baseline;gap:14px">
+          <span style="font-family:var(--font-heading);font-weight:800;font-size:18px;white-space:nowrap">Produce Supplier · PR-2201</span>
+          <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--color-accent-700);color:var(--color-bg);padding:3px 9px;white-space:nowrap">Duplicate · similarity 0.96</span>
+          <span style="margin-left:auto;font-size:11.5px;color:var(--color-neutral-700);white-space:nowrap">Payment blocked while held</span>
+        </div>
+        <div style="padding:18px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px;border-bottom:1px solid var(--color-divider)">
+          <div style="border:1px solid var(--color-divider);padding:14px 16px">
+            <div style="display:flex;justify-content:space-between;font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Copy A · emailed PDF</span><span>Jul 11 08:02</span></div>
+            <div style="display:flex;gap:14px;margin-top:12px;align-items:center">
+              <div style="width:52px;height:66px;border:1px solid var(--color-neutral-400);background:#fff;display:grid;place-items:center;font-size:9px;color:var(--color-neutral-700)">PDF</div>
+              <div style="font-size:12px;line-height:1.6">billing@producesupplier.example<br>Invoice date Jul 10 · <strong>$612.40</strong><br><span style="color:var(--color-neutral-700);font-size:11px">SHA-256 …a41f · extraction 0.98</span></div>
+            </div>
+          </div>
+          <div style="border:1px solid var(--color-divider);padding:14px 16px">
+            <div style="display:flex;justify-content:space-between;font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Copy B · dock photo</span><span>Jul 11 16:44</span></div>
+            <div style="display:flex;gap:14px;margin-top:12px;align-items:center">
+              <div style="width:52px;height:66px;border:1px solid var(--color-neutral-400);background:var(--color-neutral-200);display:grid;place-items:center;font-size:9px;color:var(--color-neutral-700)">HEIC</div>
+              <div style="font-size:12px;line-height:1.6">Uploaded by Riverside receiving<br>Invoice date Jul 10 · <strong>$612.40</strong><br><span style="color:var(--color-neutral-700);font-size:11px">SHA-256 …c890 · extraction 0.91</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 24px">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--color-divider);border-top:none">
+            <div style="padding:10px 14px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Invoice no.</div><div style="font-size:12px;margin-top:3px">Exact match</div></div>
+            <div style="padding:10px 14px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Amount</div><div style="font-size:12px;margin-top:3px">Exact match</div></div>
+            <div style="padding:10px 14px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Invoice date</div><div style="font-size:12px;margin-top:3px">Exact match</div></div>
+            <div style="padding:10px 14px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">Line items</div><div style="font-size:12px;margin-top:3px">5 of 5 overlap</div></div>
+            <div style="padding:10px 14px"><div style="font-family:var(--font-heading);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700)">File</div><div style="font-size:12px;margin-top:3px;color:var(--color-accent-800)">Differs · image sim 0.83</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;align-items:center">
+            <span style="font-family:var(--font-heading);font-weight:800;font-size:12.5px;background:var(--color-text);color:var(--color-bg);padding:11px 18px">Merge, keep the PDF as source</span>
+            <span style="font-size:12.5px;border:1px solid var(--color-text);padding:10px 18px">Reject the second copy</span>
+            <span style="margin-left:auto;font-size:11.5px;color:var(--color-neutral-700)">Merging blocks the second payment permanently</span>
+          </div>
+        </div>
+        <!-- fraud + audit -->
+        <div style="margin:18px 24px 0;border:2px solid var(--color-accent);background:var(--color-accent-100);padding:14px 16px">
+          <div style="display:flex;align-items:baseline;gap:12px"><span style="font-family:var(--font-heading);font-weight:800;font-size:14px;color:var(--color-accent-800)">New vendor screen — Unlisted Supplier, first invoice, $2,214.85</span><span style="font-family:var(--font-heading);font-weight:800;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--color-accent-700);color:var(--color-bg);padding:2px 8px">Held</span><span style="margin-left:auto;font-size:11px;color:var(--color-accent-900)">Routed to the controller</span></div>
+          <div style="display:flex;gap:26px;font-size:12px;color:var(--color-accent-900);margin-top:9px"><span>Bank details differ from the W-9 on file</span><span>No purchase order</span><span>Vendor record 4 days old</span><span>Signals: rules plus anomaly model, conf 0.89</span></div>
+        </div>
+        <div style="margin-top:auto;padding:14px 24px;border-top:2px solid var(--color-divider)">
+          <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Audit trail · PR-2201 · append-only</div>
+          <div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:7px">Jul 11 16:44 flagged by the duplicate screen · 16:45 routed to E. Marsh, payment hold set · Jul 12 09:02 both copies opened · decision pending, and it will record actor and timestamp.</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:34px;flex:none;border-top:2px solid var(--color-divider);display:flex;align-items:center;gap:22px;padding:0 24px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)">
+      <span>14 open</span><span>2 payments blocked</span><span style="margin-left:auto">v14</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 05 · OPERATIONS ══════════ -->
+<div data-screen-label="05-operations" style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#565252">05-operations.png · 1600×1000</div>
+<div style="width:1600px;height:1000px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;box-shadow:var(--shadow-lg)">
+  <div style="width:64px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;padding:14px 0">
+    <svg width="24" height="20" viewBox="0 0 24 20"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-text)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+    <div style="width:36px;height:36px;margin-top:22px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h5a2 2 0 0 1 2 2V14"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6v18h12V7z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h10l-3-3M20 19H10l3 3"></path><path d="M4 5v6M20 19v-6"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 1.5 21h21z"></path><path d="M12 10v4M12 17.5v.5"></path></svg></div>
+    <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;background:var(--color-text);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+    <div style="height:56px;flex:none;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:18px;padding:0 24px">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:17px;white-space:nowrap">Operations</span>
+      <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">July 2026, month to date · 3,120 invoices · 34 locations · 3 entities</span>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:3px 8px;white-space:nowrap">Demo · sample data</span>
+        <span style="font-size:12.5px;color:var(--color-neutral-700);white-space:nowrap">Northside Group</span>
+        <span style="width:28px;height:28px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:11px">TI</span>
+      </div>
+    </div>
+    <!-- modeled-target disclosure -->
+    <div style="flex:none;border-bottom:2px solid var(--color-divider);padding:10px 24px;display:flex;align-items:center;gap:14px;background:var(--color-neutral-200)">
+      <span style="font-family:var(--font-heading);font-weight:800;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--color-text);padding:3px 8px;white-space:nowrap">Modeled</span>
+      <span style="font-size:12px">The four figures below are <strong>modeled targets from the demo dataset</strong>, not measured client results. The manual comparison ($12–30 per invoice) is a widely published industry benchmark for hand-keyed accounts payable, not a figure produced by this system.</span>
+    </div>
+    <!-- headline metrics -->
+    <div style="flex:none;border-bottom:2px solid var(--color-divider);display:grid;grid-template-columns:repeat(4,1fr)">
+      <div style="padding:18px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Cost per invoice</div><div style="font-family:var(--font-heading);font-weight:800;font-size:46px;line-height:1;margin-top:8px">$3.10</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:6px">Industry benchmark for manual: $12–30</div></div>
+      <div style="padding:18px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Touchless rate</div><div style="font-family:var(--font-heading);font-weight:800;font-size:46px;line-height:1;margin-top:8px">71%</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:6px">Up from 54% at dataset start</div></div>
+      <div style="padding:18px 24px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">Median cycle</div><div style="font-family:var(--font-heading);font-weight:800;font-size:46px;line-height:1;margin-top:8px">24h</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:6px">Receipt to posted</div></div>
+      <div style="padding:18px 24px"><div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent-800)">Held back this quarter</div><div style="font-family:var(--font-heading);font-weight:800;font-size:46px;line-height:1;margin-top:8px;color:var(--color-accent)">$6,084</div><div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:6px">$4,860 variances · $1,224 duplicates</div></div>
+    </div>
+    <div style="flex:1;display:grid;grid-template-columns:490px 1fr 400px;min-height:0">
+      <!-- catches -->
+      <div style="border-right:1px solid var(--color-divider);padding:16px 24px;display:flex;flex-direction:column">
+        <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:8px">Largest catches this quarter</div>
+        <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-divider);align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:16px;color:var(--color-accent-700);width:78px;flex:none;text-align:right">$612.40</span><span style="font-size:12.5px;line-height:1.5"><strong>Produce Supplier</strong> · PR-2201 — the same invoice arrived as an emailed PDF and a dock photo</span></div>
+        <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-divider);align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:16px;color:var(--color-accent-700);width:78px;flex:none;text-align:right">$214.30</span><span style="font-size:12.5px;line-height:1.5"><strong>Equipment Supplier</strong> · ES-7698 — billed 14 cases, the receipt shows 12</span></div>
+        <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--color-divider);align-items:baseline"><span style="font-family:var(--font-heading);font-weight:800;font-size:16px;color:var(--color-accent-700);width:78px;flex:none;text-align:right">$88.00</span><span style="font-size:12.5px;line-height:1.5"><strong>Protein Supplier</strong> · PS-88214 — shrimp billed at $4.12/lb against a $3.68 contract</span></div>
+        <div style="margin-top:auto;border-top:2px solid var(--color-divider);padding-top:12px;display:flex;gap:30px">
+          <span><span style="font-family:var(--font-heading);font-weight:800;font-size:17px">61</span><br><span style="font-size:11px;color:var(--color-neutral-700)">short-pays accepted</span></span>
+          <span><span style="font-family:var(--font-heading);font-weight:800;font-size:17px">9m</span><br><span style="font-size:11px;color:var(--color-neutral-700)">average decision time</span></span>
+          <span><span style="font-family:var(--font-heading);font-weight:800;font-size:17px">100%</span><br><span style="font-size:11px;color:var(--color-neutral-700)">decisions logged</span></span>
+        </div>
+      </div>
+      <!-- locations -->
+      <div style="border-right:1px solid var(--color-divider);padding:16px 24px;min-width:0;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;border-bottom:2px solid var(--color-divider);padding-bottom:8px"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">By location</span><span style="font-size:11px;color:var(--color-neutral-700)">Top 8 of 34 · volume and exception rate</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><strong>Riverside</strong><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:100%;background:var(--color-text)"></span></span><span style="text-align:right">312</span><span style="text-align:right;color:var(--color-accent-800);font-weight:700">9.2%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Bayside</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:95%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">296</span><span style="text-align:right">4.1%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Commissary</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:92%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">288</span><span style="text-align:right">3.4%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Lakeshore</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:77%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">240</span><span style="text-align:right">3.8%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Old Mill</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:64%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">198</span><span style="text-align:right">2.9%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Pierhead</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:60%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">186</span><span style="text-align:right">4.4%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Saltbox</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:55%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">171</span><span style="text-align:right">3.1%</span></div>
+        <div style="display:grid;grid-template-columns:104px 1fr 46px 56px;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--color-divider);font-size:12px"><span>Canal Street</span><span style="height:11px;background:var(--color-neutral-300)"><span style="display:block;height:11px;width:51%;background:var(--color-neutral-700)"></span></span><span style="text-align:right">158</span><span style="text-align:right">2.6%</span></div>
+        <div style="margin-top:auto;font-size:11px;color:var(--color-neutral-700);line-height:1.5">Riverside runs high because two suppliers are still being onboarded there and their contract pricing is not yet on file.</div>
+      </div>
+      <!-- accuracy + sync -->
+      <div style="padding:16px 24px;display:flex;flex-direction:column">
+        <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:8px">Extraction accuracy · 12 weeks</div>
+        <svg width="352" height="140" viewBox="0 0 352 140" style="margin-top:14px">
+          <line x1="0" y1="120" x2="352" y2="120" stroke="var(--color-neutral-400)" stroke-width="1"></line>
+          <line x1="0" y1="62" x2="352" y2="62" stroke="var(--color-neutral-400)" stroke-width="1" stroke-dasharray="3 4"></line>
+          <text x="0" y="56" font-family="Archivo" font-size="9.5" fill="#565252">95.0% floor</text>
+          <line x1="206" y1="16" x2="206" y2="120" stroke="var(--color-neutral-500)" stroke-width="1" stroke-dasharray="3 4"></line>
+          <polyline points="8,44 44,48 80,40 116,52 152,46 188,49 206,38 242,31 278,35 314,29 344,26" fill="none" stroke="var(--color-text)" stroke-width="2"></polyline>
+          <circle cx="206" cy="38" r="3.5" fill="var(--color-bg)" stroke="var(--color-text)" stroke-width="2"></circle>
+          <text x="212" y="14" font-family="Archivo" font-size="9.5" fill="#201e1d">prompt p-38 shipped</text>
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--color-neutral-700)"><span>wk 1 · 95.9%</span><span>wk 12 · 96.4%</span></div>
+        <div style="font-size:11.5px;color:var(--color-neutral-700);margin-top:12px;line-height:1.5">Sampled weekly against hand-keyed values from the demo dataset.</div>
+        <div style="margin-top:auto;border-top:2px solid var(--color-divider);padding-top:12px">
+          <div style="font-family:var(--font-heading);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-neutral-700)">ERP sync</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:8px"><span>QuickBooks</span><span style="color:var(--color-neutral-700)">2,118 · 09:41:23</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:5px"><span>NetSuite</span><span style="color:var(--color-neutral-700)">1,002 · 09:38:51</span></div>
+          <div style="font-size:11px;color:var(--color-neutral-700);margin-top:8px">Every posted invoice carries entity, location and GL coding.</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:34px;flex:none;border-top:2px solid var(--color-divider);display:flex;align-items:center;gap:22px;padding:0 24px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-neutral-700)">
+      <span>Refreshed 09:41:23</span><span>ERP in sync</span><span style="margin-left:auto">v14</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════ 00 · THUMBNAIL 4:3 ══════════ -->
+<div data-screen-label="00-thumbnail" style="display:flex;flex-direction:column;gap:8px">
+<div style="font-family:var(--font-heading);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#565252">00-thumbnail.png · 1600×1200 (4:3)</div>
+<div style="width:1600px;height:1200px;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column">
+  <!-- title band -->
+  <div style="flex:none;padding:44px 56px 0">
+    <div style="display:flex;align-items:flex-start;gap:20px">
+      <svg width="42" height="35" viewBox="0 0 24 20" style="margin-top:6px"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-accent)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+      <div style="flex:1">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:58px;letter-spacing:-.02em;line-height:1">Ledgic</div>
+        <div style="font-size:20px;line-height:1.45;margin-top:12px;max-width:1080px">Accounts-payable automation for multi-location operators. Invoices arrive from email, dock photos, vendor portals and EDI; an LLM layer extracts every field with a confidence score; a matching engine checks every line against the purchase order and the goods receipt. Clean invoices post to the ERP, and only the exceptions reach a person.</div>
+      </div>
+      <div style="flex:none;text-align:right">
+        <div style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:5px 10px;display:inline-block">Working demo · sample data</div>
+        <div style="font-size:12px;color:var(--color-neutral-700);margin-top:10px;line-height:1.5">n8n orchestration<br>LLM extraction · Postgres<br>QuickBooks / NetSuite</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);border-top:2px solid var(--color-divider);margin-top:28px">
+      <div style="padding:18px 24px 22px 0;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1">$3.10</div><div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:5px">modeled cost per invoice, against a $12–30 industry benchmark for manual processing</div></div>
+      <div style="padding:18px 24px 22px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1">71%</div><div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:5px">of invoices match cleanly and post without a person opening them</div></div>
+      <div style="padding:18px 24px 22px;border-right:1px solid var(--color-divider)"><div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1">24h</div><div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:5px">median time from receipt to posted in the demo dataset</div></div>
+      <div style="padding:18px 0 22px 24px"><div style="font-family:var(--font-heading);font-weight:800;font-size:38px;line-height:1;color:var(--color-accent)">±2%</div><div style="font-size:12.5px;color:var(--color-neutral-700);margin-top:5px">tolerance before an invoice holds for human approval — red marks money at risk</div></div>
+    </div>
+  </div>
+  <!-- real screen, cropped -->
+  <div style="flex:1;min-height:0;border-top:2px solid var(--color-text);margin-top:26px;position:relative;overflow:hidden;background:var(--color-bg)">
+    <div style="position:absolute;left:0;top:0;width:1600px;display:flex">
+      <div style="width:64px;flex:none;border-right:2px solid var(--color-divider);display:flex;flex-direction:column;align-items:center;padding:14px 0;height:560px">
+        <svg width="24" height="20" viewBox="0 0 24 20"><rect x="0" y="1" width="15" height="3" fill="var(--color-text)"></rect><rect x="0" y="8" width="24" height="3" fill="var(--color-text)"></rect><rect x="0" y="15" width="19" height="3" fill="var(--color-text)"></rect></svg>
+        <div style="width:36px;height:36px;margin-top:22px;display:grid;place-items:center;background:var(--color-text);color:var(--color-bg)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><path d="M10 6.5h5a2 2 0 0 1 2 2V14"></path></svg></div>
+        <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6v18h12V7z"></path><path d="M14 3v4h4"></path><path d="M9 12h6M9 16h6"></path></svg></div>
+        <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h10l-3-3M20 19H10l3 3"></path><path d="M4 5v6M20 19v-6"></path></svg></div>
+        <div style="width:36px;height:36px;margin-top:6px;display:grid;place-items:center;color:var(--color-neutral-600)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 1.5 21h21z"></path><path d="M12 10v4M12 17.5v.5"></path></svg></div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="height:56px;border-bottom:2px solid var(--color-divider);display:flex;align-items:center;gap:18px;padding:0 24px">
+          <span style="font-family:var(--font-heading);font-weight:800;font-size:17px">Pipeline</span>
+          <span style="font-size:12.5px;color:var(--color-neutral-700)">ap-invoice-pipeline</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:12px;border-left:1px solid var(--color-divider);padding-left:18px;white-space:nowrap"><span style="width:8px;height:8px;background:var(--color-text)"></span>running · last run 09:41:23</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+            <span style="font-family:var(--font-heading);font-weight:800;font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:2px solid var(--color-text);padding:3px 8px;white-space:nowrap">Demo · sample data</span>
+            <span style="font-size:12.5px;color:var(--color-neutral-700)">Northside Group</span>
+            <span style="width:28px;height:28px;background:var(--color-text);color:var(--color-bg);display:grid;place-items:center;font-family:var(--font-heading);font-weight:800;font-size:11px">EM</span>
+          </div>
+        </div>
+        <div style="border-bottom:2px solid var(--color-divider);padding:18px 24px 20px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Today · volume through the pipeline</span><span style="font-size:11.5px;color:var(--color-neutral-700)">orchestrated with n8n + LLM extraction layer</span></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:14px;align-items:end;height:74px">
+            <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">214</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:100%;background:var(--color-text)"></div></div></div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">209</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:97%;background:var(--color-text)"></div></div></div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">198</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:92%;background:var(--color-text)"></div></div></div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1">152</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:71%;background:var(--color-text)"></div></div></div>
+            <div style="display:flex;flex-direction:column;justify-content:flex-end"><div style="font-family:var(--font-heading);font-weight:800;font-size:22px;line-height:1;color:var(--color-accent)">41</div><div style="height:44px;display:flex;align-items:flex-end;margin-top:6px"><div style="width:100%;flex:none;height:19%;background:var(--color-accent)"></div></div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:7px;font-size:11px;color:var(--color-neutral-700)"><span>received</span><span>extracted above gate</span><span>enriched, PO linked</span><span>matched clean → ERP</span><span style="color:var(--color-accent-700)">routed to people</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr)">
+          <div style="border-right:1px solid var(--color-divider);padding:16px 18px">
+            <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">01 Intake</div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Email PDFs</span><span style="font-family:var(--font-heading);font-weight:800">126</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Photo OCR</span><span style="font-family:var(--font-heading);font-weight:800">38</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:12.5px"><span>Vendor portals</span><span style="font-family:var(--font-heading);font-weight:800">29</span></div>
+          </div>
+          <div style="border-right:1px solid var(--color-divider);padding:16px 18px">
+            <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">02 Extraction</div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Auto-passed</span><span style="font-family:var(--font-heading);font-weight:800">209</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--color-divider);font-size:12.5px;background:var(--color-accent-100);margin:0 -18px"><span style="color:var(--color-accent-800)">Below gate</span><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700)">5</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:12.5px"><span>Median time</span><span style="font-family:var(--font-heading);font-weight:800">11.8s</span></div>
+          </div>
+          <div style="border-right:1px solid var(--color-divider);padding:16px 18px">
+            <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">03 Enrichment</div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Vendor resolved</span><span style="font-family:var(--font-heading);font-weight:800">214</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>PO linked</span><span style="font-family:var(--font-heading);font-weight:800">198</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:12.5px"><span>GL predicted</span><span style="font-family:var(--font-heading);font-weight:800">214</span></div>
+          </div>
+          <div style="border-right:1px solid var(--color-divider);padding:16px 18px">
+            <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">04 Three-way match</div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Clean</span><span style="font-family:var(--font-heading);font-weight:800">152</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--color-divider);font-size:12.5px;background:var(--color-accent-100);margin:0 -18px"><span style="color:var(--color-accent-800)">Price variance</span><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700)">24</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:12.5px"><span>Quantity mismatch</span><span style="font-family:var(--font-heading);font-weight:800">9</span></div>
+          </div>
+          <div style="padding:16px 18px">
+            <div style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:2px solid var(--color-divider);padding-bottom:7px">05 Approve + post</div>
+            <div style="display:flex;justify-content:space-between;padding:10px 18px;border-bottom:1px solid var(--color-divider);font-size:12.5px;background:var(--color-accent-100);margin:0 -18px"><span style="color:var(--color-accent-800)">Awaiting a person</span><span style="font-family:var(--font-heading);font-weight:800;color:var(--color-accent-700)">41</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-divider);font-size:12.5px"><span>Posted · QuickBooks</span><span style="font-family:var(--font-heading);font-weight:800">104</span></div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:12.5px"><span>Posted · NetSuite</span><span style="font-family:var(--font-heading);font-weight:800">48</span></div>
+          </div>
+        </div>
+        <div style="padding:16px 18px 0;border-top:2px solid var(--color-divider)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:var(--font-heading);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--color-neutral-700)">Recent runs</span><span style="font-size:11.5px;color:var(--color-neutral-700)">Newest first</span></div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:10px">
+            <thead><tr><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Time</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Vendor</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Invoice</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Location</th><th style="text-align:right;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Amount</th><th style="text-align:left;font-family:var(--font-heading);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-neutral-700);padding:8px 10px;border-bottom:2px solid var(--color-divider)">Status</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:41:23</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Broadline Distributor</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">BD-104882</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Bayside</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);text-align:right">$1,982.47</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:40:58</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Janitorial Services</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">JS-3310</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Riverside</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);text-align:right">$742.00</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:40:12</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Protein Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">PS-88214</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Riverside</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);text-align:right">$2,847.60</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:600">Price variance</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:39:44</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Broadline Distributor</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">BD-104881</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Lakeshore</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);text-align:right">$3,104.19</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Touchless</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:38:51</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Produce Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">PR-2214</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Riverside</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);text-align:right">$491.60</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:600">Below gate</td></tr>
+              <tr><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-700)">09:38:07</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Equipment Supplier</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">ES-7740</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider)">Lakeshore</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);text-align:right">$612.18</td><td style="padding:7px 10px;border-bottom:1px solid var(--color-divider);color:var(--color-accent-800);font-weight:600">No PO found</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+</x-dc>
+</body>
+</html>

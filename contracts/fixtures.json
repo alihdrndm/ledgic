@@ -1,0 +1,349 @@
+{
+  "$comment": "Shared constants for seed, replay, tests and e2e. Never change UUIDs once data exists.",
+  "seed": 20260713,
+  "org": {
+    "id": "992e72b7-9d9b-5104-9051-f5ef581c99e0",
+    "slug": "northside",
+    "name": "Northside Group",
+    "timezone": "America/New_York",
+    "is_demo": true
+  },
+  "users": {
+    "elena": {
+      "id": "c1f2540f-4d0c-5e8b-ba81-a0dd3de7ab39",
+      "email": "elena.marsh@demo.ledgic.dev",
+      "full_name": "Elena Marsh",
+      "initials": "EM",
+      "role": "ap_manager"
+    },
+    "tom": {
+      "id": "063f728d-c685-5ba7-8e87-dac4f869ab91",
+      "email": "tom.iwu@demo.ledgic.dev",
+      "full_name": "Tom Iwu",
+      "initials": "TI",
+      "role": "controller"
+    },
+    "viewer": {
+      "id": "2ff0bef9-b811-57ae-98a9-3cc42e42de8d",
+      "email": "viewer@demo.ledgic.dev",
+      "full_name": "Demo Viewer",
+      "initials": "DV",
+      "role": "viewer"
+    },
+    "replay": {
+      "id": "b9801444-eed3-5e24-b95e-c710ce9794a7",
+      "email": "replay@demo.ledgic.dev",
+      "full_name": "Demo replay",
+      "initials": "DR",
+      "role": "ap_manager"
+    },
+    "clerk1": {
+      "id": "9779a180-97cf-5ce6-86b7-a5eeb87bf626",
+      "email": "clerk.one@demo.ledgic.dev",
+      "full_name": "Priya Shah",
+      "initials": "PS",
+      "role": "ap_clerk"
+    },
+    "clerk2": {
+      "id": "255bbc34-7a6c-50cf-8568-6405dcf97b41",
+      "email": "clerk.two@demo.ledgic.dev",
+      "full_name": "Marco Diaz",
+      "initials": "MD",
+      "role": "ap_clerk"
+    },
+    "admin": {
+      "id": "386eaeb3-e4ef-5f37-9a8f-0db42b251b60",
+      "email": "admin@demo.ledgic.dev",
+      "full_name": "Ledgic Admin",
+      "initials": "LA",
+      "role": "admin"
+    }
+  },
+  "demo_passwords_env": {
+    "viewer": "DEMO_VIEWER_PASSWORD",
+    "elena": "DEMO_ELENA_PASSWORD"
+  },
+  "policy": {
+    "confidence_gate": "0.900",
+    "field_floor": "0.750",
+    "dup_hold_threshold": "0.900",
+    "dup_suggest_threshold": "0.750",
+    "fraud_hold_threshold": "0.700",
+    "tolerance_pct": "0.02",
+    "tolerance_abs": "25.00",
+    "manager_limit": "5000.00",
+    "controller_notify_threshold": "500.00",
+    "sla_hours": 24,
+    "loaded_hourly_rate_usd": "35.00",
+    "infra_monthly_usd": "55.00"
+  },
+  "named_locations": [
+    {
+      "code": "RS",
+      "name": "Riverside",
+      "entity": 1
+    },
+    {
+      "code": "BS",
+      "name": "Bayside",
+      "entity": 2
+    },
+    {
+      "code": "CM",
+      "name": "Commissary",
+      "entity": 3
+    },
+    {
+      "code": "LS",
+      "name": "Lakeshore",
+      "entity": 1
+    },
+    {
+      "code": "OM",
+      "name": "Old Mill",
+      "entity": 1
+    },
+    {
+      "code": "PH",
+      "name": "Pierhead",
+      "entity": 2
+    },
+    {
+      "code": "SB",
+      "name": "Saltbox",
+      "entity": 2
+    },
+    {
+      "code": "CS",
+      "name": "Canal Street",
+      "entity": 1
+    }
+  ],
+  "entities": [
+    {
+      "n": 1,
+      "name": "Entity 1",
+      "short_code": "E1",
+      "erp": "quickbooks"
+    },
+    {
+      "n": 2,
+      "name": "Entity 2",
+      "short_code": "E2",
+      "erp": "quickbooks"
+    },
+    {
+      "n": 3,
+      "name": "Entity 3",
+      "short_code": "E3",
+      "erp": "netsuite"
+    }
+  ],
+  "heroes": {
+    "PS-88214": {
+      "vendor": "Protein Supplier",
+      "location": "RS",
+      "channel": "email",
+      "release_time": "09:41:00",
+      "po": "PO-RS-1873",
+      "grn": "GRN-RS-4410",
+      "lines": [
+        {
+          "description": "Shrimp 16/20 IQF 2lb × 10",
+          "qty": "200",
+          "uom": "lb",
+          "unit_price": "4.12",
+          "amount": "824.00",
+          "po_unit": "3.68",
+          "contract_unit": "3.68",
+          "clause": "4.2"
+        },
+        {
+          "description": "Cod loin 10lb case",
+          "qty": "12",
+          "uom": "cs",
+          "unit_price": "68.40",
+          "amount": "820.80"
+        },
+        {
+          "description": "Scallops U-10 dry 2lb",
+          "qty": "8",
+          "uom": "ea",
+          "unit_price": "54.25",
+          "amount": "434.00"
+        },
+        {
+          "description": "Crab claw meat 5lb",
+          "qty": "6",
+          "uom": "ea",
+          "unit_price": "71.90",
+          "amount": "431.40"
+        },
+        {
+          "description": "Oysters select 1gal",
+          "qty": "4",
+          "uom": "ea",
+          "unit_price": "84.35",
+          "amount": "337.40"
+        }
+      ],
+      "total": "2847.60",
+      "expected": {
+        "verdict": "price_variance",
+        "expected_ext": "736.00",
+        "invoice_ext": "824.00",
+        "delta": "88.00",
+        "allowed": "14.72",
+        "delta_pct_display": "+12.0%",
+        "pay": "2759.60",
+        "hold": "88.00",
+        "recommendation_confidence": "0.94",
+        "prior_short_pays": [
+          "61.60",
+          "47.20"
+        ]
+      }
+    },
+    "PR-2214": {
+      "vendor": "Produce Supplier",
+      "location": "RS",
+      "channel": "photo",
+      "release_time": "09:12:44",
+      "po": "PO-RS-1866",
+      "lines": [
+        {
+          "description": "Romaine hearts 24ct",
+          "qty": "6",
+          "uom": "cs",
+          "unit_price": "18.40",
+          "amount": "110.40"
+        },
+        {
+          "description": "Heirloom tomato 10lb",
+          "qty": "4",
+          "uom": "cs",
+          "unit_price": "31.25",
+          "amount": "125.00",
+          "smudged": "qty"
+        },
+        {
+          "description": "Lemons 115ct case",
+          "qty": "3",
+          "uom": "cs",
+          "unit_price": "42.80",
+          "amount": "128.40"
+        },
+        {
+          "description": "Shallots 5lb bag",
+          "qty": "4",
+          "uom": "ea",
+          "unit_price": "19.90",
+          "amount": "79.60"
+        },
+        {
+          "description": "Flat-leaf parsley 60ct",
+          "qty": "2",
+          "uom": "cs",
+          "unit_price": "24.10",
+          "amount": "48.20"
+        }
+      ],
+      "total": "491.60",
+      "expected": {
+        "exception": "extraction_review",
+        "flagged_field": "lines[1].qty",
+        "flagged_confidence": "0.71",
+        "doc_confidence": "0.88",
+        "skew_deg": "2.0"
+      }
+    },
+    "PR-2201": {
+      "vendor": "Produce Supplier",
+      "location": "RS",
+      "total": "612.40",
+      "copies": [
+        {
+          "channel": "email",
+          "release_time": "08:02:00",
+          "sha_suffix": "a41f",
+          "extraction_conf": "0.98"
+        },
+        {
+          "channel": "photo",
+          "release_time": "16:44:00",
+          "sha_suffix": "c890",
+          "extraction_conf": "0.91"
+        }
+      ],
+      "invoice_date_offset_days": -1,
+      "expected": {
+        "exception": "duplicate",
+        "similarity_min": "0.90",
+        "similarity_display": "0.96",
+        "evidence": {
+          "invoice_number": "Exact match",
+          "amount": "Exact match",
+          "invoice_date": "Exact match",
+          "line_items": "5 of 5 overlap",
+          "file": "Differs · image sim 0.83"
+        }
+      }
+    },
+    "NV-0001": {
+      "vendor": "Unlisted Supplier",
+      "location": "CM",
+      "channel": "email",
+      "release_time": "09:00:00",
+      "total": "2214.85",
+      "vendor_age_days": 4,
+      "expected": {
+        "exception": "new_vendor_screen",
+        "fraud_score": "0.90",
+        "signals": [
+          "bank_mismatch_w9",
+          "vendor_age_lt_14d",
+          "no_po",
+          "remit_address_new"
+        ],
+        "assigned_role": "controller"
+      }
+    },
+    "BD-104882": {
+      "vendor": "Broadline Distributor",
+      "location": "BS",
+      "channel": "email",
+      "release_time": "09:41:07",
+      "po": "PO-BS-2041",
+      "grn": "GRN-BS-5518",
+      "line_count": 14,
+      "total": "1982.47",
+      "pages": 2,
+      "expected": {
+        "verdict": "clean",
+        "touchless": true,
+        "erp": "quickbooks",
+        "gl": "5000 COGS-Food",
+        "extraction_conf": "0.97"
+      }
+    }
+  },
+  "contract_protein": {
+    "title": "Vendor agreement 2026",
+    "vendor": "Protein Supplier",
+    "effective_from": "2026-03-01",
+    "effective_to": "ROLLING: last day of the 5th month after the seed date (spec date 2026-09-30 is already past)",
+    "countersigned_at": "2026-03-03",
+    "clause": "4.2",
+    "item": "Shrimp 16/20 IQF 2lb × 10",
+    "unit_price": "3.68",
+    "uom": "lb",
+    "$comment": "Spec fixed effective_to=2026-09-30; demo runs after that date so seed computes a rolling end date. Recommendation bullet uses the month name of effective_to."
+  },
+  "ai": {
+    "llm_model": "gpt-4.1-mini",
+    "embed_model": "text-embedding-3-small",
+    "embed_dims": 512,
+    "prompt_version": "p-1",
+    "llm_daily_cap_usd": "0.50"
+  }
+}
