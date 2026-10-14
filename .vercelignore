@@ -1,0 +1,6 @@
+/services/
+/tools/
+/docs/
+/supabase/
+**/node_modules
+**/.next
