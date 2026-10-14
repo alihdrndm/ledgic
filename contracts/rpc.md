@@ -117,3 +117,38 @@ Returns **true when the request is over the limit** (count > p_limit). Keys: `up
 - `is_member(p_org uuid) returns boolean`, `has_role(p_org uuid, roles member_role[]) returns boolean` — per 05 §10.
 - `member_role_of(p_org uuid) returns member_role` — caller's role or null.
 - `demo_purge_org(p_org uuid)` (service_role, security definer, refuses non-demo orgs) — deletes all org data incl. audit rows via `set local ledgic.allow_audit_purge = 'on'` (see audit_immutable in 0001).
+
+---
+
+## Implementation notes (workstream B, migrations 0002–0005) — additive clarifications
+- **demo_purge_org(p_org uuid, p_keep_master boolean default false)** — added optional second arg. `false`
+  deletes the org row (cascades everything; re-run the seed). `true` keeps org/settings/members/master data and
+  deletes documents (→ invoices, runs, events, exceptions, approvals …), POs/GRNs, costs, dead letters, ui_events,
+  copilot cache and the org's audit rows. Returns `{org_id, audit_rows, documents, kept_master}`.
+- **release_hold** accepts `p_extra.verified_by_phone = true` (UI checkbox) or `p_extra.verified = true`.
+- **link_po** is exempt from the manager limit and from the SoD check (no money moves; mirrors
+  `app/domain/approval.py` SOD_EXEMPT). Viewer is still refused; ap_clerk allowed.
+- Default amounts: short_pay → recommendation when both null, or the missing half derived from `invoices.total`;
+  approve_as_is / approve_without_po / release_hold / not_duplicate store `pay_amount = total, hold_amount = 0`.
+- `p_time_spent` null → `now() − exceptions.first_viewed_at` (set by `rpc_mark_exception_viewed`), capped 0..1800.
+- dispute / request_w9: run stays `waiting` (wait_exception_id kept), `context.decision` is still written and a
+  `pipeline_events` row with status `waiting` is added; no `pg_notify`.
+- Audit rows written by the RPCs (every `after` carries `invoice_id`):
+  `field.confirmed|field.corrected` (entity `invoice_field` = the new version row id, or `invoice_line` = line id;
+  `after.monetary` bool) · `decision.<action>` (entity `approval` = approval id) · `exception.<new status>`
+  (entity `exception`) · `invoice.updated` (entity `invoice`).
+- Actor type: callers acting as a user may add `"actor_type": "mcp"|"agent"` to `request.jwt.claims`; it is
+  recorded in `audit_log.actor_type` (default `user`).
+- Extra functions: `llm_budget_release_stale() returns int` (service_role; also pg_cron every 5 min),
+  `refresh_kpis()` (service_role; pg_cron `ledgic-refresh-kpis` every minute), `audit_write(...)` (service_role
+  helper), `decision_action_label(decision_action)`, `exception_status_label/exception_group_label(exception_type)`,
+  `try_uuid(text)`, `role_rank(member_role)`, `shares_org(uuid)`.
+- Messages used (prefix + copy): `LEDGIC_FORBIDDEN: Read-only access | Needs AP manager | Needs controller |
+  Above your approval limit of $5,000.00 | You edited this invoice's amounts, so someone else must approve it |
+  You created this vendor record | Not signed in | Not a member of this organization` ·
+  `LEDGIC_NOT_FOUND: Exception not found | Invoice not found` · `LEDGIC_CONFLICT: This exception is already resolved |
+  No open extraction review for this invoice` · `LEDGIC_INVALID: Action not allowed for this exception |
+  A comment is required for this decision | Confirm you verified the bank details with the vendor by phone |
+  Pay and hold must add up to the invoice total of $X | Choose a purchase order from this vendor | <field> must be greater than 0`.
+- Browser roles have **no** insert/update/delete/truncate privilege on any public table (not just no policy);
+  `integrations.vault_secret_id` and `mcp_tokens.token_hash` are not selectable by `authenticated`.

@@ -282,3 +282,37 @@ One row per org.
 | erp_failing | jsonb — `[system]` with an open posting_failed exception or last posting failed |
 | mv_refreshed_at | timestamptz null |
 | pipeline_paused_reason | text null — non-null when no run advanced in 15 min while runnable runs exist |
+
+---
+
+## Implementation notes (workstream B, migration 0004) — additive clarifications
+- **Scope of KPI MVs**: `mv_ops_period` / `mv_location_period` count only invoices that have a `pipeline_runs`
+  row (processed by Ledgic). Seeded GL back-history invoices (no run, `documents.source_meta.history = true`)
+  never inflate operational figures.
+- **Costs**: `cost_llm/cost_ocr` = Σ `cost_ledger` by kind in period; `cost_infra` = Σ `cost_ledger` kind `infra`
+  + `org_settings.infra_monthly_usd × period_days / days_in_current_month` (apportioned by days);
+  `cost_human` = Σ `approvals.time_spent_seconds` / 3600 × `loaded_hourly_rate_usd` (cost_ledger kind `human`
+  is **not** read — do not write human costs there). `cost_per_invoice = cost_total / invoices`.
+- `held_duplicates` = Σ `exceptions.amount_at_risk` of `merge`/`reject_copy` approvals; `held_fraud` = Σ
+  amount_at_risk of `reject_invoice` approvals on `new_vendor_screen`; `avg_decision_seconds` = mean
+  `decided_at − exceptions.opened_at`; `decisions_logged_pct` = approvals with an `audit_log` row
+  (`entity_type='approval'`, `entity_id=approval id`) ÷ approvals (null when none).
+- `top_catches[].text` = `Short-paid · <reason>` / `Duplicate payment blocked · <reason>` /
+  `New-vendor invoice rejected · <reason>`. `erp_sync` lists systems of the org's entities (enum order).
+- MVs refresh every minute via pg_cron job `ledgic-refresh-kpis` (`select refresh_kpis()`); the wrappers also
+  return all rows to service-side callers (service role / direct DB connection).
+- `v_recent_runs.status_label` `Failed` also covers `cancelled` runs; `is_exception` is true for the exception
+  labels and `Failed`.
+- `v_status_bar.last_autosave_at` = latest `confirm_fields` approval (same instant as the human field rows);
+  `erp_failing` = systems with an open `posting_failed` exception or a `failed` posting on an invoice still in
+  `posting`; `pipeline_paused_reason` = `No run advanced in 15 minutes` when a run has been runnable > 15 min
+  and no event was written in 15 min.
+- `v_review_queue.flagged_count` ignores fields whose latest value is null.
+
+### Added views
+- **v_org_today** `(org_id, timezone, day, t0, t1)` — org-local today and its `[t0, t1)` timestamptz bounds.
+- **v_kpi_periods** `(org_id, timezone, period_key, period_start, period_end, ts0, ts1, days, month_days)`.
+- **v_invoice_audit** — audit rows that concern one invoice (entity `invoice` itself, or any row whose
+  `after.invoice_id` names it). Columns: `org_id, invoice_key text, audit_id bigint, at, actor_type, actor_id,
+  actor_name, action, entity_type, entity_id, before, after, prev_hash, hash`. Filter
+  `invoice_key = '<invoice uuid>'` (indexed) and order by `audit_id`.
