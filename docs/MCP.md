@@ -169,14 +169,14 @@ uv run python -m app.mcp.tokens demo      # upsert MCP_DEMO_TOKEN for the demo v
 > **You:** What's waiting for me in AP?
 >
 > *Claude calls `list_exceptions`* → 14 open; top: PS-88214 · Protein Supplier · Riverside · price variance ·
-> $88.00 at risk · recommendation short-pay $2,671.60 / hold $88.00 (confidence 0.94).
+> $88.00 at risk · recommendation short-pay $2,759.60 / hold $88.00 (confidence 0.94).
 >
 > **You:** Why is PS-88214 held?
 >
 > *Claude calls `explain_match("PS-88214")` and `search_contracts("shrimp 16/20 price Protein Supplier")`*
 > "Line 1 (Shrimp 16/20 IQF) is billed at $4.12/lb; the contract price is $3.68/lb (*Protein Supplier
 > agreement §4.2*). Line 1 is +12.0% against a ±2% limit and $88.00 against a $25 limit — it fails both, so the
-> invoice holds for approval. GRN-RS-4410 shows everything was received. Ledgic recommends paying $2,671.60 and
+> invoice holds for approval. GRN-RS-4410 shows everything was received. Ledgic recommends paying $2,759.60 and
 > holding $88.00."
 >
 > **You:** Do it.
