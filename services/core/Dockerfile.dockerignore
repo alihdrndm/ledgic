@@ -1,0 +1,12 @@
+# Used by BuildKit when building with `-f services/core/Dockerfile` from the repo root.
+# Allow-list: only what the image needs.
+*
+!services/core/pyproject.toml
+!services/core/uv.lock
+!services/core/app
+!tools/corpus/kb
+!tools/corpus/fixtures
+!contracts/fixtures.json
+**/__pycache__
+**/*.pyc
+tools/corpus/fixtures/**/*.py

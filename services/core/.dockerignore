@@ -1,0 +1,13 @@
+# Fallback when services/core is used as the build context directly (the Dockerfile expects the repo
+# root as context — see Dockerfile header). Keeps local caches and secrets out of any context.
+.venv
+.env
+.env.*
+.coverage*
+.hypothesis
+.mypy_cache
+.pytest_cache
+.ruff_cache
+**/__pycache__
+**/*.pyc
+tests
