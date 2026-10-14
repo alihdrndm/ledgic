@@ -1,0 +1,12 @@
+{
+  "$comment": "Recorded resolution-agent drafts for the PS-88214 hero (used in fixture mode or when the budget is spent). {{INVOICE_DATE}} and {{CONTRACT_EFFECTIVE_TO}} are filled from the database at draft time; [1] is the clause 4.2 citation. Every money figure must pass the money guard (recommendation, invoice/PO/line amounts, prior short-pays) or the deterministic template is used instead.",
+  "hero": "PS-88214",
+  "model": "gpt-4.1-mini",
+  "prompt_version": "r-1",
+  "vendor_notice": {
+    "body_md": "**Subject:** Short payment on invoice PS-88214 — shrimp billed above contract price\n\nHello Protein Supplier accounts receivable team,\n\nWe have scheduled payment of **$2,759.60** against invoice PS-88214 dated {{INVOICE_DATE}} ($2,847.60 billed) and are holding **$88.00**.\n\nThe invoice bills Shrimp 16/20 IQF 2lb × 10 at $4.12/lb. Clause 4.2 of our Vendor agreement 2026 fixes this item at $3.68/lb through {{CONTRACT_EFFECTIVE_TO}} [1], so the line is payable at $736.00 rather than the $824.00 billed. Under clause 4.6, a price change needs a written amendment countersigned by our controller.\n\nThe delivery was received in full, so the hold relates to price only.\n\nPlease issue a credit memo for $88.00 against PS-88214. If you believe the billed price is correct, reply with the countersigned amendment and we will review it promptly.\n\nThank you,\nAccounts Payable"
+  },
+  "explanation": {
+    "body_md": "**Why PS-88214 is held** — shrimp is billed 12% over the contract price.\n\n- Clause 4.2 of the Protein Supplier agreement fixes Shrimp 16/20 IQF at $3.68/lb through {{CONTRACT_EFFECTIVE_TO}}; the invoice bills $4.12/lb [1].\n- The shrimp line is $824.00 against $736.00 expected — outside tolerance, so it cannot post automatically.\n- Goods were received in full, so the variance is price only.\n- The same variance appeared twice this quarter ($61.60 and $47.20); both short-pays were accepted.\n\n**Recommendation:** short-pay — pay $2,759.60, hold $88.00 (confidence 0.94). The vendor notice cites clause 4.2."
+  }
+}

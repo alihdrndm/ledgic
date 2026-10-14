@@ -1,0 +1,396 @@
+{
+  "$comment": "Recorded extraction-agent output for a hero document (reference day 2026-10-14). Authored from the corpus ground truth with the hero confidences; stands in for a recorded gpt-4.1-mini response. Regenerate with generate_heroes.py.",
+  "hero": "NV-0001",
+  "channel": "email",
+  "model": "gpt-4.1-mini",
+  "prompt_version": "p-1",
+  "reference_day": "2026-10-14",
+  "doc_confidence": "0.960",
+  "extraction": {
+    "vendor_name": {
+      "value": "Unlisted Supplier",
+      "confidence": 0.946,
+      "bbox": {
+        "page": 1,
+        "x": 0.0858,
+        "y": 0.0629,
+        "w": 0.2382,
+        "h": 0.0211
+      }
+    },
+    "invoice_number": {
+      "value": "NV-0001",
+      "confidence": 0.954,
+      "bbox": {
+        "page": 1,
+        "x": 0.2255,
+        "y": 0.1356,
+        "w": 0.0701,
+        "h": 0.0151
+      }
+    },
+    "invoice_date": {
+      "value": "2026-10-14",
+      "confidence": 0.951,
+      "bbox": {
+        "page": 1,
+        "x": 0.2255,
+        "y": 0.152,
+        "w": 0.1074,
+        "h": 0.0151
+      }
+    },
+    "due_date": {
+      "value": "2026-10-29",
+      "confidence": 0.944,
+      "bbox": {
+        "page": 1,
+        "x": 0.2255,
+        "y": 0.1848,
+        "w": 0.1074,
+        "h": 0.0151
+      }
+    },
+    "terms": {
+      "value": "Net 15",
+      "confidence": 0.946,
+      "bbox": {
+        "page": 1,
+        "x": 0.2255,
+        "y": 0.1684,
+        "w": 0.0608,
+        "h": 0.0151
+      }
+    },
+    "po_reference": {
+      "value": null,
+      "confidence": 0.0,
+      "bbox": null
+    },
+    "subtotal": {
+      "value": "2214.85",
+      "confidence": 0.944,
+      "bbox": {
+        "page": 1,
+        "x": 0.8348,
+        "y": 0.4538,
+        "w": 0.0794,
+        "h": 0.0151
+      }
+    },
+    "tax": {
+      "value": "0.00",
+      "confidence": 0.964,
+      "bbox": {
+        "page": 1,
+        "x": 0.8721,
+        "y": 0.4702,
+        "w": 0.0422,
+        "h": 0.0151
+      }
+    },
+    "freight": {
+      "value": null,
+      "confidence": 0.0,
+      "bbox": null
+    },
+    "total": {
+      "value": "2214.85",
+      "confidence": 0.952,
+      "bbox": {
+        "page": 1,
+        "x": 0.827,
+        "y": 0.4907,
+        "w": 0.0873,
+        "h": 0.0164
+      }
+    },
+    "currency": {
+      "value": "USD",
+      "confidence": 0.953,
+      "bbox": {
+        "page": 1,
+        "x": 0.1495,
+        "y": 0.9356,
+        "w": 0.027,
+        "h": 0.0125
+      }
+    },
+    "remit_to_name": {
+      "value": "Unlisted Supplier",
+      "confidence": 0.959,
+      "bbox": {
+        "page": 1,
+        "x": 0.1348,
+        "y": 0.9078,
+        "w": 0.3873,
+        "h": 0.0125
+      }
+    },
+    "remit_to_address": {
+      "value": "101 Port Rd, Wilmington, DE 19801",
+      "confidence": 0.959,
+      "bbox": {
+        "page": 1,
+        "x": 0.1348,
+        "y": 0.9078,
+        "w": 0.3873,
+        "h": 0.0125
+      }
+    },
+    "bank_routing": {
+      "value": "036820788",
+      "confidence": 0.939,
+      "bbox": {
+        "page": 1,
+        "x": 0.1275,
+        "y": 0.9217,
+        "w": 0.2917,
+        "h": 0.0125
+      }
+    },
+    "bank_account": {
+      "value": "32041134755",
+      "confidence": 0.939,
+      "bbox": {
+        "page": 1,
+        "x": 0.1275,
+        "y": 0.9217,
+        "w": 0.2917,
+        "h": 0.0125
+      }
+    },
+    "lines": [
+      {
+        "description": {
+          "value": "Imported saffron threads 1oz",
+          "confidence": 0.941,
+          "bbox": {
+            "page": 1,
+            "x": 0.123,
+            "y": 0.2568,
+            "w": 0.2657,
+            "h": 0.0151
+          }
+        },
+        "qty": {
+          "value": "6",
+          "confidence": 0.983,
+          "bbox": {
+            "page": 1,
+            "x": 0.1603,
+            "y": 0.2732,
+            "w": 0.0142,
+            "h": 0.0151
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.993,
+          "bbox": {
+            "page": 1,
+            "x": 0.1789,
+            "y": 0.2732,
+            "w": 0.0235,
+            "h": 0.0151
+          }
+        },
+        "unit_price": {
+          "value": "147.35",
+          "confidence": 0.985,
+          "bbox": {
+            "page": 1,
+            "x": 0.2348,
+            "y": 0.2732,
+            "w": 0.0608,
+            "h": 0.0151
+          }
+        },
+        "amount": {
+          "value": "884.10",
+          "confidence": 0.97,
+          "bbox": {
+            "page": 1,
+            "x": 0.8534,
+            "y": 0.2732,
+            "w": 0.0608,
+            "h": 0.0151
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Truffle oil white 250ml",
+          "confidence": 0.949,
+          "bbox": {
+            "page": 1,
+            "x": 0.123,
+            "y": 0.3023,
+            "w": 0.2191,
+            "h": 0.0151
+          }
+        },
+        "qty": {
+          "value": "12",
+          "confidence": 0.951,
+          "bbox": {
+            "page": 1,
+            "x": 0.1603,
+            "y": 0.3187,
+            "w": 0.0235,
+            "h": 0.0151
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.988,
+          "bbox": {
+            "page": 1,
+            "x": 0.1882,
+            "y": 0.3187,
+            "w": 0.0235,
+            "h": 0.0151
+          }
+        },
+        "unit_price": {
+          "value": "38.65",
+          "confidence": 0.97,
+          "bbox": {
+            "page": 1,
+            "x": 0.2441,
+            "y": 0.3187,
+            "w": 0.0515,
+            "h": 0.0151
+          }
+        },
+        "amount": {
+          "value": "463.80",
+          "confidence": 0.964,
+          "bbox": {
+            "page": 1,
+            "x": 0.8534,
+            "y": 0.3187,
+            "w": 0.0608,
+            "h": 0.0151
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Vanilla beans grade A 1/2lb",
+          "confidence": 0.944,
+          "bbox": {
+            "page": 1,
+            "x": 0.123,
+            "y": 0.3477,
+            "w": 0.2564,
+            "h": 0.0151
+          }
+        },
+        "qty": {
+          "value": "5",
+          "confidence": 0.989,
+          "bbox": {
+            "page": 1,
+            "x": 0.1603,
+            "y": 0.3641,
+            "w": 0.0142,
+            "h": 0.0151
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.939,
+          "bbox": {
+            "page": 1,
+            "x": 0.1789,
+            "y": 0.3641,
+            "w": 0.0235,
+            "h": 0.0151
+          }
+        },
+        "unit_price": {
+          "value": "121.47",
+          "confidence": 0.939,
+          "bbox": {
+            "page": 1,
+            "x": 0.2348,
+            "y": 0.3641,
+            "w": 0.0608,
+            "h": 0.0151
+          }
+        },
+        "amount": {
+          "value": "607.35",
+          "confidence": 0.991,
+          "bbox": {
+            "page": 1,
+            "x": 0.8534,
+            "y": 0.3641,
+            "w": 0.0608,
+            "h": 0.0151
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Smoked sea salt 1kg",
+          "confidence": 0.958,
+          "bbox": {
+            "page": 1,
+            "x": 0.123,
+            "y": 0.3932,
+            "w": 0.1819,
+            "h": 0.0151
+          }
+        },
+        "qty": {
+          "value": "8",
+          "confidence": 0.969,
+          "bbox": {
+            "page": 1,
+            "x": 0.1603,
+            "y": 0.4096,
+            "w": 0.0142,
+            "h": 0.0151
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.951,
+          "bbox": {
+            "page": 1,
+            "x": 0.1789,
+            "y": 0.4096,
+            "w": 0.0235,
+            "h": 0.0151
+          }
+        },
+        "unit_price": {
+          "value": "32.45",
+          "confidence": 0.95,
+          "bbox": {
+            "page": 1,
+            "x": 0.2348,
+            "y": 0.4096,
+            "w": 0.0515,
+            "h": 0.0151
+          }
+        },
+        "amount": {
+          "value": "259.60",
+          "confidence": 0.978,
+          "bbox": {
+            "page": 1,
+            "x": 0.8534,
+            "y": 0.4096,
+            "w": 0.0608,
+            "h": 0.0151
+          }
+        }
+      }
+    ],
+    "document_type": "invoice",
+    "multiple_invoices_detected": false
+  }
+}

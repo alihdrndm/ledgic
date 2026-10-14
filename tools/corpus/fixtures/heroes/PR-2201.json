@@ -1,0 +1,447 @@
+{
+  "$comment": "Recorded extraction-agent output for a hero document (reference day 2026-10-14). Authored from the corpus ground truth with the hero confidences; stands in for a recorded gpt-4.1-mini response. Regenerate with generate_heroes.py.",
+  "hero": "PR-2201",
+  "channel": "email",
+  "model": "gpt-4.1-mini",
+  "prompt_version": "p-1",
+  "reference_day": "2026-10-14",
+  "doc_confidence": "0.980",
+  "extraction": {
+    "vendor_name": {
+      "value": "Produce Supplier",
+      "confidence": 0.973,
+      "bbox": {
+        "page": 1,
+        "x": 0.0858,
+        "y": 0.0806,
+        "w": 0.324,
+        "h": 0.0277
+      }
+    },
+    "invoice_number": {
+      "value": "PR-2201",
+      "confidence": 0.977,
+      "bbox": {
+        "page": 1,
+        "x": 0.8416,
+        "y": 0.0866,
+        "w": 0.0726,
+        "h": 0.0164
+      }
+    },
+    "invoice_date": {
+      "value": "2026-10-13",
+      "confidence": 0.98,
+      "bbox": {
+        "page": 1,
+        "x": 0.773,
+        "y": 0.1066,
+        "w": 0.0826,
+        "h": 0.0151
+      }
+    },
+    "due_date": {
+      "value": "2026-10-27",
+      "confidence": 0.93,
+      "bbox": {
+        "page": 1,
+        "x": 0.848,
+        "y": 0.125,
+        "w": 0.0662,
+        "h": 0.0125
+      }
+    },
+    "terms": {
+      "value": "Net 14",
+      "confidence": 0.995,
+      "bbox": {
+        "page": 1,
+        "x": 0.8636,
+        "y": 0.1066,
+        "w": 0.0506,
+        "h": 0.0151
+      }
+    },
+    "po_reference": {
+      "value": "PO-RS-1859",
+      "confidence": 0.966,
+      "bbox": {
+        "page": 1,
+        "x": 0.8251,
+        "y": 0.174,
+        "w": 0.0891,
+        "h": 0.0145
+      }
+    },
+    "subtotal": {
+      "value": "612.40",
+      "confidence": 0.931,
+      "bbox": {
+        "page": 1,
+        "x": 0.8668,
+        "y": 0.4144,
+        "w": 0.0474,
+        "h": 0.0138
+      }
+    },
+    "tax": {
+      "value": "0.00",
+      "confidence": 0.99,
+      "bbox": {
+        "page": 1,
+        "x": 0.8823,
+        "y": 0.4321,
+        "w": 0.0319,
+        "h": 0.0138
+      }
+    },
+    "freight": {
+      "value": null,
+      "confidence": 0.0,
+      "bbox": null
+    },
+    "total": {
+      "value": "612.40",
+      "confidence": 0.991,
+      "bbox": {
+        "page": 1,
+        "x": 0.8593,
+        "y": 0.4533,
+        "w": 0.0549,
+        "h": 0.0158
+      }
+    },
+    "currency": {
+      "value": "USD",
+      "confidence": 0.967,
+      "bbox": {
+        "page": 1,
+        "x": 0.1676,
+        "y": 0.9381,
+        "w": 0.0308,
+        "h": 0.0125
+      }
+    },
+    "remit_to_name": {
+      "value": "Produce Supplier",
+      "confidence": 0.977,
+      "bbox": {
+        "page": 1,
+        "x": 0.1397,
+        "y": 0.9104,
+        "w": 0.2869,
+        "h": 0.0125
+      }
+    },
+    "remit_to_address": {
+      "value": "664 Depot Ave, Bronx, NY 10474",
+      "confidence": 0.977,
+      "bbox": {
+        "page": 1,
+        "x": 0.1397,
+        "y": 0.9104,
+        "w": 0.2869,
+        "h": 0.0125
+      }
+    },
+    "bank_routing": {
+      "value": null,
+      "confidence": 0.0,
+      "bbox": null
+    },
+    "bank_account": {
+      "value": null,
+      "confidence": 0.0,
+      "bbox": null
+    },
+    "lines": [
+      {
+        "description": {
+          "value": "Romaine hearts 24ct",
+          "confidence": 0.991,
+          "bbox": {
+            "page": 1,
+            "x": 0.0858,
+            "y": 0.2598,
+            "w": 0.1406,
+            "h": 0.0145
+          }
+        },
+        "qty": {
+          "value": "8",
+          "confidence": 0.975,
+          "bbox": {
+            "page": 1,
+            "x": 0.5139,
+            "y": 0.2598,
+            "w": 0.0131,
+            "h": 0.0145
+          }
+        },
+        "uom": {
+          "value": "cs",
+          "confidence": 0.945,
+          "bbox": {
+            "page": 1,
+            "x": 0.5727,
+            "y": 0.2598,
+            "w": 0.0196,
+            "h": 0.0145
+          }
+        },
+        "unit_price": {
+          "value": "18.40",
+          "confidence": 0.98,
+          "bbox": {
+            "page": 1,
+            "x": 0.6446,
+            "y": 0.2598,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        },
+        "amount": {
+          "value": "147.20",
+          "confidence": 0.985,
+          "bbox": {
+            "page": 1,
+            "x": 0.8643,
+            "y": 0.2598,
+            "w": 0.0499,
+            "h": 0.0145
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Heirloom tomato 10lb",
+          "confidence": 0.969,
+          "bbox": {
+            "page": 1,
+            "x": 0.0858,
+            "y": 0.2876,
+            "w": 0.1447,
+            "h": 0.0145
+          }
+        },
+        "qty": {
+          "value": "6",
+          "confidence": 0.997,
+          "bbox": {
+            "page": 1,
+            "x": 0.5139,
+            "y": 0.2876,
+            "w": 0.0131,
+            "h": 0.0145
+          }
+        },
+        "uom": {
+          "value": "cs",
+          "confidence": 0.966,
+          "bbox": {
+            "page": 1,
+            "x": 0.5727,
+            "y": 0.2876,
+            "w": 0.0196,
+            "h": 0.0145
+          }
+        },
+        "unit_price": {
+          "value": "31.25",
+          "confidence": 0.988,
+          "bbox": {
+            "page": 1,
+            "x": 0.6446,
+            "y": 0.2876,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        },
+        "amount": {
+          "value": "187.50",
+          "confidence": 0.974,
+          "bbox": {
+            "page": 1,
+            "x": 0.8643,
+            "y": 0.2876,
+            "w": 0.0499,
+            "h": 0.0145
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Lemons 115ct case",
+          "confidence": 0.99,
+          "bbox": {
+            "page": 1,
+            "x": 0.0858,
+            "y": 0.3154,
+            "w": 0.1324,
+            "h": 0.0145
+          }
+        },
+        "qty": {
+          "value": "2",
+          "confidence": 0.993,
+          "bbox": {
+            "page": 1,
+            "x": 0.5139,
+            "y": 0.3154,
+            "w": 0.0131,
+            "h": 0.0145
+          }
+        },
+        "uom": {
+          "value": "cs",
+          "confidence": 0.983,
+          "bbox": {
+            "page": 1,
+            "x": 0.5727,
+            "y": 0.3154,
+            "w": 0.0196,
+            "h": 0.0145
+          }
+        },
+        "unit_price": {
+          "value": "42.80",
+          "confidence": 0.974,
+          "bbox": {
+            "page": 1,
+            "x": 0.6446,
+            "y": 0.3154,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        },
+        "amount": {
+          "value": "85.60",
+          "confidence": 0.969,
+          "bbox": {
+            "page": 1,
+            "x": 0.8725,
+            "y": 0.3154,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Shallots 5lb bag",
+          "confidence": 0.944,
+          "bbox": {
+            "page": 1,
+            "x": 0.0858,
+            "y": 0.3432,
+            "w": 0.1095,
+            "h": 0.0145
+          }
+        },
+        "qty": {
+          "value": "5",
+          "confidence": 0.972,
+          "bbox": {
+            "page": 1,
+            "x": 0.5139,
+            "y": 0.3432,
+            "w": 0.0131,
+            "h": 0.0145
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.957,
+          "bbox": {
+            "page": 1,
+            "x": 0.5727,
+            "y": 0.3432,
+            "w": 0.0213,
+            "h": 0.0145
+          }
+        },
+        "unit_price": {
+          "value": "19.90",
+          "confidence": 0.997,
+          "bbox": {
+            "page": 1,
+            "x": 0.6446,
+            "y": 0.3432,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        },
+        "amount": {
+          "value": "99.50",
+          "confidence": 0.974,
+          "bbox": {
+            "page": 1,
+            "x": 0.8725,
+            "y": 0.3432,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Yellow onions 50lb",
+          "confidence": 0.967,
+          "bbox": {
+            "page": 1,
+            "x": 0.0858,
+            "y": 0.371,
+            "w": 0.1275,
+            "h": 0.0145
+          }
+        },
+        "qty": {
+          "value": "4",
+          "confidence": 0.97,
+          "bbox": {
+            "page": 1,
+            "x": 0.5139,
+            "y": 0.371,
+            "w": 0.0131,
+            "h": 0.0145
+          }
+        },
+        "uom": {
+          "value": "bag",
+          "confidence": 0.932,
+          "bbox": {
+            "page": 1,
+            "x": 0.5727,
+            "y": 0.371,
+            "w": 0.0294,
+            "h": 0.0145
+          }
+        },
+        "unit_price": {
+          "value": "23.15",
+          "confidence": 0.994,
+          "bbox": {
+            "page": 1,
+            "x": 0.6446,
+            "y": 0.371,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        },
+        "amount": {
+          "value": "92.60",
+          "confidence": 0.967,
+          "bbox": {
+            "page": 1,
+            "x": 0.8725,
+            "y": 0.371,
+            "w": 0.0417,
+            "h": 0.0145
+          }
+        }
+      }
+    ],
+    "document_type": "invoice",
+    "multiple_invoices_detected": false
+  }
+}

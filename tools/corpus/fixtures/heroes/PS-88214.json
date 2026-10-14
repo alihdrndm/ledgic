@@ -1,0 +1,459 @@
+{
+  "$comment": "Recorded extraction-agent output for a hero document (reference day 2026-10-14). Authored from the corpus ground truth with the hero confidences; stands in for a recorded gpt-4.1-mini response. Regenerate with generate_heroes.py.",
+  "hero": "PS-88214",
+  "channel": "email",
+  "model": "gpt-4.1-mini",
+  "prompt_version": "p-1",
+  "reference_day": "2026-10-14",
+  "doc_confidence": "0.980",
+  "extraction": {
+    "vendor_name": {
+      "value": "Protein Supplier",
+      "confidence": 0.994,
+      "bbox": {
+        "page": 1,
+        "x": 0.3542,
+        "y": 0.0664,
+        "w": 0.2917,
+        "h": 0.0264
+      }
+    },
+    "invoice_number": {
+      "value": "PS-88214",
+      "confidence": 0.968,
+      "bbox": {
+        "page": 1,
+        "x": 0.8309,
+        "y": 0.2033,
+        "w": 0.0703,
+        "h": 0.0158
+      }
+    },
+    "invoice_date": {
+      "value": "2026-10-14",
+      "confidence": 0.992,
+      "bbox": {
+        "page": 1,
+        "x": 0.8218,
+        "y": 0.226,
+        "w": 0.0793,
+        "h": 0.0158
+      }
+    },
+    "due_date": {
+      "value": "2026-10-28",
+      "confidence": 0.96,
+      "bbox": {
+        "page": 1,
+        "x": 0.8218,
+        "y": 0.2487,
+        "w": 0.0793,
+        "h": 0.0158
+      }
+    },
+    "terms": {
+      "value": "Net 14",
+      "confidence": 0.973,
+      "bbox": {
+        "page": 1,
+        "x": 0.8522,
+        "y": 0.2715,
+        "w": 0.0489,
+        "h": 0.0158
+      }
+    },
+    "po_reference": {
+      "value": "PO-RS-1873",
+      "confidence": 0.977,
+      "bbox": {
+        "page": 1,
+        "x": 0.8118,
+        "y": 0.2942,
+        "w": 0.0893,
+        "h": 0.0158
+      }
+    },
+    "subtotal": {
+      "value": "2847.60",
+      "confidence": 0.937,
+      "bbox": {
+        "page": 1,
+        "x": 0.8423,
+        "y": 0.5492,
+        "w": 0.0621,
+        "h": 0.0158
+      }
+    },
+    "tax": {
+      "value": "0.00",
+      "confidence": 0.981,
+      "bbox": {
+        "page": 1,
+        "x": 0.8709,
+        "y": 0.5682,
+        "w": 0.0335,
+        "h": 0.0158
+      }
+    },
+    "freight": {
+      "value": null,
+      "confidence": 0.0,
+      "bbox": null
+    },
+    "total": {
+      "value": "2847.60",
+      "confidence": 0.961,
+      "bbox": {
+        "page": 1,
+        "x": 0.8276,
+        "y": 0.5987,
+        "w": 0.0768,
+        "h": 0.0171
+      }
+    },
+    "currency": {
+      "value": "USD",
+      "confidence": 0.987,
+      "bbox": {
+        "page": 1,
+        "x": 0.1482,
+        "y": 0.9306,
+        "w": 0.0294,
+        "h": 0.0125
+      }
+    },
+    "remit_to_name": {
+      "value": "Protein Supplier",
+      "confidence": 0.934,
+      "bbox": {
+        "page": 1,
+        "x": 0.1669,
+        "y": 0.9028,
+        "w": 0.3218,
+        "h": 0.0125
+      }
+    },
+    "remit_to_address": {
+      "value": "1285 Terminal Way, New Bedford, MA 02740",
+      "confidence": 0.934,
+      "bbox": {
+        "page": 1,
+        "x": 0.1669,
+        "y": 0.9028,
+        "w": 0.3218,
+        "h": 0.0125
+      }
+    },
+    "bank_routing": {
+      "value": "015849735",
+      "confidence": 0.953,
+      "bbox": {
+        "page": 1,
+        "x": 0.1479,
+        "y": 0.9167,
+        "w": 0.2102,
+        "h": 0.0125
+      }
+    },
+    "bank_account": {
+      "value": "1631556081",
+      "confidence": 0.953,
+      "bbox": {
+        "page": 1,
+        "x": 0.1479,
+        "y": 0.9167,
+        "w": 0.2102,
+        "h": 0.0125
+      }
+    },
+    "lines": [
+      {
+        "description": {
+          "value": "Shrimp 16/20 IQF 2lb × 10",
+          "confidence": 0.977,
+          "bbox": {
+            "page": 1,
+            "x": 0.223,
+            "y": 0.3922,
+            "w": 0.1924,
+            "h": 0.0164
+          }
+        },
+        "qty": {
+          "value": "200",
+          "confidence": 0.985,
+          "bbox": {
+            "page": 1,
+            "x": 0.1123,
+            "y": 0.3922,
+            "w": 0.0306,
+            "h": 0.0164
+          }
+        },
+        "uom": {
+          "value": "lb",
+          "confidence": 0.993,
+          "bbox": {
+            "page": 1,
+            "x": 0.1577,
+            "y": 0.3922,
+            "w": 0.0182,
+            "h": 0.0164
+          }
+        },
+        "unit_price": {
+          "value": "4.12",
+          "confidence": 0.992,
+          "bbox": {
+            "page": 1,
+            "x": 0.7224,
+            "y": 0.3922,
+            "w": 0.0349,
+            "h": 0.0164
+          }
+        },
+        "amount": {
+          "value": "824.00",
+          "confidence": 0.992,
+          "bbox": {
+            "page": 1,
+            "x": 0.8523,
+            "y": 0.3922,
+            "w": 0.0521,
+            "h": 0.0164
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Cod loin 10lb case",
+          "confidence": 0.984,
+          "bbox": {
+            "page": 1,
+            "x": 0.223,
+            "y": 0.4225,
+            "w": 0.1331,
+            "h": 0.0164
+          }
+        },
+        "qty": {
+          "value": "12",
+          "confidence": 0.97,
+          "bbox": {
+            "page": 1,
+            "x": 0.1209,
+            "y": 0.4225,
+            "w": 0.0221,
+            "h": 0.0164
+          }
+        },
+        "uom": {
+          "value": "cs",
+          "confidence": 0.965,
+          "bbox": {
+            "page": 1,
+            "x": 0.1577,
+            "y": 0.4225,
+            "w": 0.0192,
+            "h": 0.0164
+          }
+        },
+        "unit_price": {
+          "value": "68.40",
+          "confidence": 0.977,
+          "bbox": {
+            "page": 1,
+            "x": 0.7138,
+            "y": 0.4225,
+            "w": 0.0435,
+            "h": 0.0164
+          }
+        },
+        "amount": {
+          "value": "820.80",
+          "confidence": 0.992,
+          "bbox": {
+            "page": 1,
+            "x": 0.8523,
+            "y": 0.4225,
+            "w": 0.0521,
+            "h": 0.0164
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Scallops U-10 dry 2lb",
+          "confidence": 0.974,
+          "bbox": {
+            "page": 1,
+            "x": 0.223,
+            "y": 0.4528,
+            "w": 0.156,
+            "h": 0.0164
+          }
+        },
+        "qty": {
+          "value": "8",
+          "confidence": 0.968,
+          "bbox": {
+            "page": 1,
+            "x": 0.1295,
+            "y": 0.4528,
+            "w": 0.0135,
+            "h": 0.0164
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.988,
+          "bbox": {
+            "page": 1,
+            "x": 0.1577,
+            "y": 0.4528,
+            "w": 0.0201,
+            "h": 0.0164
+          }
+        },
+        "unit_price": {
+          "value": "54.25",
+          "confidence": 0.991,
+          "bbox": {
+            "page": 1,
+            "x": 0.7138,
+            "y": 0.4528,
+            "w": 0.0435,
+            "h": 0.0164
+          }
+        },
+        "amount": {
+          "value": "434.00",
+          "confidence": 0.986,
+          "bbox": {
+            "page": 1,
+            "x": 0.8523,
+            "y": 0.4528,
+            "w": 0.0521,
+            "h": 0.0164
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Crab claw meat 5lb",
+          "confidence": 0.963,
+          "bbox": {
+            "page": 1,
+            "x": 0.223,
+            "y": 0.4831,
+            "w": 0.1388,
+            "h": 0.0164
+          }
+        },
+        "qty": {
+          "value": "6",
+          "confidence": 0.969,
+          "bbox": {
+            "page": 1,
+            "x": 0.1295,
+            "y": 0.4831,
+            "w": 0.0135,
+            "h": 0.0164
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.947,
+          "bbox": {
+            "page": 1,
+            "x": 0.1577,
+            "y": 0.4831,
+            "w": 0.0201,
+            "h": 0.0164
+          }
+        },
+        "unit_price": {
+          "value": "71.90",
+          "confidence": 0.995,
+          "bbox": {
+            "page": 1,
+            "x": 0.7138,
+            "y": 0.4831,
+            "w": 0.0435,
+            "h": 0.0164
+          }
+        },
+        "amount": {
+          "value": "431.40",
+          "confidence": 0.963,
+          "bbox": {
+            "page": 1,
+            "x": 0.8523,
+            "y": 0.4831,
+            "w": 0.0521,
+            "h": 0.0164
+          }
+        }
+      },
+      {
+        "description": {
+          "value": "Oysters select 1gal",
+          "confidence": 0.992,
+          "bbox": {
+            "page": 1,
+            "x": 0.223,
+            "y": 0.5134,
+            "w": 0.1345,
+            "h": 0.0164
+          }
+        },
+        "qty": {
+          "value": "4",
+          "confidence": 0.986,
+          "bbox": {
+            "page": 1,
+            "x": 0.1295,
+            "y": 0.5134,
+            "w": 0.0135,
+            "h": 0.0164
+          }
+        },
+        "uom": {
+          "value": "ea",
+          "confidence": 0.932,
+          "bbox": {
+            "page": 1,
+            "x": 0.1577,
+            "y": 0.5134,
+            "w": 0.0201,
+            "h": 0.0164
+          }
+        },
+        "unit_price": {
+          "value": "84.35",
+          "confidence": 0.994,
+          "bbox": {
+            "page": 1,
+            "x": 0.7138,
+            "y": 0.5134,
+            "w": 0.0435,
+            "h": 0.0164
+          }
+        },
+        "amount": {
+          "value": "337.40",
+          "confidence": 0.978,
+          "bbox": {
+            "page": 1,
+            "x": 0.8523,
+            "y": 0.5134,
+            "w": 0.0521,
+            "h": 0.0164
+          }
+        }
+      }
+    ],
+    "document_type": "invoice",
+    "multiple_invoices_detected": false
+  }
+}
