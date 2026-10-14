@@ -1,0 +1,63 @@
+/* Pipeline screen layout (03-screens §2). Values from the design reference; tokens only. */
+.ledger {
+  flex: none;
+  padding: 18px var(--pad-page) 20px;
+  border-bottom: var(--rule-major);
+}
+.ledgerHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-4);
+}
+.ledgerHead h2 { margin: 0; }
+.ledgerBars { margin-top: 14px; }
+
+.body { flex: 1; display: flex; min-height: 0; }
+.left { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+
+.stageNote strong { color: var(--color-text); }
+
+.runs {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 18px 0;
+  display: flex;
+  flex-direction: column;
+}
+.runsHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+.runsHead h2 { margin: 0; }
+
+.inspector { width: 392px; }
+.summary { padding: 16px 20px; border-bottom: var(--rule-minor); }
+.vendor { font-family: var(--font-heading); font-weight: 800; font-size: 16px; margin: 0; }
+.sub { font-size: 12.5px; color: var(--color-neutral-700); margin-top: 3px; }
+.chips { display: flex; gap: var(--space-2); margin-top: 10px; flex-wrap: wrap; }
+
+.timeline { list-style: none; margin: 0; padding: 4px 20px; }
+.event {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: var(--rule-minor);
+}
+.event:last-child { border-bottom: 0; }
+.eventTime { width: 62px; flex: none; font-family: var(--font-heading); font-weight: 800; font-size: 12px; }
+.eventText { font-size: 12px; line-height: 1.5; min-width: 0; overflow-wrap: anywhere; }
+.eventSub { display: block; color: var(--color-neutral-700); }
+.eventRisk strong { color: var(--color-accent-800); }
+
+.footer { line-height: 1.5; }
+.footer a { color: var(--color-text); }
+
+@media (max-width: 1599px) {
+  .inspector { width: 340px; }
+}
+
+/* EmptyState sits flush inside the ledger padding. */
+.ledgerBars > :global(.empty-state) { padding: 0; }

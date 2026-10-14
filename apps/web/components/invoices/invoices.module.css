@@ -1,0 +1,131 @@
+/* Invoices list + detail (03-screens §7.2). Tokens only. */
+
+/* Segmented control rendered as links. Active = ink fill (accent is never an active state). */
+.seg { display: inline-flex; border: var(--rule-minor); flex: none; }
+.segOpt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-size: 12.5px;
+  color: var(--color-text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.segOpt + .segOpt { border-left: var(--rule-minor); }
+.segOpt:hover { background: var(--hover-ink); color: var(--color-text); }
+.segOpt[aria-current="page"] {
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: var(--font-heading);
+  font-weight: 800;
+}
+
+.filterBar {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
+  padding: 14px var(--pad-page);
+  border-bottom: var(--rule-major);
+}
+.filterForm { display: flex; align-items: flex-end; gap: var(--space-3); flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field :global(.input) { min-height: 34px; font-size: 12.5px; padding: 5px 8px; border-radius: 0; }
+.select { min-width: 180px; }
+.date { width: 150px; }
+.clear { font-size: 12px; color: var(--color-neutral-700); align-self: center; }
+.clear:hover { color: var(--color-text); }
+
+.list { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 var(--pad-page); }
+.list > :first-child { flex: 1; }
+.pager {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 12px 0;
+  border-top: var(--rule-major);
+  font-size: 12px;
+  color: var(--color-neutral-700);
+}
+.pagerLinks { display: flex; gap: var(--space-2); }
+.pagerLink {
+  border: 1px solid var(--color-text);
+  padding: 6px 12px;
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 12px;
+}
+.pagerLink:hover { background: var(--hover-ink); color: var(--color-text); }
+.pagerLink[aria-disabled="true"] { opacity: 0.45; pointer-events: none; }
+
+.rowLink { color: inherit; text-decoration: none; }
+.rowLink:hover { text-decoration: underline; color: inherit; }
+.sub { display: block; font-size: 11px; color: var(--color-neutral-700); }
+
+/* Detail */
+.trio {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: var(--rule-major);
+}
+.trioCell { padding: 14px var(--pad-page); border-right: var(--rule-minor); min-width: 0; }
+.trioCell:last-child { border-right: 0; }
+.trioValue { font-family: var(--font-heading); font-weight: 800; font-size: 17px; margin-top: 4px; }
+.trioSub { font-size: 11.5px; color: var(--color-neutral-700); margin-top: 3px; }
+
+.tabs {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 14px var(--pad-page);
+  border-bottom: var(--rule-minor);
+}
+.tabBody { flex: 1; min-height: 0; overflow: auto; padding: 0 var(--pad-page) 24px; display: flex; flex-direction: column; }
+.tabBody > * { flex: none; }
+
+.cellMain { display: block; }
+.cellSub { display: block; font-size: 11px; color: var(--color-neutral-700); }
+
+.docFrame {
+  margin-top: 18px;
+  background: var(--color-neutral-200);
+  border: 1px solid var(--color-neutral-400);
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  min-height: 480px;
+}
+.docImg { max-width: 100%; height: auto; display: block; border: 1px solid var(--color-neutral-400); }
+.docPdf { width: 100%; min-height: 720px; border: 0; background: var(--color-bg); }
+.docMeta { margin-top: 10px; font-size: 11.5px; color: var(--color-neutral-700); }
+
+.auditHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 14px 0 10px;
+}
+.verify { display: flex; align-items: center; gap: var(--space-3); }
+.verifyOk { font-size: 12px; font-weight: 600; }
+.verifyBad { font-size: 12px; font-weight: 600; color: var(--color-accent-700); }
+.hash {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+}
+.diff { font-size: 11.5px; line-height: 1.5; overflow-wrap: anywhere; max-width: 520px; }
+.diffArrow { color: var(--color-neutral-700); }
+
+@media (max-width: 1599px) {
+  .trio { grid-template-columns: repeat(2, 1fr); }
+}
+
+.metaLink { color: var(--color-text); }
+.metaLink:hover { color: var(--color-text); }

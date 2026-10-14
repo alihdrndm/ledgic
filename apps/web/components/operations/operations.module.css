@@ -1,0 +1,140 @@
+/* Operations screen layout (03-screens §6). Tokens only. */
+.disclosure {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px var(--pad-page);
+  background: var(--color-neutral-200);
+  border-bottom: var(--rule-major);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.disclosure p { margin: 0; }
+
+.metrics {
+  flex: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: var(--rule-major);
+}
+.formula { margin: 0; }
+.formula + .formula { margin-top: 8px; }
+.formulaMuted { color: var(--color-neutral-700); }
+
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 490px 1fr 400px;
+  min-height: 0;
+}
+.col {
+  padding: 16px var(--pad-page);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: var(--rule-minor);
+}
+.col:last-child { border-right: 0; }
+
+.catch {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 12px 0;
+  border-bottom: var(--rule-minor);
+}
+.catchAmount {
+  width: 78px;
+  flex: none;
+  text-align: right;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--color-accent-700);
+}
+.catchText { font-size: 12.5px; line-height: 1.5; min-width: 0; }
+.catchText a { color: inherit; }
+
+.footStats {
+  margin-top: auto;
+  border-top: var(--rule-major);
+  padding-top: 12px;
+  display: flex;
+  gap: 30px;
+}
+.footStat { display: flex; flex-direction: column; }
+.footStatLabel { font-size: 11px; color: var(--color-neutral-700); }
+.footStatRisk { color: var(--color-accent-700); }
+
+.locRow {
+  display: grid;
+  grid-template-columns: 104px 1fr 46px 56px;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: var(--rule-minor);
+  font-size: 12px;
+}
+.locName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.locTrack { height: 11px; background: var(--color-neutral-300); }
+.locFill { display: block; height: 11px; background: var(--color-neutral-700); }
+.locTop .locName { font-weight: 800; font-family: var(--font-heading); }
+.locTop .locFill { background: var(--color-text); }
+.locNum { text-align: right; font-variant-numeric: tabular-nums; }
+.locHigh { color: var(--color-accent-800); font-weight: 700; }
+
+.note { font-size: 11px; color: var(--color-neutral-700); line-height: 1.5; }
+.autoNote { margin-top: auto; padding-top: 12px; }
+
+.spark { margin-top: 14px; }
+.accNote { font-size: 11.5px; color: var(--color-neutral-700); margin-top: 12px; line-height: 1.5; }
+
+.erp { margin-top: auto; border-top: var(--rule-major); padding-top: 12px; }
+.erpRow { display: flex; justify-content: space-between; font-size: 12px; margin-top: 8px; gap: 12px; }
+.erpRow + .erpRow { margin-top: 5px; }
+.erpVal { color: var(--color-neutral-700); font-variant-numeric: tabular-nums; }
+.erpFail { color: var(--color-accent-700); }
+
+/* Period menu (top-bar context). Fixed so the context's overflow:hidden can't clip it. */
+.periodBtn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--color-divider);
+  text-underline-offset: 3px;
+}
+.periodBtn:hover { color: var(--color-text); }
+.periodMenu {
+  position: fixed;
+  z-index: 60;
+  min-width: 220px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--color-surface);
+  border: var(--rule-minor);
+  box-shadow: var(--shadow-lg);
+}
+.periodItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 14px;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.periodItem:hover, .periodItem:focus-visible { background: var(--hover-ink); }
+.periodItem[aria-checked="true"] { font-weight: 600; box-shadow: inset 3px 0 0 var(--color-text); }
+
+@media (max-width: 1599px) {
+  .grid { grid-template-columns: 420px 1fr 340px; }
+}
