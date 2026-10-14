@@ -23,3 +23,4 @@ tools/corpus/out/
 playwright-report/
 test-results/
 .DS_Store
+.coverage.*
