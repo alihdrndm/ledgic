@@ -28,3 +28,4 @@ test-results/
 *.pem
 *.key
 apps/web/e2e/.auth/
+.playwright-mcp/

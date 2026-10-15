@@ -118,14 +118,17 @@ export async function getDefaultMatchInvoice(orgId: string): Promise<string | nu
     .limit(1)
     .maybeSingle();
   if (ex && (ex as { invoice_id: string }).invoice_id) return (ex as { invoice_id: string }).invoice_id;
-  const { data: m } = await db
-    .from("v_match_detail")
-    .select("invoice_id, computed_at")
+  // Latest received invoice that has a match result. Not v_match_detail: sorting that per-line view
+  // across every invoice outlasts the statement timeout, which used to leave /match empty.
+  const { data: m, error } = await db
+    .from("invoices")
+    .select("id, match_results!inner(invoice_id)")
     .eq("org_id", orgId)
-    .order("computed_at", { ascending: false })
+    .order("received_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  return (m as { invoice_id: string } | null)?.invoice_id ?? null;
+  if (error) console.error("getDefaultMatchInvoice:", error.message);
+  return (m as { id: string } | null)?.id ?? null;
 }
 
 export async function getMatchStatus(orgId: string): Promise<{ workflowVersion: string | null; degraded: string | null }> {
