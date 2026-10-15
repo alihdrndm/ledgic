@@ -16,5 +16,10 @@
     "db:reset": "npx supabase@latest db reset",
     "db:test": "npx supabase@latest test db",
     "db:types": "npx supabase@latest gen types typescript --local > packages/db-types/src/database.ts"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.28"
+    }
   }
 }
