@@ -49,6 +49,24 @@ test("Ask Ledgic answers a suggested question with a citation", async ({ page })
   await expect(drawer.getByRole("alert")).toHaveCount(0);
 });
 
+test("Ask Ledgic cites the contract clause behind the PS-88214 hold", async ({ page }) => {
+  // Not cached by design (it reads live exception data), so against a deployed site this spends one
+  // live answer unless the day's AI budget is gone (then the retrieval-only answer must cite it too).
+  test.skip(!process.env.E2E_ALLOW_LIVE_AI && !!process.env.E2E_BASE_URL, "set E2E_ALLOW_LIVE_AI=1 to run against a deployed site");
+  test.setTimeout(120_000);
+  await page.goto(`/o/${ORG}/match`);
+  const drawer = page.getByRole("dialog", { name: "Ask Ledgic" });
+  await expect(async () => {
+    await page.getByRole("button", { name: "Ask Ledgic" }).first().click();
+    await expect(drawer).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 30_000 });
+  await drawer.getByRole("button", { name: "Why is PS-88214 on hold?" }).click();
+  const chip = drawer.locator(".cp-cite").first();
+  await expect(chip).toBeVisible({ timeout: 90_000 });
+  await expect(drawer.locator(".cp-sources")).toContainText(/4\.2/);
+  await expect(drawer.getByRole("alert")).toHaveCount(0);
+});
+
 test("viewer sees decision buttons disabled with Read-only access", async ({ page }) => {
   const href = await invoiceHref(page, "PS-88214");
   test.skip(!href, "hero PS-88214 is not seeded yet");

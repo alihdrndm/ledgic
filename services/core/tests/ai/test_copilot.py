@@ -114,7 +114,7 @@ async def test_retrieval_only_includes_exception_facts(mocked_kb, fixture_gatewa
                 "reasons": ["Goods were received in full."],
             },
             "latest_decision": None,
-            "lines": [{"clause_ref": "4.2"}],
+            "lines": [{"clause_ref": "4.1", "verdict": "matched"}, {"clause_ref": "4.2", "verdict": "price_variance"}],
         }
 
     monkeypatch.setattr(copilot, "get_exception", fake_exc)

@@ -81,7 +81,8 @@ Captured from the live demo (`docs/screenshots/`). Design targets from the hando
   **money-figure guard** extracts every dollar amount from the draft and rejects it unless each one equals
   a figure from the deterministic facts. The model reads; it never decides.
 - **Ask Ledgic copilot**: a RAG agent with read-only tools (≤ 6 tool calls, ≤ 1.5k output tokens) that
-  answers with numbered, clause-level citations and streams over SSE.
+  answers with numbered, clause-level citations (an explained exception always cites the contract clause
+  behind it, even if the model forgets to) and streams over SSE.
 - **Durable orchestrator**: no workflow engine. A Python state machine with state in Postgres. Workers claim
   runs with `FOR UPDATE SKIP LOCKED` and a lease, and each stage returns advance / park / retry / finish /
   fail. Retries back off over 10 s to 300 s, then the run goes to a dead letter. A human-in-the-loop
@@ -311,7 +312,7 @@ Then ask *"Why is PS-88214 held?"*. The client calls `explain_match` and `search
 
 | Suite | Count | Command |
 |---|---|---|
-| Core unit tests (domain math incl. hypothesis properties, orchestrator, AI agents and guards, RAG, MCP, API, corpus) | **285** | `cd services/core && uv run pytest` |
+| Core unit tests (domain math incl. hypothesis properties, orchestrator, AI agents, guards and citations, RAG, MCP, API, corpus; 20 need a local Supabase) | **328** | `cd services/core && uv run pytest` |
 | Core integration scenarios against local Supabase (touchless, smudge → resume, short-pay, duplicate merge, fraud release + SoD, posting failure → retry, re-delivery no-op) | **8** | `uv run pytest -m integration` |
 | Database (pgTAP): RLS isolation, audit immutability and chain, decision RPC limits + SoD, KPI views | **113** | `npx supabase test db` |
 | Web: types, lint, design-token lint | | `pnpm typecheck && pnpm lint && pnpm --filter @ledgic/web check:tokens` |
