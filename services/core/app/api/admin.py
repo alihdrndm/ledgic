@@ -193,6 +193,8 @@ async def reset_demo(body: ResetBody, _: Principal = Depends(service_only)) -> A
     try:
         async with connection() as conn, conn.transaction():
             if await val(conn, "select 1 from orgs where id = %s", (org,)):
+                # A full demo org (audit chain + 14-30 days of runs) outlasts Supabase's default timeout.
+                await conn.execute("set local statement_timeout = 0")
                 purged = await val(conn, "select public.demo_purge_org(%s) as r", (org,)) or {}
         seeded = await seed_master(org)
     except BaseException:
