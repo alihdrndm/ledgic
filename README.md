@@ -1,124 +1,128 @@
-# Ledgic
+<p align="center">
+  <img src="docs/media/ledgic-banner.png" alt="Ledgic: open-source accounts payable automation" width="100%">
+</p>
 
-**Open-source accounts-payable automation: AI extraction, three-way matching, tool-using agents, RAG and an MCP server, built on a durable Python orchestrator with every KPI computed in SQL.**
+<h1 align="center">Ledgic: open-source AI accounts payable automation</h1>
 
-Ledgic takes supplier invoices (PDFs and phone photos from the receiving dock), reads them with a vision
-model that reports a confidence for every field, matches each line against the purchase order, the goods
-receipt and the contract price, and either posts the bill to the ERP with no human touch or parks it in an
-exception queue with the evidence and a recommendation attached. Every decision lands in a hash-chained,
-append-only audit log. It runs on a clearly labelled synthetic tenant (Northside Restaurant Group: 3 legal
-entities, 34 locations), it is live, and every number on every screen is a SQL view over real pipeline runs.
+<p align="center">
+  <b>Invoice processing with AI agents, RAG and an MCP server.</b><br>
+  Reads supplier invoices, runs a three-way match against the purchase order, the goods receipt and the contract,<br>
+  and posts clean bills to the ERP with no human touch. Everything else goes to a person, with the evidence attached.
+</p>
 
-[![CI](https://github.com/alihdrndm/ledgic/actions/workflows/ci.yml/badge.svg)](https://github.com/alihdrndm/ledgic/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-black.svg)](LICENSE)
-![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
-![Next.js 15](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs)
-![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20pgvector-3ECF8E?logo=supabase&logoColor=white)
-![MCP](https://img.shields.io/badge/MCP-server-6E56CF)
+<p align="center">
+  <a href="https://ledgic-pearl.vercel.app"><b>Live demo</b></a> ·
+  <a href="#how-ledgic-works">How it works</a> ·
+  <a href="#ai-agents-rag-and-mcp">Agents, RAG and MCP</a> ·
+  <a href="#run-ledgic-locally">Run locally</a> ·
+  <a href="docs/ARCHITECTURE.md">Architecture</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/alihdrndm/ledgic/actions/workflows/ci.yml"><img src="https://github.com/alihdrndm/ledgic/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/alihdrndm/ledgic/actions/workflows/codeql.yml"><img src="https://github.com/alihdrndm/ledgic/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/alihdrndm/ledgic"><img src="https://api.securityscorecards.dev/projects/github.com/alihdrndm/ledgic/badge" alt="OpenSSF Scorecard"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs" alt="Next.js 15">
+  <img src="https://img.shields.io/badge/Supabase-Postgres%20%2B%20pgvector-3ECF8E?logo=supabase&logoColor=white" alt="Supabase">
+  <img src="https://img.shields.io/badge/MCP-server-6E56CF" alt="MCP server">
+</p>
+
+<p align="center">
+  <img src="docs/media/ledgic-tour.gif" alt="Ledgic tour: pipeline, extraction review, three-way match, exceptions, operations and a verified audit chain" width="100%">
+</p>
 
 ---
 
-## Live demo
+A shrimp supplier bills **$4.12 a pound**. The contract on file says **$3.68**. On a 200 lb order that is $88 nobody agreed to pay, hidden on line 1 of a five-line invoice.
 
-| | |
-|---|---|
-| **Web app** | **https://ledgic-pearl.vercel.app** |
-| Core API | https://core-production-f996.up.railway.app ([`/health`](https://core-production-f996.up.railway.app/health)) |
-| MCP endpoint | `https://core-production-f996.up.railway.app/mcp` (bearer token, see [MCP](#use-it-from-claude-desktop--cursor-via-mcp)) |
+Ledgic catches it in under a second. It reads the PDF, finds clause 4.2 of the supplier agreement, sees the goods arrived in full, and recommends paying **$2,759.60** and holding **$88.00**. An AP manager clicks once. The bill posts to the ERP and the decision lands in a tamper-evident audit log.
 
-On the login page, pick one:
+That is the whole product in one invoice: **accounts payable automation where AI reads the documents and deterministic code decides the money.**
 
-- **Open the demo**: signs you in as the read-only *Demo Viewer*. You can see every screen, open any
-  invoice, verify the audit chain and ask the copilot questions. Action buttons are disabled.
-- **Try as Elena (AP manager)**: signs you in as Elena Marsh, who can confirm extracted fields and decide
-  exceptions up to the $5,000 manager limit. Short-pay PS-88214 and watch the paused run resume and post.
+## What is Ledgic?
 
-No email is needed. The demo replays about 180 documents a day (heroes at fixed times, America/New_York)
-and resets nightly.
+Ledgic is an open-source **AP automation** platform. It turns a supplier invoice into a posted, coded, audited bill, and it only asks a human when something is actually wrong.
+
+**Accounts payable** (AP) is the team that pays a company's suppliers. Their core control is the **three-way match**: before paying, check that the invoice agrees with the **purchase order** (what you ordered) and the **goods receipt** (what actually arrived). Ledgic adds a fourth leg, the **contract price**, because that is where overbilling hides.
+
+It runs live on a fictional customer, Northside Restaurant Group: 3 legal entities, 34 restaurants, around 180 invoices a day. Every number on every screen is a SQL query over real pipeline runs. Nothing is mocked in the UI.
+
+## Try the live demo in 30 seconds
+
+Open **[ledgic-pearl.vercel.app](https://ledgic-pearl.vercel.app)** and pick a door. No email or sign-up needed.
+
+| Button | You become | What you can do |
+|---|---|---|
+| **Open the demo** | Demo Viewer, read-only | Browse every screen, open any invoice, verify the audit chain, ask the copilot |
+| **Try as Elena (AP manager)** | Elena Marsh, approves up to $5,000 | Confirm extracted fields, short-pay PS-88214, watch the paused run resume and post |
+
+The demo replays a full business day on a schedule (America/New_York) and resets every night, so you can't break it.
+
+## How Ledgic works
+
+An invoice moves through seven stages. Each one is a step in a **durable workflow**, which means its progress is saved in the database, so a crash or a deploy never loses an invoice halfway.
+
+1. **Intake.** Email PDFs, vendor portals, EDI and phone photos from the receiving dock. Every file is SHA-256 hashed, so a supplier who sends the same invoice twice never creates a second payment.
+2. **AI invoice extraction.** A vision model reads the document into a strict schema: header fields and every line item, each with a **confidence score** and the box on the page where it found it. A confidence gate (document 0.90, every field 0.75) decides whether a person must look.
+3. **Enrichment.** Fuzzy vendor matching with aliases, purchase order linking, GL coding per line (nearest neighbours over past coded invoices), legal entity and location.
+4. **Duplicate and fraud screening.** Invoice-number similarity, amount and date, line overlap and a perceptual image hash catch duplicates. Bank details that differ from the W-9, a brand-new vendor, no PO and a changed remit address raise a fraud score.
+5. **Three-way match.** Every line against the PO, the goods receipt and the contract price, with a tolerance of ±2% or $25, whichever is lower. All money math uses exact decimals, never floats.
+6. **Touchless posting or a human exception.** Clean invoices post to QuickBooks or NetSuite through an ERP adapter interface (mock adapters today) with entity, location and GL coding. Anything else becomes an exception with a recommendation, and the database enforces who may decide it.
+7. **Audit.** Every confirmation, decision and system action is appended to a **SHA-256 hash chain** per organization. Change one old row and verification fails from that row on.
+
+**The part people get wrong about AI in finance:** the model never decides a payment. It reads documents and drafts explanations. The pay, hold and approve logic is plain, tested Python, and the approval limits live in Postgres. If an AI-drafted vendor notice contains a dollar figure that isn't in the deterministic facts, a guard rejects the draft.
+
+## AI agents, RAG and MCP
+
+### AI agents
+
+| Agent | Job | Guardrail |
+|---|---|---|
+| **Extraction agent** | `gpt-4.1-mini` vision through the OpenAI Agents SDK into a strict pydantic schema with per-field confidence and bounding boxes | A deterministic confidence gate decides who looks, not the model |
+| **Resolution agent** | Uses tools (contract-clause search, vendor history, PO and receipt lookup, the deterministic recommendation) to draft vendor notices and internal explanations with citations | A **money-figure guard** rejects any draft whose dollar amounts don't match the facts |
+| **Ask Ledgic copilot** | A RAG agent with read-only tools that answers AP questions with numbered, clause-level citations, streamed over Server-Sent Events | Explaining an exception always cites the contract clause behind it; refs the tools never returned are dropped |
+
+The agents run inside a **durable orchestrator** written in Python, with no workflow engine. Workers claim runs from Postgres with `FOR UPDATE SKIP LOCKED` and a lease. Each stage returns advance, park, retry, finish or fail. A human decision **parks** a run, and the decision RPC **resumes** it in the same transaction with Postgres `LISTEN/NOTIFY`.
+
+### RAG: retrieval-augmented generation over contracts and policy
+
+- **Hybrid search:** pgvector embeddings (`text-embedding-3-small`, 512 dimensions) and Postgres full-text search, fused with **reciprocal rank fusion** in one SQL function, then a BM25 rerank.
+- **Clause-aware chunking:** headings keep their clause numbers (`## 4.2 Pricing` becomes `4.2`), so answers cite *Protein Supplier agreement §4.2*, not "the contract".
+- **Budget-aware fallback:** cached answer, then live agent, then a retrieval-only answer built from verbatim quotes. When the AI budget runs out, the copilot still answers, and it still can't invent anything.
+
+### MCP server: Model Context Protocol
+
+Ledgic ships an **MCP server**, so any MCP client (Cursor, Claude Desktop, VS Code) can work with live AP data.
+
+- **8 tools:** `list_exceptions`, `get_invoice`, `explain_match`, `search_contracts`, `ask_ledgic`, `get_kpis`, `verify_audit_chain`, `decide_exception`. Plus 2 resources and 2 prompts.
+- **Two transports:** streamable HTTP at `/mcp` and a `ledgic-mcp` stdio entry point.
+- **Permissions enforced by the database.** Every tool call runs as the token's user. A read-only token that reaches `decide_exception` is still refused by the decision RPC.
+
+Ask your MCP client *"Why is PS-88214 held?"* and it calls `explain_match` and `search_contracts`, then cites clause 4.2. Setup and the security model: **[docs/MCP.md](docs/MCP.md)**.
+
+## Five scenarios, replayed every day
+
+Each demo day replays five scenario invoices at fixed times. Their numbers are pinned in [`contracts/fixtures.json`](contracts/fixtures.json) and asserted exactly in tests.
+
+| Invoice | What happens | Ledgic's outcome |
+|---|---|---|
+| **PS-88214** · Protein Supplier | Shrimp billed $4.12/lb vs contract $3.68/lb (clause 4.2). +12.0% on a ±2% / $25 tolerance | **Short-pay** $2,759.60, hold $88.00, notify the vendor. Confidence 0.94 |
+| **PR-2214** · Produce Supplier | Dock photo with a smudged quantity. Field confidence 0.71, document 0.88 | **Extraction review.** A clerk confirms one field, the run resumes |
+| **PR-2201** · Produce Supplier | Same invoice by email at 08:02 and as a dock photo at 16:44 | **Duplicate**, payment blocked, merged so the copy can never be paid |
+| **NV-0001** · Unlisted Supplier | Bank details differ from the W-9, vendor 4 days old, no PO, new remit address | **Fraud hold** (score 0.90). Only a controller can release it, and never the person who created the vendor |
+| **BD-104882** · Broadline Distributor | Clean invoice, every line within tolerance | **Touchless.** Posted to the ERP with zero human actions |
 
 ## Screens
 
-Captured from the live demo (`docs/screenshots/`). Design targets from the handoff are in
-`docs/handoff/design/screens/`.
-
 | Pipeline | Extraction review |
 |---|---|
-| ![Pipeline](docs/screenshots/pipeline.png) | ![Extraction review](docs/screenshots/extraction.png) |
+| ![Ledgic pipeline: invoice volume through intake, extraction, enrichment, three-way match and posting](docs/screenshots/pipeline.png) | ![Ledgic extraction review: a dock photo with a low-confidence quantity awaiting confirmation](docs/screenshots/extraction.png) |
 | **Three-way match** | **Exceptions** |
-| ![Three-way match](docs/screenshots/match.png) | ![Exceptions](docs/screenshots/exceptions.png) |
-| **Operations** | **Login** |
-| ![Operations](docs/screenshots/operations.png) | ![Login](docs/screenshots/login.png) |
-
-## What it does
-
-1. **Intake.** Upload or mobile `/capture` (dock photos). Files are SHA-256 hashed; a re-delivered file
-   never creates a second run.
-2. **AI extraction.** A vision agent returns a strict schema: header fields and line items, each with a
-   confidence and a bounding box. A confidence gate (document ≥ 0.90, every field ≥ 0.75) decides whether
-   a person must look.
-3. **Enrichment.** Vendor resolution (fuzzy + aliases), PO linking, GL coding per line (kNN over coded
-   history), entity and location assignment.
-4. **Duplicate and fraud screening.** Invoice-number trigrams, amount/date, line overlap and perceptual
-   image hash for duplicates; bank details vs W-9, vendor age, missing PO and new remit address for fraud.
-5. **Three-way match.** Each line vs PO vs goods receipt vs **contract price**, with tolerance
-   *± 2 % or $25, whichever is lower*. All money math is `Decimal`.
-6. **Touchless post or human exception.** Clean invoices post to a (mocked) QuickBooks / NetSuite with
-   entity, location and GL coding. Everything else becomes an exception with a deterministic
-   recommendation, and the decision is **role-gated in the database** (clerk, AP manager up to $5,000,
-   controller above that and for fraud holds; segregation of duties).
-7. **Audit.** Every field confirmation, decision and system action is written to a per-org SHA-256 hash
-   chain that the UI (and the MCP server) can verify on demand.
-
-## Why it's interesting
-
-**Agents**
-- **Extraction agent**: `gpt-4.1-mini` vision via the OpenAI Agents SDK into a strict pydantic schema
-  (`contracts/extraction.schema.json`) with per-field confidence and bbox; calibrated and gated by
-  deterministic code.
-- **Resolution agent**: a tool-using agent (contract-clause RAG, vendor history, PO/GRN lookup, the
-  deterministic recommendation) drafts vendor notices and internal explanations with citations. A
-  **money-figure guard** extracts every dollar amount from the draft and rejects it unless each one equals
-  a figure from the deterministic facts. The model reads; it never decides.
-- **Ask Ledgic copilot**: a RAG agent with read-only tools (≤ 6 tool calls, ≤ 1.5k output tokens) that
-  answers with numbered, clause-level citations (an explained exception always cites the contract clause
-  behind it, even if the model forgets to) and streams over SSE.
-- **Durable orchestrator**: no workflow engine. A Python state machine with state in Postgres. Workers claim
-  runs with `FOR UPDATE SKIP LOCKED` and a lease, and each stage returns advance / park / retry / finish /
-  fail. Retries back off over 10 s to 300 s, then the run goes to a dead letter. A human-in-the-loop
-  decision **parks** the run, and the decision RPC **resumes** it in the same transaction with
-  `pg_notify` (Postgres `LISTEN/NOTIFY`).
-
-**RAG**
-- pgvector (`text-embedding-3-small` @ 512 dims) and Postgres full-text search fused with **reciprocal-rank
-  fusion** (k = 60) in one SQL function (`kb_search`), then a BM25 rerank over the candidate pool.
-- Heading-aware chunking keeps **clause references** (`## 4.2 Pricing` → `4.2`), so answers cite
-  *Protein Supplier agreement §4.2* rather than "the contract".
-- **Budget-aware degradation**: cached answer → live agent → retrieval-only answer built from verbatim
-  quotes when the daily budget is spent, so the copilot never fails and never invents.
-
-**MCP**
-- 8 tools (`list_exceptions`, `get_invoice`, `explain_match`, `search_contracts`, `ask_ledgic`, `get_kpis`,
-  `verify_audit_chain`, `decide_exception`), 2 resources, 2 prompts. Streamable HTTP at `/mcp` and a
-  `ledgic-mcp` stdio entry point.
-- Permissions are **enforced by the database**: every tool runs as the token's user, so a read-only demo
-  token that somehow reached `decide_exception` would still be refused by `rpc_decide_exception`.
-
-**Honest metrics**
-- No hard-coded numbers. Every KPI on Operations is a SQL view or materialized view (`v_ops_period`,
-  `v_location_period`, `v_eval_weekly`, …). Assumptions such as the loaded hourly rate are shown, and the
-  external benchmark is labelled as external.
-
-**Security**
-- Row-level security on every table, `security_invoker` views, `security definer` RPCs with a fixed
-  `search_path`, segregation of duties (you can't approve an invoice whose amounts you edited, or release
-  a vendor you created), an append-only hash-chained audit log guarded by triggers, and **113 pgTAP tests**.
-
-**Cost engineering**
-- **$0 infrastructure**: Supabase Free, Vercel Hobby, and one Railway service on the existing Hobby plan.
-- **$0.50/day hard LLM cap**: every model call reserves its estimated cost atomically in Postgres
-  (`llm_budget_reserve`) and settles the actual cost from token usage. The cap fails closed. Replay uses
-  recorded outputs ($0). Visitors can bring their own key (`X-OpenAI-Key`, used for that request only, never stored).
+| ![Ledgic three-way match: invoice vs purchase order vs goods receipt vs contract price, with a short-pay recommendation](docs/screenshots/match.png) | ![Ledgic exceptions queue: duplicate, fraud and price variance holds with evidence](docs/screenshots/exceptions.png) |
+| **Operations** | **Sign in** |
+| ![Ledgic operations dashboard: cost per invoice, touchless rate and money held back, all computed in SQL](docs/screenshots/operations.png) | ![Ledgic sign-in with one-click demo access](docs/screenshots/login.png) |
 
 ## Architecture
 
@@ -127,7 +131,7 @@ flowchart LR
   subgraph Browser
     U[Operator / visitor]
   end
-  subgraph Vercel["Vercel · apps/web (Next.js 15, RSC + server actions)"]
+  subgraph Vercel["Vercel · apps/web (Next.js 15)"]
     W[Screens · Copilot panel · /capture]
   end
   subgraph Railway["Railway · services/core (FastAPI, Python 3.12)"]
@@ -137,26 +141,26 @@ flowchart LR
     RAG[Hybrid RAG]
     MCP[MCP server /mcp]
     SCH[Scheduler<br/>replay · SLA · nightly]
-    ERP[Mock QuickBooks / NetSuite]
+    ERP[ERP adapters<br/>QuickBooks · NetSuite mocks]
   end
-  subgraph Supabase["Supabase Free"]
-    PG[(Postgres 15<br/>RLS · RPCs · views<br/>pgvector · FTS · pg_cron)]
+  subgraph Supabase
+    PG[(Postgres<br/>RLS · RPCs · views<br/>pgvector · FTS · pg_cron)]
     AUTH[Auth]
     ST[Storage]
     RT[Realtime]
   end
   OAI[(OpenAI<br/>gpt-4.1-mini · embeddings)]
-  MC[Claude Desktop / Cursor<br/>any MCP client]
+  MC[MCP clients<br/>Cursor · Claude Desktop]
 
   U --> W
   W -- user JWT, RLS --> PG
-  W -- rpc_confirm_fields / rpc_decide_exception --> PG
+  W -- decision RPCs --> PG
   W -- JWT or HMAC --> API
-  W -. subscribe .-> RT
+  W -. live updates .-> RT
   W --> AUTH
   W -- signed upload --> ST
   API --> ORCH
-  PG -- NOTIFY ledgic_runs --> ORCH
+  PG -- NOTIFY --> ORCH
   ORCH --> AI
   AI --> RAG
   RAG --> PG
@@ -164,94 +168,64 @@ flowchart LR
   ORCH --> PG
   SCH --> ORCH
   AI -- capped, metered --> OAI
-  MC -- bearer PAT --> MCP
-  MCP -- as token's user --> PG
+  MC -- bearer token --> MCP
+  MCP -- as the token's user --> PG
 ```
 
-Human-in-the-loop park and resume:
+How a human decision pauses and resumes an invoice:
 
 ```mermaid
 sequenceDiagram
   autonumber
-  participant W as Worker (core)
+  participant W as Worker
   participant DB as Postgres
   participant UI as Web (Elena)
-  participant ERP as Mock ERP
+  participant ERP as ERP
   W->>DB: claim run (FOR UPDATE SKIP LOCKED, 60 s lease)
-  W->>W: match stage: line 1 +12.0 % vs ±2 % / $25 → fail
-  W->>DB: insert exception + recommendation (pay 2,759.60 / hold 88.00)
-  W->>DB: run status = waiting, wait_exception_id, pipeline_event "waiting"
-  DB-->>UI: Realtime: exceptions / pipeline_events changed
+  W->>W: match: line 1 is +12.0% vs ±2% / $25, fail
+  W->>DB: exception + recommendation (pay 2,759.60 / hold 88.00)
+  W->>DB: run waiting on that exception
+  DB-->>UI: Realtime: new exception
   UI->>DB: rpc_decide_exception(short_pay) as Elena
-  Note over DB: one transaction: role + limit + SoD checks,<br/>approval row, hash-chained audit row,<br/>run → running, pg_notify('ledgic_runs')
-  DB-->>W: NOTIFY ledgic_runs (run id)
-  W->>DB: claim run, route_resume(short_pay) → posting
+  Note over DB: one transaction: role, limit and<br/>segregation-of-duties checks, approval,<br/>audit row, run resumed, pg_notify
+  DB-->>W: NOTIFY (run id)
   W->>ERP: post bill (pay 2,759.60, hold 88.00)
-  W->>DB: erp_postings + close stage, run succeeded
+  W->>DB: run succeeded
 ```
 
-Deeper write-ups: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · [docs/AGENTS_RAG.md](docs/AGENTS_RAG.md) ·
-[docs/MCP.md](docs/MCP.md) · [docs/RUNBOOK.md](docs/RUNBOOK.md).
+Deeper write-ups: [Architecture](docs/ARCHITECTURE.md) · [Agents and RAG](docs/AGENTS_RAG.md) · [MCP](docs/MCP.md) · [Runbook](docs/RUNBOOK.md) · [Design decisions](docs/DECISIONS.md)
 
 ## Tech stack
 
-| Layer | Choice |
+| Layer | Technology |
 |---|---|
-| Web | Next.js 15.5 (App Router, React Server Components, server actions), React 19, TypeScript 5.9, `@supabase/ssr`, `decimal.js`, `lucide-react`, Playwright + axe |
-| Core | Python 3.12, FastAPI, pydantic 2, psycopg 3 (async pool), APScheduler 3, rapidfuzz, scipy, Pillow + imagehash, pypdfium2, reportlab, uv |
-| AI | OpenAI `gpt-4.1-mini` (vision, structured outputs) via the OpenAI Agents SDK, `text-embedding-3-small` @ 512 dims |
-| MCP | Official `mcp` Python SDK: streamable HTTP + stdio |
-| Data | Supabase: Postgres 15, pgvector, pg_trgm, pgcrypto, pg_cron, Auth, Storage, Realtime |
-| Tests | pytest + hypothesis, pgTAP, Playwright |
-| Hosting | Vercel Hobby (web), Railway (core, Dockerfile), Supabase Free |
-| CI | GitHub Actions: ruff, pytest, tsc, ESLint, token lint, `supabase test db`, gitleaks |
+| **Frontend** | Next.js 15 (App Router, React Server Components, server actions), React 19, TypeScript, `@supabase/ssr`, `decimal.js` |
+| **Backend** | Python 3.12, FastAPI, pydantic 2, psycopg 3 async pool, APScheduler, rapidfuzz, scipy, Pillow + imagehash, uv |
+| **AI** | OpenAI `gpt-4.1-mini` (vision, structured outputs) via the OpenAI Agents SDK, `text-embedding-3-small` |
+| **MCP** | Official `mcp` Python SDK: streamable HTTP and stdio |
+| **Database** | Supabase Postgres with pgvector, pg_trgm, pgcrypto, pg_cron, Auth, Storage and Realtime |
+| **Testing** | pytest + hypothesis, pgTAP, Playwright + axe |
+| **Hosting** | Vercel (web), Railway (core, Docker), Supabase |
+| **CI and security** | GitHub Actions, CodeQL, OpenSSF Scorecard, gitleaks, Dependabot |
 
-## Repository layout
+## Run Ledgic locally
 
-```
-ledgic/
-├── apps/web/                 Next.js operator console
-│   ├── app/                  login, capture, o/[org]/{pipeline,extraction,match,exceptions,operations,invoices}, api/
-│   ├── components/           ui primitives, shell (rail/top bar/status bar), per-screen components, copilot
-│   └── lib/                  queries, server actions, core client (JWT / HMAC), realtime, auth helpers
-├── services/core/            FastAPI core (one process: API + worker + scheduler + MCP)
-│   └── app/
-│       ├── orchestrator/     durable state machine, stage handlers, resume routing, worker
-│       ├── domain/           pure Decimal math: tolerance, gate, duplicates, fraud, pairing, recommend, GL kNN
-│       ├── ai/               gateway (modes, budget, BYOK), extraction / resolution / copilot agents, tools, rag/
-│       ├── mcp/              MCP tools, token auth, HTTP + stdio transports, token CLI
-│       ├── api/              REST routes, admin (HMAC), auth, response envelope
-│       ├── scheduler/        leader-elected jobs: replay, SLA escalation, nightly reset
-│       ├── posting/          mock QuickBooks / NetSuite adapters
-│       ├── repo/ db/         SQL access, connection pool, act-as-user
-│       └── demo/             seed, synthetic corpus generator, replay planner, backfill
-├── supabase/
-│   ├── migrations/           schema, RLS, RPCs, KPI views, realtime
-│   └── tests/                pgTAP: RLS isolation, audit log, decision RPCs, KPI views
-├── packages/db-types/        generated TypeScript types for the database
-├── tools/corpus/             corpus CLI, knowledge base (kb/), recorded hero fixtures
-├── contracts/                frozen interfaces: core API, RPCs, views, extraction schema, hero fixtures
-└── docs/                     ARCHITECTURE, AGENTS_RAG, MCP, RUNBOOK, DECISIONS, handoff/ (original spec)
-```
-
-## Run locally
-
-**Prerequisites:** Node 22+, pnpm 9, Python 3.12 + [uv](https://docs.astral.sh/uv/), Docker (for local Supabase).
+You need Node 22+, pnpm 9, Python 3.12 with [uv](https://docs.astral.sh/uv/), and Docker for the local Supabase stack.
 
 ```bash
 git clone https://github.com/alihdrndm/ledgic && cd ledgic
 pnpm install
 
-# 1. Database: Postgres, Auth, Storage, Realtime in Docker, migrations applied
+# 1. Database: Postgres, Auth, Storage and Realtime in Docker, migrations applied
 npx supabase start
-cp .env.example .env            # fill the keys printed by `supabase start`, plus demo passwords of your choice
+cp .env.example .env            # paste the keys printed by `supabase start`, pick demo passwords
 cp .env apps/web/.env.local     # the web app reads its own env file
 
 # 2. Core: dependencies, demo tenant, knowledge base, a week of history
 cd services/core
 uv sync
-uv run python -m app.demo.seed            # Northside org, users, vendors, contracts, POs, eval history
-uv run python -m app.ai.seed_kb           # index tools/corpus/kb + precompute copilot answers
+uv run python -m app.demo.seed            # Northside org, users, vendors, contracts, POs
+uv run python -m app.ai.seed_kb           # index the knowledge base for RAG
 uv run python -m app.demo.backfill --days 7 --today
 uv run uvicorn app.main:app --port 8000   # API + worker + scheduler + /mcp
 
@@ -259,13 +233,16 @@ uv run uvicorn app.main:app --port 8000   # API + worker + scheduler + /mcp
 pnpm dev                                   # http://localhost:3000
 ```
 
-`LLM_MODE=fixture` (the default) never calls OpenAI: extraction uses recorded or simulated outputs,
-embeddings are deterministic, and the copilot answers retrieval-only. Set `LLM_MODE=live` and
-`OPENAI_API_KEY` to use real models under the daily cap.
+By default `LLM_MODE=fixture`: no OpenAI calls, recorded extraction outputs and deterministic embeddings. It costs nothing. Set `LLM_MODE=live` and `OPENAI_API_KEY` to use real models under the daily spending cap.
 
-## Use it from Claude Desktop / Cursor via MCP
+### Connect an MCP client
 
-The public demo publishes a **read-only** token for the Demo Viewer (below the config snippets).
+Mint a read-only token against your local database, then point your client at it:
+
+```bash
+cd services/core
+uv run python -m app.mcp.tokens create --user <viewer uuid> --org <org uuid> --scopes read --name me
+```
 
 Cursor (`.cursor/mcp.json`):
 
@@ -273,7 +250,7 @@ Cursor (`.cursor/mcp.json`):
 {
   "mcpServers": {
     "ledgic": {
-      "url": "https://core-production-f996.up.railway.app/mcp",
+      "url": "http://localhost:8000/mcp",
       "headers": { "Authorization": "Bearer <your token>" }
     }
   }
@@ -287,7 +264,7 @@ Claude Desktop (bridging the bearer header with `mcp-remote`):
   "mcpServers": {
     "ledgic": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://core-production-f996.up.railway.app/mcp",
+      "args": ["-y", "mcp-remote", "http://localhost:8000/mcp",
                "--header", "Authorization:Bearer ${LEDGIC_TOKEN}"],
       "env": { "LEDGIC_TOKEN": "<your token>" }
     }
@@ -295,64 +272,79 @@ Claude Desktop (bridging the bearer header with `mcp-remote`):
 }
 ```
 
-**Token.** The hosted endpoint needs a bearer token, and none is published here: a credential committed to
-a public repo gets scraped and abused, even a read-only one. Two ways to try it:
+Prefer stdio? Use the `ledgic-mcp` entry point. Full guide: [docs/MCP.md](docs/MCP.md).
 
-- **Locally (recommended):** run the stack (see [Run locally](#run-locally)), then mint a read-only token
-  against your own database:
-  `cd services/core && uv run python -m app.mcp.tokens create --user <viewer uuid> --org <org uuid> --scopes read --name me`
-  and point the config above at `http://localhost:8000/mcp`, or use the stdio server (`ledgic-mcp`).
-- **Hosted demo:** ask the maintainer for a short-lived read-only token.
+## Security and trust
 
-Then ask *"Why is PS-88214 held?"*. The client calls `explain_match` and `search_contracts` and cites clause 4.2.
-`decide_exception` is refused for the demo token. Full setup, local stdio and the security model:
-[docs/MCP.md](docs/MCP.md).
+Finance software is only as good as its controls, so most of Ledgic's rules live where they can't be skipped: in the database.
+
+- **Row-level security** on every table, `security_invoker` views and `security definer` RPCs with a fixed `search_path`.
+- **Role limits and segregation of duties** enforced in SQL: AP managers approve up to $5,000, controllers above that and for fraud holds. You can't approve an invoice whose amounts you edited, or release a vendor you created.
+- **Append-only, hash-chained audit log**, guarded by triggers and verifiable from the UI and from MCP.
+- **Supply chain:** CodeQL code scanning, dependency review, OpenSSF Scorecard, Dependabot, SHA-pinned GitHub Actions and full-history secret scanning with gitleaks.
+- **Responsible disclosure:** report vulnerabilities privately through [GitHub security advisories](https://github.com/alihdrndm/ledgic/security/advisories/new). Details in [SECURITY.md](SECURITY.md).
+
+## Cost: $0 infrastructure, a hard AI cap
+
+- **Free tiers:** Supabase Free, Vercel Hobby and a single Railway service.
+- **$0.50 a day, hard limit:** every model call atomically reserves its estimated cost in Postgres before it runs, then settles the real cost from token usage. When the cap is reached, AI calls stop and the app keeps working on deterministic paths.
+- **Bring your own key:** visitors can pass their own OpenAI key for a single request. It is used once and never stored.
 
 ## Testing
 
-| Suite | Count | Command |
+| Suite | Tests | Command |
 |---|---|---|
-| Core unit tests (domain math incl. hypothesis properties, orchestrator, AI agents, guards and citations, RAG, MCP, API, corpus; 20 need a local Supabase) | **328** | `cd services/core && uv run pytest` |
-| Core integration scenarios against local Supabase (touchless, smudge → resume, short-pay, duplicate merge, fraud release + SoD, posting failure → retry, re-delivery no-op) | **8** | `uv run pytest -m integration` |
-| Database (pgTAP): RLS isolation, audit immutability and chain, decision RPC limits + SoD, KPI views | **113** | `npx supabase test db` |
-| Web: types, lint, design-token lint | | `pnpm typecheck && pnpm lint && pnpm --filter @ledgic/web check:tokens` |
-| Web smoke + accessibility (Playwright + axe at 1280 / 1600) | in progress | `pnpm test:e2e` (config in `apps/web/playwright.config.ts`) |
+| Core unit tests: decimal money math with property-based tests, orchestrator, AI agents, guards and citations, RAG, MCP, API | **328** | `cd services/core && uv run pytest` |
+| Core integration scenarios against local Supabase: touchless, smudge then resume, short-pay, duplicate merge, fraud release, posting retry, re-delivery | **8** | `uv run pytest -m integration` |
+| Database (pgTAP): RLS isolation, audit immutability and chain, decision limits and segregation of duties, KPI views | **113** | `npx supabase test db` |
+| Web: types, lint and design tokens | | `pnpm typecheck && pnpm lint && pnpm --filter @ledgic/web check:tokens` |
+| End to end: Playwright smoke, layout and axe accessibility at 1280 and 1600 px | | `pnpm test:e2e` |
 
-Hero numbers are asserted exactly: 736.00 / 824.00 / 88.00 / 14.72 / +12.0 % / 2,759.60 / 0.94.
+Scenario figures are asserted to the cent: 736.00 / 824.00 / 88.00 / 14.72 / +12.0% / 2,759.60 / 0.94.
 
-## Hero scenarios
+## Repository layout
 
-Five cases are replayed every demo day at fixed times. Their numbers are pinned in `contracts/fixtures.json`.
+```
+ledgic/
+├── apps/web/            Next.js operator console: screens, copilot panel, mobile capture
+├── services/core/       FastAPI core: API, durable orchestrator, AI agents, RAG, MCP server, scheduler
+│   └── app/
+│       ├── orchestrator/  state machine, stage handlers, resume routing, worker
+│       ├── domain/        pure decimal math: tolerance, confidence gate, duplicates, fraud, recommendation
+│       ├── ai/            AI gateway and budget, extraction / resolution / copilot agents, tools, rag/
+│       ├── mcp/           MCP tools, token auth, HTTP and stdio transports
+│       └── posting/       ERP adapter interface, QuickBooks and NetSuite mocks
+├── supabase/            migrations (schema, RLS, RPCs, KPI views) and pgTAP tests
+├── tools/corpus/        synthetic invoice generator and the knowledge base (contracts, AP policy)
+├── contracts/           shared interfaces: API, RPCs, views, extraction schema, scenario fixtures
+└── docs/                architecture, agents and RAG, MCP, runbook, design decisions
+```
 
-| Invoice | Vendor | What happens | Outcome |
-|---|---|---|---|
-| **PS-88214** | Protein Supplier | Shrimp billed $4.12/lb vs contract $3.68/lb (clause 4.2): $824.00 vs $736.00, +12.0 % against ± 2 % / $25 | Price variance. Recommendation (0.94): **short-pay $2,759.60, hold $88.00**, notify vendor |
-| **PR-2214** | Produce Supplier | Dock photo with a smudged quantity: field confidence 0.71, document 0.88 | **Extraction review**. A clerk confirms the value, the run resumes |
-| **PR-2201** | Produce Supplier | Same invoice by email at 08:02 and as a dock photo at 16:44 (similarity ≥ 0.90) | **Duplicate**, payment blocked. Merge so the copy can never be paid |
-| **NV-0001** | Unlisted Supplier | Bank details ≠ W-9, vendor 4 days old, no PO, new remit address (score 0.90) | **Fraud hold**, controller only, and never by the vendor's creator |
-| **BD-104882** | Broadline Distributor | Clean invoice, every line within tolerance | **Touchless**: posted to the ERP with zero human actions |
+## FAQ
 
-## Design decisions
+**Is Ledgic free and open source?**
+Yes. MIT licensed. Fork it, learn from it, build on it.
 
-Ledgic started from a handoff spec written for a paid AWS + n8n + hosted-LLM + Textract stack. The
-departures (code instead of n8n, OpenAI with a hard daily cap, mocked ERPs, free tiers, an added resolution
-agent, copilot and MCP server) and the reasons for each are in [docs/DECISIONS.md](docs/DECISIONS.md).
-The original spec is kept in [docs/handoff/](docs/handoff/).
+**Does it connect to QuickBooks or NetSuite?**
+Ledgic posts through one ERP adapter interface. Today it ships mock QuickBooks and NetSuite adapters that behave like the real APIs, so no real books are touched. A live integration plugs in behind the same interface.
 
-## Security
+**Which AI model does it use?**
+OpenAI `gpt-4.1-mini` for invoice extraction and the agents, and `text-embedding-3-small` for retrieval. All calls go through one gateway that meters cost and enforces the daily cap.
 
-Please report vulnerabilities privately through GitHub's
-[Report a vulnerability](https://github.com/alihdrndm/ledgic/security/advisories/new) form, never in a public
-issue. Scope, response targets and safe harbor are in [SECURITY.md](SECURITY.md).
+**Can the AI approve or change a payment?**
+No. Payment decisions come from deterministic code and role checks in the database. The AI reads documents, drafts text and answers questions, and a guard blocks any draft that invents a dollar amount.
+
+**What is the Model Context Protocol (MCP)?**
+An open standard that lets AI assistants call tools in other systems. Ledgic's MCP server lets an assistant list exceptions, explain a match, search contracts and verify the audit chain, with the same permissions as the user who owns the token.
 
 ## Contributing
 
-Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and the
-secrets policy, [SUPPORT.md](SUPPORT.md) for questions, and the [Code of Conduct](CODE_OF_CONDUCT.md).
+Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and the secrets policy. Questions go to [SUPPORT.md](SUPPORT.md). Please follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-[MIT](LICENSE) © Ali Haider Nadeem
+[MIT](LICENSE) © Ali Haider Nadeem ([@alihdrndm](https://github.com/alihdrndm))
 
-Built by **Ali Haider Nadeem** ([@alihdrndm](https://github.com/alihdrndm)). Northside Restaurant Group and
-its vendors are fictional. All demo data is synthetic.
+Northside Restaurant Group and its suppliers are fictional. All demo data is synthetic.
+
+<sub>Keywords: accounts payable automation, AP automation, invoice processing, AI invoice extraction, OCR, three-way match, purchase order matching, invoice fraud detection, duplicate invoice detection, AI agents, OpenAI Agents SDK, RAG, retrieval-augmented generation, pgvector, hybrid search, MCP server, Model Context Protocol, FastAPI, Next.js, Supabase, Postgres, QuickBooks, NetSuite, fintech, open source.</sub>
