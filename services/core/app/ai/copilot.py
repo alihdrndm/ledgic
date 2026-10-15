@@ -146,8 +146,8 @@ def citation_payload(n: int, c: Chunk, query: str | None) -> dict[str, Any]:
 
 # A citation group: [K1], [k1], (K1), 【K1】, [K1, K2], [K1; K2], [K2 and K1], [K1 clause 4.2] ...
 # Only groups made of refs plus clause words are touched; "(2%)", "(4.2)", "[1]" or "[note]" never are.
-_REF = re.compile(r"[\[(【]\s*((?:[Kk]\d+|clause|section|§|and|\d+(?:\.\d+)*|[\s,;&])+?)\s*[\])】]")
-_K = re.compile(r"[Kk](\d+)")
+_REF = re.compile(r"[\[(【]([^\[\]()【】\n]{1,60})[\])】]")  # one bounded class: no backtracking blowup
+_REF_TOKEN = re.compile(r"[Kk]\d+|clause|section|§|and|\d+(?:\.\d+)*|[,;&]|\s+")
 _OPENERS = "[(【"
 _MAX_PENDING = 64  # longest citation group we hold back while streaming
 
@@ -164,8 +164,10 @@ class _Citer:
 
     def sub(self, text: str) -> str:
         def repl(m: re.Match[str]) -> str:
-            refs = [f"K{n}" for n in _K.findall(m.group(1))]
-            if not refs:
+            inner = m.group(1)
+            tokens = _REF_TOKEN.findall(inner)
+            refs = [f"K{t[1:]}" for t in tokens if t[:1] in "Kk"]
+            if not refs or "".join(tokens) != inner:  # only refs plus clause words, nothing else
                 return m.group(0)
             out = []
             for ref in refs:

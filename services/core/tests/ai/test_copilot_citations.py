@@ -427,3 +427,12 @@ async def test_clause_anchor_matches_the_exact_clause(ps88214_tools, answer: str
     ctx.clause_anchors["K1"] = []  # isolate the clause match from the invoice-number match
     _, cites = finalize_citations(answer, ctx)
     assert bool(cites) is cited
+
+
+@pytest.mark.parametrize("hostile", ["(9." + "99." * 5000, "(" + "9" * 20000, "(K" + "99K" * 5000])
+def test_ref_parsing_is_linear_on_hostile_model_output(hostile: str) -> None:
+    import time
+
+    start = time.perf_counter()
+    finalize_citations(hostile, _ctx(C42))
+    assert time.perf_counter() - start < 0.5  # CodeQL py/redos: no catastrophic backtracking

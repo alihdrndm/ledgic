@@ -312,7 +312,7 @@ Then ask *"Why is PS-88214 held?"*. The client calls `explain_match` and `search
 
 | Suite | Count | Command |
 |---|---|---|
-| Core unit tests (domain math incl. hypothesis properties, orchestrator, AI agents, guards and citations, RAG, MCP, API, corpus; 20 need a local Supabase) | **325** | `cd services/core && uv run pytest` |
+| Core unit tests (domain math incl. hypothesis properties, orchestrator, AI agents, guards and citations, RAG, MCP, API, corpus; 20 need a local Supabase) | **328** | `cd services/core && uv run pytest` |
 | Core integration scenarios against local Supabase (touchless, smudge → resume, short-pay, duplicate merge, fraud release + SoD, posting failure → retry, re-delivery no-op) | **8** | `uv run pytest -m integration` |
 | Database (pgTAP): RLS isolation, audit immutability and chain, decision RPC limits + SoD, KPI views | **113** | `npx supabase test db` |
 | Web: types, lint, design-token lint | | `pnpm typecheck && pnpm lint && pnpm --filter @ledgic/web check:tokens` |
