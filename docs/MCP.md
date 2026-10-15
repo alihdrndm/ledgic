@@ -137,7 +137,7 @@ uv run python -m app.mcp.tokens demo      # upsert MCP_DEMO_TOKEN for the demo v
 - `create` refuses a user who is not a member of the org. `decide` implies `read`.
 - **Demo token:** set `MCP_DEMO_TOKEN` (any value starting `lgc_`, 16–256 chars) on the core service. On startup
   (and via `tokens demo`) it is upserted for the demo *viewer* in the demo org with scopes forced to `['read']`,
-  so the value can be published in the README. Rotate it by changing the env var.
+  so the value is safe to hand out for the hosted demo (it is deliberately not committed). Rotate it by changing the env var.
 - `last_used_at` is updated on every authenticated call; revocation takes effect on the next request.
 
 ## Security model

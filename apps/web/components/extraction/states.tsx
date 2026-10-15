@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { Button, RiskCallout, Skeleton, StatCell, StatRow, EmptyState } from "@/components/ui";
 import { Screen } from "@/components/shell";
+import { AskLedgicButton, CopilotProvider } from "@/components/copilot";
 import { duration, pct } from "@/lib/format";
 import type { ExtractionStats } from "@/lib/queries/extraction";
 
@@ -61,20 +62,23 @@ export function ScreenError({ title, reset, children }: { title: string; reset: 
 /** Empty review queue. */
 export function ExtractionEmpty({ stats }: { stats: ExtractionStats }) {
   return (
-    <Screen
-      title="Extraction review"
-      context={`0 of ${stats.received ?? "—"} documents need a person today`}
-      degraded={stats.degraded}
-      statusItems={["0 documents in queue"]}
-      version={stats.workflowVersion ?? undefined}
-    >
-      <StatRow>
-        <StatCell label="Field accuracy, sampled" value={pct(stats.accuracy)} />
-        <StatCell label="Auto-passed today" value={`${stats.autoPassed ?? "—"} / ${stats.received ?? "—"}`} />
-        <StatCell label="Median extraction" value={duration(stats.medianSeconds, { precise: true })} />
-        <StatCell label="Queue position" value="—" />
-      </StatRow>
-      <EmptyState title="Queue clear">Every document today passed the confidence gate.</EmptyState>
-    </Screen>
+    <CopilotProvider>
+      <Screen
+        title="Extraction review"
+        context={`0 of ${stats.received ?? "—"} documents need a person today`}
+        riskChip={<AskLedgicButton />}
+        degraded={stats.degraded}
+        statusItems={["0 documents in queue"]}
+        version={stats.workflowVersion ?? undefined}
+      >
+        <StatRow>
+          <StatCell label="Field accuracy, sampled" value={pct(stats.accuracy)} />
+          <StatCell label="Auto-passed today" value={`${stats.autoPassed ?? "—"} / ${stats.received ?? "—"}`} />
+          <StatCell label="Median extraction" value={duration(stats.medianSeconds, { precise: true })} />
+          <StatCell label="Queue position" value="—" />
+        </StatRow>
+        <EmptyState title="Queue clear">Every document today passed the confidence gate.</EmptyState>
+      </Screen>
+    </CopilotProvider>
   );
 }

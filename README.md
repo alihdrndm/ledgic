@@ -39,18 +39,16 @@ and resets nightly.
 
 ## Screens
 
-> These are the **design targets** from the handoff (`docs/handoff/design/screens/`). The live app is built
-> to match them. Captures of the deployed app go in `docs/screenshots/` (TODO).
+Captured from the live demo (`docs/screenshots/`). Design targets from the handoff are in
+`docs/handoff/design/screens/`.
 
 | Pipeline | Extraction review |
 |---|---|
-| ![Pipeline](docs/handoff/design/screens/01-pipeline.png) | ![Extraction review](docs/handoff/design/screens/02-extraction.png) |
+| ![Pipeline](docs/screenshots/pipeline.png) | ![Extraction review](docs/screenshots/extraction.png) |
 | **Three-way match** | **Exceptions** |
-| ![Three-way match](docs/handoff/design/screens/03-three-way-match.png) | ![Exceptions](docs/handoff/design/screens/04-exceptions.png) |
-| **Operations** | |
-| ![Operations](docs/handoff/design/screens/05-operations.png) | |
-
-<!-- TODO: replace with live captures in docs/screenshots/ (01-pipeline.png … 05-operations.png) -->
+| ![Three-way match](docs/screenshots/match.png) | ![Exceptions](docs/screenshots/exceptions.png) |
+| **Operations** | **Login** |
+| ![Operations](docs/screenshots/operations.png) | ![Login](docs/screenshots/login.png) |
 
 ## What it does
 
@@ -275,7 +273,7 @@ Cursor (`.cursor/mcp.json`):
   "mcpServers": {
     "ledgic": {
       "url": "https://core-production-f996.up.railway.app/mcp",
-      "headers": { "Authorization": "Bearer <demo token, see below>" }
+      "headers": { "Authorization": "Bearer <your token>" }
     }
   }
 }
@@ -290,18 +288,20 @@ Claude Desktop (bridging the bearer header with `mcp-remote`):
       "command": "npx",
       "args": ["-y", "mcp-remote", "https://core-production-f996.up.railway.app/mcp",
                "--header", "Authorization:Bearer ${LEDGIC_TOKEN}"],
-      "env": { "LEDGIC_TOKEN": "<demo token, see below>" }
+      "env": { "LEDGIC_TOKEN": "<your token>" }
     }
   }
 }
 ```
 
-**Read-only demo token:**
+**Token.** The hosted endpoint needs a bearer token, and none is published here: a credential committed to
+a public repo gets scraped and abused, even a read-only one. Two ways to try it:
 
-<!-- TODO(owner): replace the placeholder below with the read-only demo token -->
-```
-DEMO_MCP_TOKEN: lgc_pat_demo_…
-```
+- **Locally (recommended):** run the stack (see [Run locally](#run-locally)), then mint a read-only token
+  against your own database:
+  `cd services/core && uv run python -m app.mcp.tokens create --user <viewer uuid> --org <org uuid> --scopes read --name me`
+  and point the config above at `http://localhost:8000/mcp`, or use the stdio server (`ledgic-mcp`).
+- **Hosted demo:** ask the maintainer for a short-lived read-only token.
 
 Then ask *"Why is PS-88214 held?"*. The client calls `explain_match` and `search_contracts` and cites clause 4.2.
 `decide_exception` is refused for the demo token. Full setup, local stdio and the security model:
