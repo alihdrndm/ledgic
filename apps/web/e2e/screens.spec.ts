@@ -67,6 +67,12 @@ test("Ask Ledgic cites the contract clause behind the PS-88214 hold", async ({ p
   await expect(drawer.getByRole("alert")).toHaveCount(0);
 });
 
+test("/match opens an invoice instead of the empty state once anything has matched", async ({ page }) => {
+  await page.goto(`/o/${ORG}/match`);
+  await expect(page).toHaveURL(new RegExp(`/o/${ORG}/match/[0-9a-f-]{36}`));
+  await expectScreen(page, "Three-way match");
+});
+
 test("viewer sees decision buttons disabled with Read-only access", async ({ page }) => {
   const href = await invoiceHref(page, "PS-88214");
   test.skip(!href, "hero PS-88214 is not seeded yet");
