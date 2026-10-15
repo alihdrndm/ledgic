@@ -161,10 +161,10 @@ async def _restore_kb_and_token(org: str) -> dict[str, Any]:
 async def _precompute_copilot(org: str) -> None:
     """Cached answers for the suggested questions, once today's data (heroes) exists."""
     try:
-        from app.ai.copilot import SUGGESTED_QUESTIONS, ask, cache_put
+        from app.ai import copilot
 
-        for q in SUGGESTED_QUESTIONS:
-            await cache_put(org, q, await ask(org, q, use_cache=False))
+        for q in copilot.SUGGESTED_QUESTIONS:
+            await copilot.ask(org, q, refresh=True)  # caches only cited, KB-only answers
     except Exception:
         log.exception("reset-demo: copilot cache precompute failed")
 

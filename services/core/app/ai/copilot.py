@@ -29,6 +29,7 @@ from .rag.retrieve import Chunk, search_kb
 from .tools import (
     COPILOT_TOOLS,
     MAX_TOOL_CALLS,
+    PASSING_VERDICTS,
     AgentCtx,
     get_exception,
     get_invoice_summary,
@@ -74,6 +75,8 @@ Ground every statement in tool results:
   `vendor_history` / `get_po_grn` / `get_kpis` for live data. Prefer one or two well-aimed calls;
   you have at most {MAX_TOOL_CALLS} tool calls.
 - Cite every knowledge-base fact with its ref in square brackets, e.g. "[K1]", right after the sentence.
+  `get_exception` returns the contract clauses behind a held invoice in `contract_clauses`, each with a
+  ref: when you explain an exception, name its clause and cite that ref.
   Name invoices, POs and clauses explicitly (e.g. "PS-88214", "PO-RS-1873", "clause 4.2").
 - Never invent or compute new numbers. Every amount, price, percentage, date or count you state must
   appear verbatim in a tool result. If the tools do not contain the answer, say what is missing.
@@ -110,8 +113,12 @@ def normalize_question(q: str) -> str:
     return q.rstrip(" ?!.")
 
 
+# Bump to orphan every cached answer (e.g. after a citation fix): old rows simply stop matching.
+CACHE_KEY_VERSION = "v2"
+
+
 def q_hash(q: str) -> str:
-    return hashlib.sha256(normalize_question(q).encode("utf-8")).hexdigest()
+    return hashlib.sha256(f"{CACHE_KEY_VERSION}:{normalize_question(q)}".encode()).hexdigest()
 
 
 _INVOICE_REF = re.compile(r"(?<![\w-])([A-Za-z]{2,4}-\d{3,7})(?![\w-])")
@@ -137,59 +144,95 @@ def citation_payload(n: int, c: Chunk, query: str | None) -> dict[str, Any]:
     }
 
 
-_REF = re.compile(r"\[(K\d+(?:\s*,\s*K\d+)*)\]")
+# A citation group: [K1], [k1], (K1), 【K1】, [K1, K2], [K1; K2], [K2 and K1], [K1 clause 4.2] ...
+# Only groups made of refs plus clause words are touched; "(2%)", "(4.2)", "[1]" or "[note]" never are.
+_REF = re.compile(r"[\[(【]\s*((?:[Kk]\d+|clause|section|§|and|\d+(?:\.\d+)*|[\s,;&])+?)\s*[\])】]")
+_K = re.compile(r"[Kk](\d+)")
+_OPENERS = "[(【"
+_MAX_PENDING = 64  # longest citation group we hold back while streaming
 
 
-def finalize_citations(text: str, ctx: AgentCtx) -> tuple[str, list[dict[str, Any]]]:
-    """Renumber `[K3]` refs to `[1]`, `[2]` in order of first use; drop refs the tools never returned."""
-    order: dict[str, int] = {}
-
-    def repl(m: re.Match[str]) -> str:
-        out = []
-        for ref in (r.strip() for r in m.group(1).split(",")):
-            if ref not in ctx.chunks:
-                continue
-            if ref not in order:
-                order[ref] = len(order) + 1
-            out.append(f"[{order[ref]}]")
-        return "".join(out)
-
-    body = _REF.sub(repl, text)
-    cites = [citation_payload(n, ctx.chunks[ref], ctx.query_for_ref.get(ref)) for ref, n in order.items()]
-    return body, cites
-
-
-class _StreamRewriter:
-    """Rewrites `[K1]` refs on the fly while streaming (holds back an unfinished `[...`)."""
+class _Citer:
+    """Turns model refs into numbered citations, shared by the non-streaming and streaming paths so both
+    produce the same text and the same chips. Refs are numbered [1], [2] in order of first use; refs the
+    tools never returned are dropped, so a citation always points at a chunk a tool actually returned."""
 
     def __init__(self, ctx: AgentCtx) -> None:
         self.ctx = ctx
         self.order: dict[str, int] = {}
+        self.seen = ""  # all rewritten text so far, for clause anchors
+
+    def sub(self, text: str) -> str:
+        def repl(m: re.Match[str]) -> str:
+            refs = [f"K{n}" for n in _K.findall(m.group(1))]
+            if not refs:
+                return m.group(0)
+            out = []
+            for ref in refs:
+                if ref not in self.ctx.chunks:
+                    continue
+                self.order.setdefault(ref, len(self.order) + 1)
+                out.append(f"[{self.order[ref]}]")
+            return "".join(out)
+
+        out = _REF.sub(repl, text)
+        self.seen += out
+        return out
+
+    def anchor_suffix(self) -> str:
+        """Citations for contract clauses a data tool returned that the answer relies on without citing:
+        the answer names the clause ("clause 4.2", "§4.2") or the exception (invoice number or id)."""
+        extra = []
+        for ref, names in self.ctx.clause_anchors.items():
+            chunk = self.ctx.chunks.get(ref)
+            if ref in self.order or chunk is None:
+                continue
+            clause = re.compile(rf"(?:§\s*|clause\s+|section\s+){re.escape(chunk.clause_ref or '')}", re.I)
+            named = any(len(n) >= 6 and n in self.seen for n in names)  # "PS-88214", a uuid; never "E1"
+            if (chunk.clause_ref and clause.search(self.seen)) or named:
+                self.order[ref] = len(self.order) + 1
+                extra.append(f"[{self.order[ref]}]")
+        return " " + "".join(extra) if extra else ""
+
+    def citations(self) -> list[dict[str, Any]]:
+        return [
+            citation_payload(n, self.ctx.chunks[ref], self.ctx.query_for_ref.get(ref))
+            for ref, n in self.order.items()
+        ]
+
+
+def finalize_citations(text: str, ctx: AgentCtx) -> tuple[str, list[dict[str, Any]]]:
+    """Renumber refs to [1], [2] in order of first use; drop refs the tools never returned; cite the
+    contract clause behind an exception the answer explains."""
+    citer = _Citer(ctx)
+    body = citer.sub(text)
+    body += citer.anchor_suffix()
+    return body, citer.citations()
+
+
+class _StreamRewriter:
+    """Streaming twin of `finalize_citations`: rewrites refs on the fly, holding back an unfinished
+    citation group (`[K`, `(K1`, `【`) until it closes."""
+
+    def __init__(self, ctx: AgentCtx) -> None:
+        self.citer = _Citer(ctx)
         self.pending = ""
 
     def feed(self, text: str) -> str:
         buf = self.pending + text
-        cut = buf.rfind("[")
-        if cut != -1 and "]" not in buf[cut:] and len(buf) - cut < 24:
+        cut = max(buf.rfind(o) for o in _OPENERS)
+        if cut != -1 and not any(c in buf[cut:] for c in "])】") and len(buf) - cut < _MAX_PENDING:
             self.pending, buf = buf[cut:], buf[:cut]
         else:
             self.pending = ""
-        return self._sub(buf)
+        return self.citer.sub(buf)
 
     def flush(self) -> str:
-        out, self.pending = self._sub(self.pending), ""
-        return out
+        out, self.pending = self.citer.sub(self.pending), ""
+        return out + self.citer.anchor_suffix()
 
-    def _sub(self, s: str) -> str:
-        def repl(m: re.Match[str]) -> str:
-            out = []
-            for ref in (r.strip() for r in m.group(1).split(",")):
-                if ref in self.ctx.chunks:
-                    self.order.setdefault(ref, len(self.order) + 1)
-                    out.append(f"[{self.order[ref]}]")
-            return "".join(out)
-
-        return _REF.sub(repl, s)
+    def citations(self) -> list[dict[str, Any]]:
+        return self.citer.citations()
 
 
 # --------------------------------------------------------------------------------------- cache
@@ -337,7 +380,14 @@ async def answer_retrieval_only(
         ex = await get_exception(org_id, str(ref))
         if "error" not in ex:
             facts = _facts_md(ex)
-            clauses = {ln.get("clause_ref") for ln in ex.get("lines", []) if ln.get("clause_ref")}
+            # Clauses behind the held lines only, in line order: the first one is pinned in the KB search.
+            clauses = list(
+                dict.fromkeys(
+                    ln["clause_ref"]
+                    for ln in ex.get("lines", [])
+                    if ln.get("clause_ref") and ln.get("verdict") not in PASSING_VERDICTS
+                )
+            )
             query = " ".join(
                 [question, ex["exception"].get("reason") or ""] + [f"clause {c}" for c in clauses]
             )
@@ -402,10 +452,13 @@ async def ask(
     api_key: str | None = None,
     *,
     use_cache: bool = True,
+    refresh: bool = False,
     gateway: LlmGateway | None = None,
 ) -> CopilotAnswer:
+    """`use_cache=False` neither reads nor writes the cache; `refresh=True` skips the read (fresh answer)
+    but still writes it when it is cacheable (precompute)."""
     question = question.strip()[:MAX_QUESTION_CHARS]
-    if use_cache and not context:
+    if use_cache and not refresh and not context:
         hit = await cache_get(org_id, question)
         if hit is not None:
             return hit
@@ -420,9 +473,15 @@ async def ask(
         if not isinstance(exc, BudgetExceeded | LlmUnavailable):
             log.warning("copilot live answer failed: %s", type(exc).__name__)
         return await answer_retrieval_only(org_id, question, context, _reason_for(exc, gw))
-    if use_cache and not context and not ctx.data_tools_used:
-        await cache_put(org_id, question, ans)  # KB-only answers are stable until the KB changes
+    if use_cache and not context and cacheable(ans, ctx):
+        await cache_put(org_id, question, ans)
     return ans
+
+
+def cacheable(ans: CopilotAnswer, ctx: AgentCtx) -> bool:
+    """Only cited, KB-only answers are stable enough to cache: anything that read live AP data can go
+    stale, and an uncited answer must never be frozen and served again."""
+    return not ctx.data_tools_used and bool(ans.citations)
 
 
 async def _ask_live(
@@ -536,9 +595,10 @@ async def stream_ask(
                 meter.add_agents_usage(result.context_wrapper.usage)
         tail = rewriter.flush()
         if tail:
+            parts.append(tail)
             yield {"event": "token", "data": {"text": tail}}
-        body, cites = finalize_citations(str(result.final_output), ctx)
-        ans = CopilotAnswer(body, cites, "live", meter.model, ctx.tool_calls, meter.cost_usd)
+        cites = rewriter.citations()  # the same helper as `finalize_citations`, so both paths agree
+        ans = CopilotAnswer("".join(parts), cites, "live", meter.model, ctx.tool_calls, meter.cost_usd)
         for c in cites:
             yield {"event": "citation", "data": c}
         yield {"event": "done", "data": ans.to_dict()}

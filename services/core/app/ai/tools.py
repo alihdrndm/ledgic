@@ -19,7 +19,7 @@ from typing import Any
 
 from agents import RunContextWrapper, function_tool
 
-from .rag.retrieve import Chunk, search_kb
+from .rag.retrieve import Chunk, clause_chunk, search_kb
 
 MAX_TOOL_CALLS = 6
 
@@ -106,7 +106,7 @@ async def _match_lines(conn: Any, invoice_id: Any) -> list[dict[str, Any]]:
         select il.line_no, il.description, il.qty, il.uom, il.unit_price, il.amount,
                mlr.grn_qty, mlr.expected_unit_price, mlr.expected_source, mlr.expected_amount,
                mlr.delta_amount, mlr.delta_pct, mlr.allowed_amount, mlr.verdict, mlr.note,
-               cp.clause_ref, c.title as contract_title, c.effective_to as contract_effective_to,
+               cp.clause_ref, cp.contract_id, c.title as contract_title, c.effective_to as contract_effective_to,
                pl.qty as po_qty, pl.unit_price as po_unit_price, pl.amount as po_amount
         from public.invoice_lines il
         left join public.match_results mr on mr.invoice_id = il.invoice_id
@@ -425,6 +425,9 @@ class AgentCtx:
     chunks: dict[str, Chunk] = field(default_factory=dict)  # ref "K1" → chunk
     query_for_ref: dict[str, str] = field(default_factory=dict)
     data_tools_used: bool = False
+    # ref → names that tie an answer to that clause (invoice number, exception id): a contract clause a
+    # data tool returned is cited when the answer talks about its exception, even without a [K] ref.
+    clause_anchors: dict[str, list[str]] = field(default_factory=dict)
 
     def ref_for(self, chunk: Chunk, query: str) -> str:
         for ref, c in self.chunks.items():
@@ -490,17 +493,45 @@ async def tool_get_invoice(ctx: RunContextWrapper[AgentCtx], invoice: str) -> st
     return json.dumps(await get_invoice_summary(ctx.context.org_id, invoice))
 
 
+PASSING_VERDICTS = frozenset({None, "matched", "favorable"})  # lines that are not why an invoice is held
+
+
+async def run_get_exception(ctx: AgentCtx, ref: str) -> str:
+    """`get_exception` plus the contract clauses behind its held lines, registered as citable refs."""
+    ctx.data_tools_used = True
+    ex = await get_exception(ctx.org_id, ref)
+    clauses: list[dict[str, Any]] = []
+    seen: set[tuple[str, str | None]] = set()
+    for ln in ex.get("lines") or []:
+        key = (ln.get("clause_ref"), ln.get("contract_id"))
+        if not key[0] or ln.get("verdict") in PASSING_VERDICTS or key in seen:
+            continue
+        seen.add(key)
+        chunk = await clause_chunk(ctx.org_id, key[0], key[1])
+        if chunk is None:
+            continue
+        kref = ctx.ref_for(chunk, f"clause {key[0]}")
+        e, inv = ex.get("exception") or {}, ex.get("invoice") or {}
+        ctx.clause_anchors[kref] = [
+            n for n in (inv.get("invoice_number"), str(e.get("exception_id") or "")) if n
+        ]
+        clauses.append({"ref": kref, "clause": chunk.clause_ref, "title": chunk.title, "text": chunk.content})
+    if clauses:
+        ex["contract_clauses"] = clauses
+    return json.dumps(ex)
+
+
 @function_tool(name_override="get_exception")
 async def tool_get_exception(ctx: RunContextWrapper[AgentCtx], ref: str) -> str:
     """An exception (why an invoice is held) with the deterministic recommendation and latest decision.
+    `contract_clauses` holds the contract clauses behind the held lines; cite them by ref like [K1].
 
     Args:
         ref: exception id, or an invoice number/id (returns its most recent exception).
     """
     if (err := _budget(ctx, "get_exception", {"ref": ref})) is not None:
         return err
-    ctx.context.data_tools_used = True
-    return json.dumps(await get_exception(ctx.context.org_id, ref))
+    return await run_get_exception(ctx.context, ref)
 
 
 @function_tool(name_override="vendor_history")

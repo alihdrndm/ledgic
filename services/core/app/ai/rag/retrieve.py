@@ -130,6 +130,32 @@ limit 3
 """
 
 
+_CONTRACT_CLAUSE_SQL = """
+select c.id as chunk_id, c.document_id, d.title, d.kind, d.contract_id, d.vendor_id,
+       c.heading_path, c.clause_ref, c.content, 1.0 as rank
+from public.kb_chunks c
+join public.kb_documents d on d.id = c.document_id
+where c.org_id = %(org)s and c.clause_ref = %(clause)s and d.kind = 'contract'
+  and (%(contract)s::uuid is null or d.contract_id = %(contract)s::uuid)
+order by c.ord
+limit 1
+"""
+
+
+async def clause_chunk(org_id: str, clause_ref: str, contract_id: str | None) -> Chunk | None:
+    """The knowledge-base chunk for one contract clause (e.g. 4.2 of the contract a matched line priced
+    against), or None when the clause isn't indexed."""
+    from app.db.pool import connection
+
+    async with connection() as conn:
+        cur = await conn.execute(
+            _CONTRACT_CLAUSE_SQL, {"org": org_id, "clause": clause_ref, "contract": contract_id}
+        )
+        row = await cur.fetchone()
+        await conn.rollback()  # read-only
+    return _chunk(row, 1.0) if row else None
+
+
 async def search_kb(
     org_id: str,
     query: str,
