@@ -31,14 +31,6 @@ async def health(request: Request) -> Any:
             db = await asyncio.wait_for(val(conn, "select 1 as one"), timeout=3) == 1
     except Exception:
         db = False
-    budget = None
-    try:
-        from app.ai import budget_remaining
-
-        b = await budget_remaining() if db else None
-        budget = f"{b:.2f}" if b is not None else None
-    except Exception:
-        budget = None
     w = getattr(request.app.state, "worker", None)
     settings = request.app.state.settings
     worker = {
@@ -53,8 +45,6 @@ async def health(request: Request) -> Any:
         {
             "status": status,
             "db": db,
-            "llm_mode": settings.llm_mode,
-            "budget_remaining_usd": budget,
             "worker": worker,
             "scheduler": {"leader": bool(sched and sched.is_leader), "replay": settings.replay_enabled}
             if sched

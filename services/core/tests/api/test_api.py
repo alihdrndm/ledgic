@@ -87,7 +87,8 @@ def test_health_reports_degraded_without_db(client: TestClient) -> None:
     r = client.get("/health")
     assert r.status_code == 200
     d = r.json()["data"]
-    assert d["db"] is False and d["status"] == "degraded" and d["llm_mode"] in ("fixture", "live")
+    assert d["db"] is False and d["status"] == "degraded"
+    assert "budget_remaining_usd" not in d and "llm_mode" not in d  # public endpoint: no spend/config details
     assert "version" in d and d["worker"]["alive"] is False
 
 
@@ -113,3 +114,11 @@ def test_map_db_error_prefixes() -> None:
     assert m is not None and m.status == 409
     Diag.message_primary = "relation does not exist"
     assert map_db_error(E()) is None  # type: ignore[arg-type]
+
+
+def test_api_docs_can_be_disabled() -> None:
+    s = Settings(core_hmac_secret=SECRET, supabase_jwt_secret=JWT_SECRET, database_url="postgresql://x:y@127.0.0.1:1/none",
+                 api_docs=False)
+    c = TestClient(create_app(s, start_background=False))
+    for path in ("/docs", "/redoc", "/openapi.json"):
+        assert c.get(path).status_code == 404

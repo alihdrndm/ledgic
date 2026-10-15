@@ -80,7 +80,15 @@ def create_app(settings: Settings | None = None, *, start_background: bool = Tru
                 await drafts.stop()
         await close_pool()
 
-    app = FastAPI(title="Ledgic core", version="0.1.0", lifespan=lifespan)
+    docs = settings.api_docs
+    app = FastAPI(
+        title="Ledgic core",
+        version="0.1.0",
+        lifespan=lifespan,
+        docs_url="/docs" if docs else None,
+        redoc_url="/redoc" if docs else None,
+        openapi_url="/openapi.json" if docs else None,
+    )
     app.state.settings = settings
     app.state.byok_keys = {}
     app.state.worker = None

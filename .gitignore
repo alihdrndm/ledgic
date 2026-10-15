@@ -24,6 +24,7 @@ playwright-report/
 test-results/
 .DS_Store
 .coverage.*
-
-.vercel
-.env*
+.railway/
+*.pem
+*.key
+apps/web/e2e/.auth/

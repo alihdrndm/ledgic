@@ -1,0 +1,24 @@
+name: Question
+description: Ask a usage or setup question (support is best-effort).
+title: "question: "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check the [README](https://github.com/alihdrndm/ledgic#readme), the [docs](https://github.com/alihdrndm/ledgic/tree/main/docs)
+        and existing issues first. See [SUPPORT.md](https://github.com/alihdrndm/ledgic/blob/main/SUPPORT.md).
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What are you trying to do? Include commands, versions and full error output where relevant.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I have removed any API keys, tokens, passwords, or personal data from this question
+          required: true
