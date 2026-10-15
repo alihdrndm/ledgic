@@ -263,6 +263,70 @@ async def test_live_and_stream_give_identical_citations(
     assert no_cache == []  # data-tool answers are never cached
 
 
+OTHER_PAGE = {"invoice_id": "0f1e2d3c-0000-4000-8000-000000000001"}  # the invoice open on /match
+
+
+@pytest.mark.parametrize(
+    ("question", "keeps_page"),
+    [("Why is PS-88214 on hold?", False), ("Why is this invoice on hold?", True)],
+)
+def test_invoice_named_in_the_question_beats_the_page_context(question: str, keeps_page: bool) -> None:
+    assert copilot.scoped_context(question, OTHER_PAGE) == (OTHER_PAGE if keeps_page else None)
+
+
+async def test_live_and_stream_ignore_the_page_when_the_question_names_an_invoice(
+    ps88214_tools, no_cache, live_gateway, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from agents import Runner
+
+    from app.ai import runtime
+
+    inputs: list[str] = []
+
+    async def fake_run_agent(agent, input, meter, *, context: AgentCtx, **kw):
+        inputs.append(input)
+        meter.add_agents_usage(_usage())
+        return SimpleNamespace(final_output=ANSWER)
+
+    class FakeStream:
+        final_output = ANSWER
+        context_wrapper = SimpleNamespace(usage=_usage())
+
+        async def stream_events(self):
+            return
+            yield
+
+    def fake_streamed(agent, input, *, context, **kw):
+        inputs.append(input)
+        return FakeStream()
+
+    monkeypatch.setattr(runtime, "run_agent", fake_run_agent)
+    monkeypatch.setattr(Runner, "run_streamed", fake_streamed)
+
+    await ask(ORG, "Why is PS-88214 on hold?", OTHER_PAGE)
+    [e async for e in stream_ask(ORG, "Why is PS-88214 on hold?", OTHER_PAGE)]
+    await ask(ORG, "Why is this invoice on hold?", OTHER_PAGE)
+
+    assert len(inputs) == 3
+    assert all("looking at" not in i for i in inputs[:2])
+    assert OTHER_PAGE["invoice_id"] in inputs[2]
+
+
+async def test_retrieval_only_looks_up_the_named_invoice_not_the_page(
+    real_kb: list[Chunk], fixture_gateway, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    refs: list[str] = []
+
+    async def exc(org_id: str, ref: str) -> dict[str, Any]:
+        refs.append(ref)
+        return json.loads(json.dumps(PS_88214))
+
+    monkeypatch.setattr(copilot, "get_exception", exc)
+    ans = await ask(ORG, "Why is PS-88214 on hold?", OTHER_PAGE)
+    assert refs == ["PS-88214"]
+    assert ans.citations[0]["clause_ref"] == "4.2"
+
+
 # ------------------------------------------------------------------------------------- cache (cause 3)
 async def test_uncited_or_data_answers_are_not_cached(ps88214_tools, no_cache, live_gateway, monkeypatch) -> None:
     from app.ai import runtime
