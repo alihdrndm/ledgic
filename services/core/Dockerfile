@@ -7,7 +7,7 @@
 # Layout inside the image mirrors the repo (/srv/services/core, /srv/tools/corpus) so app.ai.paths
 # finds tools/corpus/{kb,fixtures} without extra configuration.
 
-FROM python:3.12-slim AS base
+FROM python:3.14-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
