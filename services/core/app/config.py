@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     replay_enabled: bool = False
     orchestrator_version: str = "v1"
     cors_origins: str = "http://localhost:3000"
+    api_docs: bool = True  # /docs, /redoc, /openapi.json; set API_DOCS=false in production
 
 
 @lru_cache
