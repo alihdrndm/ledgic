@@ -187,7 +187,9 @@ class _Citer:
             chunk = self.ctx.chunks.get(ref)
             if ref in self.order or chunk is None:
                 continue
-            clause = re.compile(rf"(?:§\s*|clause\s+|section\s+){re.escape(chunk.clause_ref or '')}", re.I)
+            clause = re.compile(
+                rf"(?:§\s*|\bclause\s+|\bsection\s+){re.escape(chunk.clause_ref or '')}(?![\d.]*\d)", re.I
+            )
             named = any(len(n) >= 6 and n in self.seen for n in names)  # "PS-88214", a uuid; never "E1"
             if (chunk.clause_ref and clause.search(self.seen)) or named:
                 self.order[ref] = len(self.order) + 1

@@ -410,3 +410,20 @@ async def test_queue_question_cites_only_real_chunks(real_kb: list[Chunk], fixtu
     assert "no open exceptions" in ans.answer_md
     ids = {c.chunk_id for c in real_kb}
     assert all(c["chunk_id"] in ids for c in ans.citations)
+
+
+@pytest.mark.parametrize(
+    ("answer", "cited"),
+    [
+        ("Shrimp is priced under clause 4.2 of the agreement.", True),
+        ("See §4.2 for the shrimp price.", True),
+        ("Clause 4.25 covers something else.", False),
+        ("Subclause 4.2 is unrelated wording.", False),
+    ],
+)
+async def test_clause_anchor_matches_the_exact_clause(ps88214_tools, answer: str, cited: bool) -> None:
+    ctx = AgentCtx(org_id=ORG)
+    await tools.run_get_exception(ctx, "PS-88214")
+    ctx.clause_anchors["K1"] = []  # isolate the clause match from the invoice-number match
+    _, cites = finalize_citations(answer, ctx)
+    assert bool(cites) is cited
