@@ -1,0 +1,2 @@
+# Fake key used by the BYOK "never logged" test; not a credential. Ignore this one finding only.
+2f3a1b533f9cbdad0f5d0792cd913ee796f7ca63:services/core/tests/ai/test_gateway.py:generic-api-key:82

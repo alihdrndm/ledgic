@@ -338,9 +338,16 @@ departures (code instead of n8n, OpenAI with a hard daily cap, mocked ERPs, free
 agent, copilot and MCP server) and the reasons for each are in [docs/DECISIONS.md](docs/DECISIONS.md).
 The original spec is kept in [docs/handoff/](docs/handoff/).
 
+## Security
+
+Please report vulnerabilities privately through GitHub's
+[Report a vulnerability](https://github.com/alihdrndm/ledgic/security/advisories/new) form, never in a public
+issue. Scope, response targets and safe harbor are in [SECURITY.md](SECURITY.md).
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, checks and the
+secrets policy, [SUPPORT.md](SUPPORT.md) for questions, and the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 

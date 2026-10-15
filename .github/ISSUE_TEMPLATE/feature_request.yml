@@ -1,0 +1,49 @@
+name: Feature request
+description: Suggest an improvement or a new capability.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ledgic is a portfolio project with best-effort maintenance, so not every request will be built.
+        A clear problem statement is the most useful part.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what gets in the way?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should happen? Note any changes to contracts, RPCs, views or MCP tools.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Web app
+        - Core API / orchestrator
+        - AI / RAG
+        - MCP server
+        - Database
+        - Docs
+        - Other
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I would be willing to open a pull request for this
+        - label: I have removed any API keys, tokens, passwords, or personal data from this request
+          required: true

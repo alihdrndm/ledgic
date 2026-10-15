@@ -1,0 +1,16 @@
+# Code owners are requested for review automatically on matching pull requests.
+# Later lines take precedence over earlier ones.
+
+*                           @alihdrndm
+
+# Database schema, RLS policies and security-definer RPCs
+/supabase/migrations/       @alihdrndm
+
+# CI, repository configuration and these ownership rules
+/.github/                   @alihdrndm
+
+# Core REST API, admin (HMAC) endpoints and auth
+/services/core/app/api/     @alihdrndm
+
+# Security policy
+/SECURITY.md                @alihdrndm
