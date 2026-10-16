@@ -14,7 +14,7 @@ interface IngestData {
 /**
  * POST { org_id, storage_path, original_filename?, location_id?, channel? }
  * Hands an uploaded object to core: POST {CORE_URL}/v1/documents/ingest as the signed-in user
- * (core re-checks role ≥ ap_clerk). Falls back to HMAC only if core rejects the user token.
+ * (core re-checks role ≥ ap_clerk).
  */
 export async function POST(request: NextRequest) {
   const body = await readJson(request);

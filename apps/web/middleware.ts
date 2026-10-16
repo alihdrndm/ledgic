@@ -1,19 +1,33 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { contentSecurityPolicy, newNonce } from "@/lib/security/csp";
 
 /** Routes that need a signed-in user; everything else is public (login, auth callbacks, health, assets). */
 const PROTECTED = [/^\/o(\/|$)/, /^\/capture(\/|$)/];
 
 /**
- * Supabase session refresh (official @supabase/ssr pattern for Next 15) + route protection.
- * Server Components can't write cookies, so the refreshed tokens are written here.
+ * Supabase session refresh (official @supabase/ssr pattern for Next 15) + route protection + the per-request
+ * CSP nonce. Server Components can't write cookies, so the refreshed tokens are written here.
  */
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const nonce = newNonce();
+  const csp = contentSecurityPolicy(nonce);
+  // Rebuilt after every cookie refresh so the forwarded request carries both the new cookies and the nonce.
+  const forward = () => {
+    const headers = new Headers(request.headers);
+    headers.set("x-nonce", nonce);
+    headers.set("Content-Security-Policy", csp);
+    return NextResponse.next({ request: { headers } });
+  };
+  const withCsp = (res: NextResponse) => {
+    res.headers.set("Content-Security-Policy", csp);
+    return res;
+  };
+  let response = forward();
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return response;
+  if (!url || !anonKey) return withCsp(response);
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -22,7 +36,7 @@ export async function middleware(request: NextRequest) {
       },
       setAll(cookiesToSet) {
         for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
-        response = NextResponse.next({ request });
+        response = forward();
         for (const { name, value, options } of cookiesToSet) response.cookies.set(name, value, options);
       },
     },
@@ -42,10 +56,10 @@ export async function middleware(request: NextRequest) {
     const redirect = NextResponse.redirect(loginUrl);
     // Carry over any cookie changes (e.g. a cleared, expired session).
     for (const c of response.cookies.getAll()) redirect.cookies.set(c);
-    return redirect;
+    return withCsp(redirect);
   }
 
-  return response;
+  return withCsp(response);
 }
 
 export const config = {
