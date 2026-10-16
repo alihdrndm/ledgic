@@ -76,8 +76,9 @@ async def _live(
 
     try:
         blob = await download_object(doc["storage_path"])
-    except Exception as e:  # storage hiccup → retry
-        raise StageError(f"could not download {doc['storage_path']}: {e}") from e
+    except Exception as e:  # storage hiccup → retry; the detail goes to the server log, not to last_error
+        log.warning("extraction: download failed for run %s: %s", run.id, e)
+        raise StageError("could not download the uploaded document") from e
     try:
         out = await extract_document(
             [blob], mime=doc["mime"], api_key=ctx.byok_key, org_id=run.org_id, run_id=run.id

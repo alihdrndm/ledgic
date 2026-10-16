@@ -333,6 +333,7 @@ _NOTICES = {
     "fixture": "AI answers are off in this environment, so this answer quotes the knowledge base directly.",
     "no_key": "No AI key is configured, so this answer quotes the knowledge base directly.",
     "error": "The AI service did not respond, so this answer quotes the knowledge base directly.",
+    "read_only": "Read-only access tokens get answers quoted straight from the knowledge base.",
 }
 
 
@@ -473,15 +474,19 @@ async def ask(
     use_cache: bool = True,
     refresh: bool = False,
     gateway: LlmGateway | None = None,
+    allow_live: bool = True,
 ) -> CopilotAnswer:
     """`use_cache=False` neither reads nor writes the cache; `refresh=True` skips the read (fresh answer)
-    but still writes it when it is cacheable (precompute)."""
+    but still writes it when it is cacheable (precompute). `allow_live=False` never spends: cache, else
+    retrieval-only (read-only MCP tokens, including the published demo token)."""
     question = question.strip()[:MAX_QUESTION_CHARS]
     context = scoped_context(question, context)
     if use_cache and not refresh and cache_readable(question, context):
         hit = await cache_get(org_id, question)
         if hit is not None:
             return hit
+    if not allow_live:
+        return await answer_retrieval_only(org_id, question, context, "read_only")
     gw = gateway or get_gateway()
     if not gw.can_call(api_key):
         return await answer_retrieval_only(
@@ -493,9 +498,25 @@ async def ask(
         if not isinstance(exc, BudgetExceeded | LlmUnavailable):
             log.warning("copilot live answer failed: %s", type(exc).__name__)
         return await answer_retrieval_only(org_id, question, context, _reason_for(exc, gw))
-    if use_cache and not context and cacheable(ans, ctx):
+    if use_cache and cache_readable(question, context) and cacheable(ans, ctx):
         await cache_put(org_id, question, ans)
     return ans
+
+
+async def warm_cache(org_id: str) -> dict[str, str]:
+    """Precompute the suggested questions that can be cached and are not yet: questions about live data or
+    a named invoice are always answered fresh, and a cached answer is never re-bought. Returns each
+    question's outcome for the log."""
+    out: dict[str, str] = {}
+    for q in SUGGESTED_QUESTIONS:
+        if is_live_data_question(q) or invoice_ref_in(q):
+            out[q] = "never cached"
+        elif await cache_get(org_id, q) is not None:
+            out[q] = "cached"
+        else:
+            ans = await ask(org_id, q, refresh=True)
+            out[q] = f"{ans.mode}, {'cached' if await cache_get(org_id, q) else 'not cacheable'}"
+    return out
 
 
 def cacheable(ans: CopilotAnswer, ctx: AgentCtx) -> bool:
@@ -623,6 +644,8 @@ async def stream_ask(
         for c in cites:
             yield {"event": "citation", "data": c}
         yield {"event": "done", "data": ans.to_dict()}
+        if cache_readable(question, context) and cacheable(ans, ctx):
+            await cache_put(org_id, question, ans)
     except Exception as exc:
         log.warning("copilot stream failed: %s", type(exc).__name__)
         if streamed_any:

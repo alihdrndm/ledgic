@@ -173,8 +173,8 @@ def build_server(
         ],
     ) -> dict[str, Any]:
         """Ask Ledgic's own copilot agent (RAG over contracts/policy plus read-only tools over invoices and
-        KPIs). Returns a markdown answer with numbered citations. It is cost-capped: when the daily AI
-        budget is spent it answers from cached or retrieval-only results (see `mode`). Prefer the specific
+        KPIs). Returns a markdown answer with numbered citations. It is cost-capped: read-only tokens and
+        a spent daily AI budget get cached or retrieval-only results (see `mode`). Prefer the specific
         tools when you already know what to fetch."""
         ctx = await _read_ctx()
         return await service.ask_ledgic(ctx, question)
