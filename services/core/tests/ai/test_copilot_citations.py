@@ -4,6 +4,7 @@ parity, and cache hygiene. No live LLM calls: agent runs are faked and tools are
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 from types import SimpleNamespace
 from typing import Any
 
@@ -500,3 +501,29 @@ def test_ref_parsing_is_linear_on_hostile_model_output(hostile: str) -> None:
     start = time.perf_counter()
     finalize_citations(hostile, _ctx(C42))
     assert time.perf_counter() - start < 0.5  # CodeQL py/redos: no catastrophic backtracking
+
+
+@pytest.mark.parametrize(
+    ("question", "readable"),
+    [
+        ("What does clause 4.2 of the Protein Supplier agreement say about shrimp?", True),
+        ("what is our price-variance tolerance", True),
+        ("Is this invoice within tolerance?", False),
+    ],
+)
+def test_suggested_questions_read_the_cache_from_any_page(question: str, readable: bool) -> None:
+    assert copilot.cache_readable(question, OTHER_PAGE) is readable
+    assert copilot.cache_readable(question, None)
+
+
+async def test_suggested_question_on_a_page_is_served_from_the_cache(monkeypatch: pytest.MonkeyPatch) -> None:
+    hit = copilot.CopilotAnswer("cached", [], "cached", None, [], Decimal(0), None)
+
+    async def get(org_id: str, question: str) -> Any:
+        return hit
+
+    monkeypatch.setattr(copilot, "cache_get", get)
+    q = "What does clause 4.2 of the Protein Supplier agreement say about shrimp?"
+    assert await ask(ORG, q, OTHER_PAGE) is hit
+    events = [e async for e in stream_ask(ORG, q, OTHER_PAGE)]
+    assert events[-1]["data"]["mode"] == "cached"

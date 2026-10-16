@@ -34,6 +34,8 @@ test("Ctrl/Cmd+K opens the command palette", async ({ page }) => {
 });
 
 test("Ask Ledgic answers a suggested question with a citation", async ({ page }) => {
+  // Served from the precomputed cache when it is warm; a cold cache spends a live answer on a deployed site.
+  test.skip(!process.env.E2E_ALLOW_LIVE_AI && !!process.env.E2E_BASE_URL, "set E2E_ALLOW_LIVE_AI=1 to run against a deployed site");
   test.setTimeout(120_000);
   await page.goto(`/o/${ORG}/match`);
   await expectScreen(page, "Three-way match");
