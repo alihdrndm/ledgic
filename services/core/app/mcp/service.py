@@ -611,7 +611,10 @@ async def ask_ledgic(ctx: TokenContext, question: str) -> dict[str, Any]:
         ) from exc
     ask_fn: Callable[..., Awaitable[Any] | Any] = ask
     try:
-        result = await call_flex(ask_fn, org_id=ctx.org_id, question=question, user_id=ctx.user_id)
+        # Only tokens that may decide can spend live AI; read-only ones (the public demo token) never do.
+        result = await call_flex(
+            ask_fn, org_id=ctx.org_id, question=question, user_id=ctx.user_id, allow_live=ctx.has("decide")
+        )
     except ToolError:
         raise
     except Exception as exc:

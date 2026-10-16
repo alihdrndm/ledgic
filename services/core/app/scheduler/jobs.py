@@ -108,7 +108,14 @@ class Scheduler:
 
         if not await replay.demo_org_exists():
             return "no demo org"
-        return await replay.nightly()
+        stats = await replay.nightly()
+        try:  # suggested answers that are missing (first night after a deploy or reset); ~$0 once warm
+            from app.ai import copilot
+
+            stats = {**stats, "copilot_cache": await copilot.warm_cache(replay.ORG_ID)}
+        except Exception:
+            log.exception("nightly: copilot cache warm failed")
+        return stats
 
     async def _refresh(self) -> Any:
         async with connection() as conn:

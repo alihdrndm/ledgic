@@ -26,7 +26,9 @@ router = APIRouter(prefix="/v1")
 
 MAX_BYTES = 10 * 1024 * 1024
 MAX_PAGES = 3
-UPLOADS_PER_DAY = 10
+UPLOADS_PER_DAY = 10  # per client IP
+UPLOADS_PER_USER_PER_DAY = 30  # per user: forwarded IPs can be spoofed when core is called directly
+REGENERATES_PER_HOUR = 20  # per user; each regenerate is a live resolution-agent run
 BYOK_TTL_S = 900
 
 
@@ -92,20 +94,28 @@ def _remember_key(request: Request, run_id: str, key: str) -> None:
     asyncio.get_running_loop().call_later(BYOK_TTL_S, keys.pop, run_id, None)
 
 
+async def _over_limit(key: str, limit: int, window_seconds: int) -> bool:
+    """Fixed-window limit via `rate_limit_hit` on the service connection (true when over)."""
+    async with connection() as conn:
+        return bool(
+            await exists_fn(conn, "rate_limit_hit")
+            and await val(
+                conn, "select public.rate_limit_hit(%s, %s, %s) as over", (key, limit, window_seconds)
+            )
+        )
+
+
 @router.post("/documents/ingest", status_code=201)
 async def ingest(body: IngestBody, request: Request, p: Principal = Depends(user_or_service)) -> Any:
     await require_role(p, body.org_id, "ap_clerk")
     prefix = f"org/{body.org_id}/"
     if not body.storage_path.startswith(prefix) or ".." in body.storage_path:
         raise ApiError("INVALID", "storage_path must be under the organization's prefix")
-    if not p.is_service:
-        async with connection() as conn:
-            if await exists_fn(conn, "rate_limit_hit") and await val(
-                conn,
-                "select public.rate_limit_hit(%s, %s, %s) as over",
-                (f"upload:ip:{client_ip(request)}", UPLOADS_PER_DAY, 86400),
-            ):
-                raise ApiError("RATE_LIMITED", "Upload limit reached for today (10 per day)")
+    if not p.is_service and (
+        await _over_limit(f"upload:ip:{client_ip(request)}", UPLOADS_PER_DAY, 86400)
+        or await _over_limit(f"upload:user:{p.user_id}", UPLOADS_PER_USER_PER_DAY, 86400)
+    ):
+        raise ApiError("RATE_LIMITED", "Upload limit reached for today")
     from app.repo.storage import download_object
 
     try:
@@ -319,6 +329,10 @@ async def exception_draft(
     if org is None:
         raise ApiError("NOT_FOUND", "Exception not found")
     await require_role(p, org, "ap_clerk")
+    if body.regenerate and not p.is_service and await _over_limit(
+        f"draft:user:{p.user_id}", REGENERATES_PER_HOUR, 3600
+    ):
+        raise ApiError("RATE_LIMITED", "Too many regenerated drafts this hour; try again later")
     from app.ai import draft_for_exception
 
     d = await draft_for_exception(exception_id, byok(request), kind=body.kind, regenerate=body.regenerate)

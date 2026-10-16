@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.db.pool import connection
 from app.demo.corpus.catalog import ORG_ID
@@ -55,15 +55,21 @@ async def health(request: Request) -> Any:
 
 
 class TickBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # a signed body for one endpoint fits no other
+
     org_id: str | None = None
     now: datetime | None = None
 
 
 class OrgBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # a signed body for one endpoint fits no other
+
     org_id: str | None = None
 
 
 class ResetBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # a signed body for one endpoint fits no other
+
     org_id: str | None = None
     backfill_days: int = 30
 
@@ -163,8 +169,7 @@ async def _precompute_copilot(org: str) -> None:
     try:
         from app.ai import copilot
 
-        for q in copilot.SUGGESTED_QUESTIONS:
-            await copilot.ask(org, q, refresh=True)  # caches only cited, KB-only answers
+        log.info("reset-demo: copilot cache %s", await copilot.warm_cache(org))
     except Exception:
         log.exception("reset-demo: copilot cache precompute failed")
 
