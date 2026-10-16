@@ -17,9 +17,11 @@ Error codes: `UNAUTHENTICATED` (401), `INVALID_SIGNATURE` (401), `FORBIDDEN` (40
    `SUPABASE_JWT_SECRET` (HS256, `aud=authenticated`, `exp`), falling back to `GET {SUPABASE_URL}/auth/v1/user`
    when the project uses asymmetric keys. The `sub` becomes the acting user: DB work that needs role checks
    runs in a transaction with `set local role authenticated` + `request.jwt.claims = {"sub": ..., "role": "authenticated"}`.
-2. **Admin / service** — `X-Ledgic-Signature: t=<unix seconds>,v1=<hex>` where
-   `v1 = HMAC_SHA256(CORE_HMAC_SECRET, f"{t}.{raw_body}")` (empty body → `f"{t}."`). Rejected when
-   `|now − t| > 300` or mismatch (constant-time compare). Used by Vercel server code, GitHub Actions / cron, and replay tooling.
+2. **Admin / service** — `X-Ledgic-Signature: t=<unix seconds>,v2=<hex>` where
+   `v2 = HMAC_SHA256(CORE_HMAC_SECRET, f"{t}.{METHOD}.{path}.{raw_body}")` (path without the query string;
+   empty body → `f"{t}.{METHOD}.{path}."`), so a signed request cannot be replayed against another endpoint.
+   Rejected when `|now − t| > 300` or mismatch (constant-time compare). Used by operator tooling and tests;
+   the web app calls core as the signed-in user only.
 3. **MCP** — `Authorization: Bearer lgc_pat_<random>`; core hashes (sha256 hex) and looks up `mcp_tokens.token_hash`
    (not revoked); acts as `mcp_tokens.user_id` in `mcp_tokens.org_id`; `scopes` ⊇ `read` for reads, `decide` for `decide_exception`.
 4. **BYOK** — optional `X-OpenAI-Key` header on copilot/draft/ingest: used for that request only, never stored or logged; bypasses the daily budget.

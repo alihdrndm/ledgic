@@ -35,23 +35,29 @@ class Principal:
 # ------------------------------------------------------------------------------------------- HMAC
 
 
-def sign(body: bytes, secret: str, t: int | None = None) -> str:
+def _mac(secret: str, t: int, method: str, path: str, body: bytes) -> str:
+    # Method and path are signed too, so a captured request cannot be replayed against another endpoint.
+    msg = f"{t}.{method.upper()}.{path}.".encode() + body
+    return hmac.new(secret.encode(), msg, hashlib.sha256).hexdigest()
+
+
+def sign(method: str, path: str, body: bytes, secret: str, t: int | None = None) -> str:
     t = int(time.time()) if t is None else t
-    mac = hmac.new(secret.encode(), f"{t}.".encode() + body, hashlib.sha256).hexdigest()
-    return f"t={t},v1={mac}"
+    return f"t={t},v2={_mac(secret, t, method, path, body)}"
 
 
-def verify_signature(header: str, body: bytes, secret: str, now: float | None = None) -> bool:
+def verify_signature(
+    header: str, method: str, path: str, body: bytes, secret: str, now: float | None = None
+) -> bool:
     try:
         parts = dict(p.split("=", 1) for p in header.split(","))
         t = int(parts["t"])
-        v1 = parts["v1"]
+        v2 = parts["v2"]
     except (ValueError, KeyError):
         return False
     if abs((now or time.time()) - t) > HMAC_SKEW_S:
         return False
-    expected = hmac.new(secret.encode(), f"{t}.".encode() + body, hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, v1)
+    return hmac.compare_digest(_mac(secret, t, method, path, body), v2)
 
 
 async def _hmac(request: Request) -> Principal | None:
@@ -59,7 +65,7 @@ async def _hmac(request: Request) -> Principal | None:
     if not header:
         return None
     body = await request.body()
-    if not verify_signature(header, body, get_settings().core_hmac_secret):
+    if not verify_signature(header, request.method, request.url.path, body, get_settings().core_hmac_secret):
         raise ApiError("INVALID_SIGNATURE", "Invalid signature")
     return Principal("service")
 
