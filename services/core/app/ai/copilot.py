@@ -113,6 +113,9 @@ def normalize_question(q: str) -> str:
     return q.rstrip(" ?!.")
 
 
+_SUGGESTED = frozenset(normalize_question(q) for q in SUGGESTED_QUESTIONS)
+
+
 # Bump to orphan every cached answer (e.g. after a citation fix): old rows simply stop matching.
 CACHE_KEY_VERSION = "v2"
 
@@ -127,6 +130,12 @@ _INVOICE_REF = re.compile(r"(?<![\w-])([A-Za-z]{2,4}-\d{3,7})(?![\w-])")
 def invoice_ref_in(text: str) -> str | None:
     m = _INVOICE_REF.search(text)
     return m.group(1).upper() if m else None
+
+
+def cache_readable(question: str, context: dict[str, Any] | None) -> bool:
+    """The cache holds only cited, KB-only answers. The curated suggested questions never depend on the
+    page, so their precomputed answers serve every page; anything else asked on a page is answered fresh."""
+    return not context or normalize_question(question) in _SUGGESTED
 
 
 def scoped_context(question: str, context: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -469,7 +478,7 @@ async def ask(
     but still writes it when it is cacheable (precompute)."""
     question = question.strip()[:MAX_QUESTION_CHARS]
     context = scoped_context(question, context)
-    if use_cache and not refresh and not context:
+    if use_cache and not refresh and cache_readable(question, context):
         hit = await cache_get(org_id, question)
         if hit is not None:
             return hit
@@ -553,7 +562,7 @@ async def stream_ask(
     question = question.strip()[:MAX_QUESTION_CHARS]
     context = scoped_context(question, context)
     yield {"event": "status", "data": {"step": "retrieving"}}
-    if not context:
+    if cache_readable(question, context):
         hit = await cache_get(org_id, question)
         if hit is not None:
             async for ev in _emit_answer(hit):
