@@ -136,7 +136,7 @@ begin
 end $$;
 -- ---------------------------------------------------------------------------------------------
 
-select plan(37);
+select plan(38);
 
 -- ids
 -- E1 hero price variance ($88 at risk, run R1) · E2 $6,000 at risk · E3 fraud screen (vendor created by controller2)
@@ -160,6 +160,8 @@ select pg_temp.logout();
 select pg_temp.login('aaaaaaaa-0000-0000-0000-000000000003');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000002', 'short_pay', 4000, 6000)$q$,
   '42501', 'LEDGIC_FORBIDDEN: Above your approval limit of $5,000.00', 'manager over limit forbidden');
+select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000002', 'short_pay', 9999.99, 0.01)$q$,
+  '42501', 'LEDGIC_FORBIDDEN: Above your approval limit of $5,000.00', 'a token hold cannot slip a large variance under the limit');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'merge')$q$,
   '22023', 'LEDGIC_INVALID: Action not allowed for this exception', 'action must fit the exception type');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'approve_as_is')$q$,
