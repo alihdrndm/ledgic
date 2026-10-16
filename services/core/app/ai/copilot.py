@@ -129,6 +129,11 @@ def invoice_ref_in(text: str) -> str | None:
     return m.group(1).upper() if m else None
 
 
+def scoped_context(question: str, context: dict[str, Any] | None) -> dict[str, Any] | None:
+    """The page the user is on is only a fallback: an invoice named in the question wins over it."""
+    return None if invoice_ref_in(question) else (context or None)
+
+
 # --------------------------------------------------------------------------------------- citations
 def citation_payload(n: int, c: Chunk, query: str | None) -> dict[str, Any]:
     snippet = c.snippet(query)
@@ -378,7 +383,8 @@ async def answer_retrieval_only(
     tool_calls: list[dict[str, Any]] = []
     facts: list[str] = []
     query = question
-    ref = (context or {}).get("exception_id") or (context or {}).get("invoice_id") or invoice_ref_in(question)
+    ctx = scoped_context(question, context) or {}
+    ref = ctx.get("exception_id") or ctx.get("invoice_id") or invoice_ref_in(question)
     if ref:
         tool_calls.append({"name": "get_exception", "args": {"ref": ref}})
         ex = await get_exception(org_id, str(ref))
@@ -462,6 +468,7 @@ async def ask(
     """`use_cache=False` neither reads nor writes the cache; `refresh=True` skips the read (fresh answer)
     but still writes it when it is cacheable (precompute)."""
     question = question.strip()[:MAX_QUESTION_CHARS]
+    context = scoped_context(question, context)
     if use_cache and not refresh and not context:
         hit = await cache_get(org_id, question)
         if hit is not None:
@@ -544,6 +551,7 @@ async def stream_ask(
     from .runtime import run_config
 
     question = question.strip()[:MAX_QUESTION_CHARS]
+    context = scoped_context(question, context)
     yield {"event": "status", "data": {"step": "retrieving"}}
     if not context:
         hit = await cache_get(org_id, question)
