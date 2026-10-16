@@ -1,4 +1,3 @@
-import { createHmac } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { ipFrom } from "@/lib/auth/request";
 import { authorizeCapture, jsonError, readJson, UUID } from "@/lib/auth/capture";
@@ -10,12 +9,6 @@ interface IngestData {
   run_id: string | null;
   run_number: number | null;
   redelivered: boolean;
-}
-
-function hmacHeader(rawBody: string, secret: string): string {
-  const t = Math.floor(Date.now() / 1000);
-  const v1 = createHmac("sha256", secret).update(`${t}.${rawBody}`).digest("hex");
-  return `t=${t},v1=${v1}`;
 }
 
 /**
@@ -88,8 +81,7 @@ export async function POST(request: NextRequest) {
     res = session?.access_token
       ? await callCore({ authorization: `Bearer ${session.access_token}` })
       : new Response(null, { status: 401 });
-    const secret = process.env.CORE_HMAC_SECRET;
-    if (res.status === 401 && secret) res = await callCore({ "x-ledgic-signature": hmacHeader(raw, secret) });
+    // No service-signed retry: core must see the user, so its role check and upload limit apply.
   } catch (err) {
     console.warn("[capture] core ingest unreachable:", err);
     return jsonError(503, "UNAVAILABLE", "The pipeline is unreachable. Your upload is saved; try again shortly.", true);

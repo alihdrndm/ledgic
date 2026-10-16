@@ -1,8 +1,10 @@
 import "server-only";
 import { headers } from "next/headers";
 
-/** Best-effort client IP (Vercel sets x-forwarded-for / x-real-ip). */
+/** Best-effort client IP. Vercel sets x-vercel-forwarded-for itself, so clients cannot spoof it. */
 export function ipFrom(h: Headers): string {
+  const vercel = h.get("x-vercel-forwarded-for")?.split(",")[0]?.trim();
+  if (vercel) return vercel;
   const fwd = h.get("x-forwarded-for");
   const first = fwd?.split(",")[0]?.trim();
   return first || h.get("x-real-ip")?.trim() || "unknown";

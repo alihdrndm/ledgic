@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { coreFetch, userAccessToken } from "@/lib/core";
-import { untypedClient } from "@/lib/actions/db";
+import { ipFrom } from "@/lib/auth/request";
+import { isRateLimited } from "@/lib/auth/rate-limit";
 import { getSessionContext } from "@/lib/supabase/session";
 
 export const dynamic = "force-dynamic";
@@ -20,11 +21,6 @@ function sseError(code: string, message: string, retryable: boolean, status = 20
     status,
     headers: { "Content-Type": "text/event-stream; charset=utf-8", "Cache-Control": "no-store" },
   });
-}
-
-function clientIp(req: NextRequest): string {
-  const fwd = req.headers.get("x-forwarded-for");
-  return (fwd?.split(",")[0] ?? req.headers.get("x-real-ip") ?? "local").trim();
 }
 
 /**
@@ -48,13 +44,12 @@ export async function POST(req: NextRequest) {
   if (session.status === "forbidden") return sseError("NOT_FOUND", "Organization not found.", false, 404);
   const { org, user } = session.context;
 
-  // Rate limits (rpc rate_limit_hit returns true when over the limit). Missing RPC → allow.
-  const db = await untypedClient();
-  const [u, ip] = await Promise.all([
-    db.rpc("rate_limit_hit", { p_key: `copilot:user:${user.id}`, p_limit: USER_LIMIT.limit, p_window_seconds: USER_LIMIT.window }),
-    db.rpc("rate_limit_hit", { p_key: `copilot:ip:${clientIp(req)}`, p_limit: IP_LIMIT.limit, p_window_seconds: IP_LIMIT.window }),
+  // Rate limits run with the service role (browser sessions cannot touch rate_limit_hit).
+  const [overUser, overIp] = await Promise.all([
+    isRateLimited({ key: `copilot:user:${user.id}`, limit: USER_LIMIT.limit, windowSeconds: USER_LIMIT.window }),
+    isRateLimited({ key: `copilot:ip:${ipFrom(req.headers)}`, limit: IP_LIMIT.limit, windowSeconds: IP_LIMIT.window }),
   ]);
-  if (u.data === true || ip.data === true) {
+  if (overUser || overIp) {
     return sseError("RATE_LIMITED", "You've asked a lot of questions this hour. Try again later.", true, 429);
   }
 
