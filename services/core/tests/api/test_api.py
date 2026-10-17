@@ -29,14 +29,32 @@ def client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 
 def test_sign_and_verify_roundtrip() -> None:
     body = b'{"org_id":"x"}'
-    header = auth.sign(body, SECRET)
-    assert auth.verify_signature(header, body, SECRET)
-    assert not auth.verify_signature(header, body + b" ", SECRET)
-    assert not auth.verify_signature(header, body, "other")
-    old = auth.sign(body, SECRET, t=int(time.time()) - 301)
-    assert not auth.verify_signature(old, body, SECRET)
-    assert not auth.verify_signature("garbage", body, SECRET)
-    assert auth.verify_signature(auth.sign(b"", SECRET), b"", SECRET)
+    path = "/v1/documents/ingest"
+    header = auth.sign("POST", path, body, SECRET)
+    assert auth.verify_signature(header, "POST", path, body, SECRET)
+    assert not auth.verify_signature(header, "POST", path, body + b" ", SECRET)
+    assert not auth.verify_signature(header, "POST", path, body, "other")
+    old = auth.sign("POST", path, body, SECRET, t=int(time.time()) - 301)
+    assert not auth.verify_signature(old, "POST", path, body, SECRET)
+    assert not auth.verify_signature("garbage", "POST", path, body, SECRET)
+    assert auth.verify_signature(auth.sign("POST", path, b"", SECRET), "POST", path, b"", SECRET)
+
+
+def test_signature_is_bound_to_method_and_path() -> None:
+    body = b'{"org_id":"x"}'
+    header = auth.sign("POST", "/v1/documents/ingest", body, SECRET)
+    assert not auth.verify_signature(header, "POST", "/v1/admin/reset-demo", body, SECRET)
+    assert not auth.verify_signature(header, "GET", "/v1/documents/ingest", body, SECRET)
+
+
+def test_legacy_body_only_signature_is_rejected() -> None:
+    import hashlib
+    import hmac
+
+    body = b"{}"
+    t = int(time.time())
+    v1 = hmac.new(SECRET.encode(), f"{t}.".encode() + body, hashlib.sha256).hexdigest()
+    assert not auth.verify_signature(f"t={t},v1={v1}", "POST", "/v1/admin/replay/tick", body, SECRET)
 
 
 def test_admin_requires_signature(client: TestClient) -> None:
@@ -49,7 +67,7 @@ def test_admin_requires_signature(client: TestClient) -> None:
 
 def test_admin_rejects_non_demo_org(client: TestClient) -> None:
     body = b'{"org_id": "00000000-0000-0000-0000-000000000000"}'
-    r = client.post("/v1/admin/seed-today", content=body, headers={"X-Ledgic-Signature": auth.sign(body, SECRET), "Content-Type": "application/json"})
+    r = client.post("/v1/admin/seed-today", content=body, headers={"X-Ledgic-Signature": auth.sign("POST", "/v1/admin/seed-today", body, SECRET), "Content-Type": "application/json"})
     assert r.status_code == 422 and r.json()["error"]["code"] == "INVALID"
 
 
@@ -78,7 +96,7 @@ async def test_valid_jwt_resolves_user(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_validation_errors_use_envelope(client: TestClient) -> None:
     body = b'{"org_id": "o"}'
-    r = client.post("/v1/documents/ingest", content=body, headers={"X-Ledgic-Signature": auth.sign(body, SECRET), "Content-Type": "application/json"})
+    r = client.post("/v1/documents/ingest", content=body, headers={"X-Ledgic-Signature": auth.sign("POST", "/v1/documents/ingest", body, SECRET), "Content-Type": "application/json"})
     assert r.status_code == 422
     assert r.json()["ok"] is False and r.json()["error"]["code"] == "INVALID"
 

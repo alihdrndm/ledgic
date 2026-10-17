@@ -179,7 +179,7 @@ async def test_redelivery_creates_no_second_run() -> None:
         for pth in paths:
             body = json.dumps({"org_id": ORG, "channel": "upload", "storage_path": pth, "original_filename": "test.pdf"}).encode()
             r = await client.post("/v1/documents/ingest", content=body,
-                                  headers={"X-Ledgic-Signature": sign(body, secret), "Content-Type": "application/json"})
+                                  headers={"X-Ledgic-Signature": sign("POST", "/v1/documents/ingest", body, secret), "Content-Type": "application/json"})
             assert r.status_code == 201, r.text
             out.append(r.json()["data"])
     assert out[0]["redelivered"] is False and out[0]["run_id"]

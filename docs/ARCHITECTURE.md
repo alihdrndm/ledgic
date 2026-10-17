@@ -136,7 +136,7 @@ with `context.decision`, a `resumed` event, and `pg_notify`. The worker then pic
 |---|---|---|
 | Browser → Supabase | Supabase Auth session (magic link, or the demo password grant done **server-side** in `app/login/actions.ts`, so demo passwords never reach the browser) | `auth.uid()`. RLS on every table |
 | Web server → core | `Authorization: Bearer <user access token>` | Core verifies the JWT (HS256 with `SUPABASE_JWT_SECRET`, falling back to `GET /auth/v1/user`) and acts as that user |
-| Web server / cron → core admin | `X-Ledgic-Signature: t=<unix>,v1=HMAC_SHA256(CORE_HMAC_SECRET, "<t>.<raw body>")`, ± 300 s window, constant-time compare (`api/auth.py`, `apps/web/lib/core.ts`) | service principal |
+| Operator tooling → core admin | `X-Ledgic-Signature: t=<unix>,v2=HMAC_SHA256(CORE_HMAC_SECRET, "<t>.<METHOD>.<path>.<raw body>")`, ± 300 s window, constant-time compare (`api/auth.py`) | service principal |
 | MCP client → core | `Authorization: Bearer lgc_pat_…`, sha256 lookup in `mcp_tokens`, scopes `read` / `decide` | the token's user |
 | Visitor's own key | `X-OpenAI-Key` on copilot / draft / ingest | used for that request only, never stored or logged |
 

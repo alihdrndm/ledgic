@@ -95,7 +95,7 @@ Names only. Local values go in `.env` (core, read from the repo root) and `apps/
 | `SUPABASE_URL` | yes | Project URL (Auth admin API, Storage, JWT fallback check) |
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | Storage reads and writes, seeding Auth users |
 | `SUPABASE_JWT_SECRET` | yes* | Local HS256 verification of user JWTs. If absent, core falls back to `GET /auth/v1/user`. |
-| `CORE_HMAC_SECRET` | yes | Shared with the web app. Signs admin and service calls. |
+| `CORE_HMAC_SECRET` | yes | Signs admin calls from operator tooling. At least 32 characters; core refuses to start with the placeholder. |
 | `CORS_ORIGINS` | yes | Comma-separated allowed origins (the Vercel URL) |
 | `LLM_MODE` | yes | `fixture` (no OpenAI calls) or `live` |
 | `OPENAI_API_KEY` | live only | Owner's key, capped by `LLM_DAILY_CAP_USD` |
@@ -120,7 +120,6 @@ Names only. Local values go in `.env` (core, read from the repo root) and `apps/
 | `SUPABASE_SERVICE_ROLE_KEY` | yes | Server-only: rate-limit counters and admin helpers (`lib/auth/admin.ts`) |
 | `CORE_URL` | yes | Core base URL for server-side calls |
 | `NEXT_PUBLIC_CORE_URL` | no | Added to the CSP `connect-src` |
-| `CORE_HMAC_SECRET` | yes | Same value as core |
 | `DEMO_VIEWER_EMAIL`, `DEMO_VIEWER_PASSWORD` | yes | "Open the demo" server-side password grant |
 | `DEMO_ELENA_EMAIL`, `DEMO_ELENA_PASSWORD` | yes | "Try as Elena" server-side password grant |
 | `NEXT_PUBLIC_DEMO_ORG_SLUG` | no | Org the demo buttons land in |
@@ -138,7 +137,7 @@ Rotate on suspicion of exposure, and whenever someone with access leaves.
 
 | Secret | Steps |
 |---|---|
-| `CORE_HMAC_SECRET` | Generate a new random value (`openssl rand -hex 32`). Set it in **both** Railway and Vercel, then redeploy both. Signatures made with the old value fail with `INVALID_SIGNATURE` until both sides match. |
+| `CORE_HMAC_SECRET` | Generate a new random value (`openssl rand -hex 32`). Set it in Railway and redeploy core. The web app does not use it. Signatures made with the old value fail with `INVALID_SIGNATURE`. |
 | `OPENAI_API_KEY` | Create a new key in the OpenAI dashboard, set it on Railway, redeploy, then revoke the old key. Keep the monthly usage limit in the OpenAI dashboard. |
 | `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_JWT_SECRET` / anon key | Rotate in Supabase → Project Settings → API (rotating the JWT secret re-issues the anon and service keys and signs everyone out). Update Railway (`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`) and Vercel (`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`), then redeploy both. |
 | Database password | Reset in Supabase → Database settings, update `DATABASE_URL` on Railway, redeploy. |
@@ -158,9 +157,9 @@ admin endpoint:
 CORE=https://core-production-f996.up.railway.app
 BODY='{"backfill_days":30}'
 T=$(date +%s)
-SIG=$(printf '%s.%s' "$T" "$BODY" | openssl dgst -sha256 -hmac "$CORE_HMAC_SECRET" | sed 's/^.* //')
+SIG=$(printf '%s.POST./v1/admin/reset-demo.%s' "$T" "$BODY" | openssl dgst -sha256 -hmac "$CORE_HMAC_SECRET" | sed 's/^.* //')
 curl -s -X POST "$CORE/v1/admin/reset-demo" \
-  -H "Content-Type: application/json" -H "X-Ledgic-Signature: t=$T,v1=$SIG" -d "$BODY"
+  -H "Content-Type: application/json" -H "X-Ledgic-Signature: t=$T,v2=$SIG" -d "$BODY"
 ```
 
 `CORE_HMAC_SECRET` comes from your shell environment. Never paste it into a file.
@@ -190,7 +189,7 @@ idempotent) and `POST /v1/admin/replay/tick` (force a replay tick).
 | Pipeline screen is empty today | Replay disabled or no demo org | Set `REPLAY_ENABLED=true`. Call `/v1/admin/seed-today`. |
 | "Open the demo" or "Try as Elena" fails | Web demo env vars don't match the passwords the seed set | Align `DEMO_*` on Vercel with the seed env and re-run `app.demo.seed` |
 | Magic link lands on the wrong host | Supabase Site URL or redirect list | Fix in Auth → URL configuration |
-| Admin calls return `401 INVALID_SIGNATURE` | Secret mismatch, or a clock more than 300 s off | Align `CORE_HMAC_SECRET`. Sync the clock. Sign the exact raw body. |
+| Admin calls return `401 INVALID_SIGNATURE` | Secret mismatch, or a clock more than 300 s off | Align `CORE_HMAC_SECRET`. Sync the clock. Sign `<t>.<METHOD>.<path>.<exact raw body>`. |
 | Copilot always answers `retrieval_only` | `LLM_MODE=fixture`, no `OPENAI_API_KEY`, or the daily cap is spent | Expected when the budget is gone. It resets at 00:00 UTC. Check `v_ai_budget_today`. |
 | Copilot answers have no citations | Knowledge base not indexed (for example after a reset) | `uv run python -m app.ai.seed_kb` |
 | Uploads stay in extraction review with empty fields | No live extraction possible (fixture mode or budget spent) | Expected degradation. Enter the fields, or use BYOK. |
