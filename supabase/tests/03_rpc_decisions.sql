@@ -163,18 +163,18 @@ select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000002', 'short_pay', 9999.99, 0.01)$q$,
   '42501', 'LEDGIC_FORBIDDEN: Above your approval limit of $5,000.00', 'a token hold cannot slip a large variance under the limit');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'merge')$q$,
-  '22023', 'LEDGIC_INVALID: Action not allowed for this exception', 'action must fit the exception type');
+  'PT422', 'LEDGIC_INVALID: Action not allowed for this exception', 'action must fit the exception type');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'approve_as_is')$q$,
-  '22023', 'LEDGIC_INVALID: A comment is required for this decision', 'approve as-is needs a comment');
+  'PT422', 'LEDGIC_INVALID: A comment is required for this decision', 'approve as-is needs a comment');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'dispute', p_comment => '  ')$q$,
-  '22023', 'LEDGIC_INVALID: A comment is required for this decision', 'blank comment rejected');
+  'PT422', 'LEDGIC_INVALID: A comment is required for this decision', 'blank comment rejected');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'short_pay', 2700, 100)$q$,
-  '22023', 'LEDGIC_INVALID: Pay and hold must add up to the invoice total of $2,847.60', 'short-pay amounts must add up');
+  'PT422', 'LEDGIC_INVALID: Pay and hold must add up to the invoice total of $2,847.60', 'short-pay amounts must add up');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000003', 'release_hold',
                     p_comment => 'called them', p_extra => '{"verified_by_phone":true}')$q$,
   '42501', 'LEDGIC_FORBIDDEN: Needs controller', 'manager cannot release a fraud hold');
 select throws_ok($q$select public.rpc_decide_exception('0b000000-0000-0000-000a-000000000001', 'short_pay')$q$,
-  'P0002', 'LEDGIC_NOT_FOUND: Exception not found', 'other org exception is not found');
+  'PT404', 'LEDGIC_NOT_FOUND: Exception not found', 'other org exception is not found');
 
 -- 2. happy path: short-pay at the recommendation wakes the parked run
 select is(
@@ -205,11 +205,11 @@ select is((select first_viewed_at is not null from public.exceptions where id = 
 
 select pg_temp.login('aaaaaaaa-0000-0000-0000-000000000004');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000001', 'short_pay')$q$,
-  'P0001', 'LEDGIC_CONFLICT: This exception is already resolved', 'cannot decide twice');
+  'PT409', 'LEDGIC_CONFLICT: This exception is already resolved', 'cannot decide twice');
 
 -- 3. fraud hold: verification, vendor-creator SoD, controller release
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000003', 'release_hold', p_comment => 'ok')$q$,
-  '22023', 'LEDGIC_INVALID: Confirm you verified the bank details with the vendor by phone', 'release needs phone verification');
+  'PT422', 'LEDGIC_INVALID: Confirm you verified the bank details with the vendor by phone', 'release needs phone verification');
 select pg_temp.logout();
 select pg_temp.login('aaaaaaaa-0000-0000-0000-000000000005');
 select throws_ok($q$select public.rpc_decide_exception('0a000000-0000-0000-000a-000000000003', 'release_hold',
@@ -236,7 +236,7 @@ select is((public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000004',
            '[{"line_id":"0a000000-0000-0000-0008-000000000004","key":"qty","value":"4"}]') ->> 'changed')::int,
   0, 'clerk confirms an unchanged value');
 select throws_ok($q$select public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000004', '[]')$q$,
-  'P0001', 'LEDGIC_CONFLICT: No open extraction review for this invoice', 'review already closed');
+  'PT409', 'LEDGIC_CONFLICT: No open extraction review for this invoice', 'review already closed');
 select pg_temp.logout();
 select results_eq(
   $q$select status, next_stage::text from public.pipeline_runs where id = '0a000000-0000-0000-0009-000000000004'$q$,
@@ -247,10 +247,10 @@ select is((select (confidences ->> 'qty')::numeric from public.invoice_lines whe
 select pg_temp.login('aaaaaaaa-0000-0000-0000-000000000003');
 select throws_ok($q$select public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000005',
                     '[{"field":"total","value":"-3"}]')$q$,
-  '22023', 'LEDGIC_INVALID: total must be greater than 0', 'invalid amount rejected');
+  'PT422', 'LEDGIC_INVALID: total must be greater than 0', 'invalid amount rejected');
 select throws_ok($q$select public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000005',
                     '[{"field":"payee_override","value":"x"}]')$q$,
-  '22023', 'LEDGIC_INVALID: Unknown field', 'fields outside the extraction schema are rejected');
+  'PT422', 'LEDGIC_INVALID: Unknown field', 'fields outside the extraction schema are rejected');
 select is((public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000005',
            '[{"field":"total","value":"1,100.00"},{"line_id":"0a000000-0000-0000-0008-000000000005","key":"qty","value":"11"}]') ->> 'changed')::int,
   2, 'manager corrects total and a quantity');
