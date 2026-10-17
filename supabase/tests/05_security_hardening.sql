@@ -24,7 +24,7 @@ begin
   perform set_config('request.jwt.claims', '', true);
 end $$;
 
-select plan(9);
+select plan(11);
 
 -- 1. rate_limit_hit is service-only
 select ok(not has_function_privilege('authenticated', 'public.rate_limit_hit(text, int, int)', 'execute'),
@@ -52,6 +52,17 @@ select is((select count(*)::int from pg_trigger where tgname = 'ledgic_pin_demo_
            and tgrelid = 'auth.users'::regclass), 1, 'demo credential trigger installed');
 select ok(not has_function_privilege('authenticated', 'public.ledgic_pin_demo_credentials()', 'execute'),
   'trigger function is not callable by browser roles');
+
+-- 5. llm_budget: members see today's row only (migration 20261017000008)
+insert into public.llm_budget (day, cap_usd, spent_usd) values
+  ((now() at time zone 'utc')::date - 1, 0.50, 0.42),
+  ((now() at time zone 'utc')::date, 0.50, 0.01)
+on conflict (day) do nothing;
+select pg_temp.login('aaaaaaaa-0000-0000-0000-000000000001');
+select is((select count(*)::int from public.llm_budget where day < (now() at time zone 'utc')::date), 0,
+  'members cannot read earlier days of AI spend');
+select is((select count(*)::int from public.v_ai_budget_today), 1, 'the budget view still answers for today');
+select pg_temp.logout();
 
 select * from finish();
 rollback;

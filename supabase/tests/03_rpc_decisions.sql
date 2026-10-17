@@ -136,7 +136,7 @@ begin
 end $$;
 -- ---------------------------------------------------------------------------------------------
 
-select plan(38);
+select plan(39);
 
 -- ids
 -- E1 hero price variance ($88 at risk, run R1) · E2 $6,000 at risk · E3 fraud screen (vendor created by controller2)
@@ -248,6 +248,9 @@ select pg_temp.login('aaaaaaaa-0000-0000-0000-000000000003');
 select throws_ok($q$select public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000005',
                     '[{"field":"total","value":"-3"}]')$q$,
   '22023', 'LEDGIC_INVALID: total must be greater than 0', 'invalid amount rejected');
+select throws_ok($q$select public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000005',
+                    '[{"field":"payee_override","value":"x"}]')$q$,
+  '22023', 'LEDGIC_INVALID: Unknown field', 'fields outside the extraction schema are rejected');
 select is((public.rpc_confirm_fields('0a000000-0000-0000-0007-000000000005',
            '[{"field":"total","value":"1,100.00"},{"line_id":"0a000000-0000-0000-0008-000000000005","key":"qty","value":"11"}]') ->> 'changed')::int,
   2, 'manager corrects total and a quantity');

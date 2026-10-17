@@ -75,7 +75,7 @@ jobs:
           persist-credentials: false
       - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
         with:
-          version: latest
+          version: 2.121.0 # pinned; same CLI that applies the hosted migrations
       - name: Start local Supabase
         run: supabase start
       - name: Reset database (apply all migrations)
