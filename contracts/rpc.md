@@ -10,14 +10,15 @@ All user-facing RPCs are `security definer`, `set search_path = ''`, fully schem
 `service_role` only (core calls them) unless noted.
 
 ## Error convention
-Errors are raised with a fixed SQLSTATE and a message that starts with a stable code prefix:
+Errors are raised with a fixed SQLSTATE and a message that starts with a stable code prefix. PostgREST turns a
+`PTxyz` SQLSTATE into HTTP `xyz`, so direct RPC calls get the same status core returns:
 
 | SQLSTATE | Prefix | Meaning | HTTP mapping (core/web) |
 |---|---|---|---|
 | `42501` | `LEDGIC_FORBIDDEN:` | role / limit / SoD violation. Message after the prefix is UI copy, e.g. `LEDGIC_FORBIDDEN: Needs controller`, `LEDGIC_FORBIDDEN: Needs AP manager`, `LEDGIC_FORBIDDEN: Read-only access`, `LEDGIC_FORBIDDEN: Above your approval limit of $5,000.00`, `LEDGIC_FORBIDDEN: You edited this invoice's amounts, so someone else must approve it`, `LEDGIC_FORBIDDEN: You created this vendor record` | 403 |
-| `P0002` | `LEDGIC_NOT_FOUND:` | entity missing or not in caller's org | 404 |
-| `P0001` | `LEDGIC_CONFLICT:` | exception already resolved / invoice not in reviewable state | 409 |
-| `22023` | `LEDGIC_INVALID:` | bad input: action not valid for exception type, missing comment, amounts inconsistent, bad field value | 422 |
+| `PT404` | `LEDGIC_NOT_FOUND:` | entity missing or not in caller's org | 404 |
+| `PT409` | `LEDGIC_CONFLICT:` | exception already resolved / invoice not in reviewable state | 409 |
+| `PT422` | `LEDGIC_INVALID:` | bad input: action not valid for exception type, missing comment, amounts inconsistent, bad field value | 422 |
 
 Clients parse `error.message.split(':')[0]`.
 
