@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
+import { connection } from "next/server";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -19,7 +20,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Render per request: Next stamps the middleware's CSP nonce on its inline scripts only when dynamic.
+  await connection();
   return (
     <html lang="en" className={archivo.variable}>
       <body>{children}</body>
