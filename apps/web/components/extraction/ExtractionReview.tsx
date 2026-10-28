@@ -171,20 +171,10 @@ function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, 
   const prevId = idx > 0 ? queue[idx - 1]?.invoice_id : undefined;
   const afterConfirmId = idx >= 0 ? (queue[idx + 1]?.invoice_id ?? queue[idx - 1]?.invoice_id) : queue[0]?.invoice_id;
 
-  const [shownId, setShownId] = useState(inv.invoice_id);
-
-  // A new document resets the edit state during render, not in an effect.
-  if (shownId !== inv.invoice_id) {
-    setShownId(inv.invoice_id);
-    setEdits({});
-    setEditing(null);
-    setFocus(null);
-    setError(null);
-  }
-
+  // The page keys this component by invoice, so state starts fresh per document.
   useEffect(() => {
     openedAt.current = Date.now();
-  }, [inv.invoice_id]);
+  }, []);
 
   /* ---- values ------------------------------------------------------------------------------ */
   const fieldName = useCallback((names: string[]) => names.find((n) => fields[n]) ?? names[0]!, [fields]);

@@ -49,18 +49,10 @@ export function DecisionRail(props: DecisionRailProps) {
   const [dialog, setDialog] = useState<"approve" | "dispute" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [local, setLocal] = useState<LocalDecision | null>(null);
-  const [shownId, setShownId] = useState(exceptionId);
-
-  // A new exception resets the local decision during render, not in an effect.
-  if (shownId !== exceptionId) {
-    setShownId(exceptionId);
-    setLocal(null);
-    setError(null);
-  }
-
+  // Callers key this component by exception, so state starts fresh per exception.
   useEffect(() => {
     openedAt.current = Date.now();
-  }, [exceptionId]);
+  }, []);
 
   const erpName = erp.system ? (ERP_LABEL[erp.system] ?? erp.system) : null;
   const pay = rec?.pay_amount ?? null;
