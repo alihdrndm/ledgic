@@ -150,7 +150,7 @@ function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, 
   const router = useRouter();
   const { toast } = useToast();
   const viewer = useRef<SourceViewerHandle>(null);
-  const openedAt = useRef<number>(Date.now());
+  const openedAt = useRef<number>(0);
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
@@ -171,12 +171,19 @@ function ExtractionReviewInner({ orgSlug, invoice: inv, queue, stats, imageUrl, 
   const prevId = idx > 0 ? queue[idx - 1]?.invoice_id : undefined;
   const afterConfirmId = idx >= 0 ? (queue[idx + 1]?.invoice_id ?? queue[idx - 1]?.invoice_id) : queue[0]?.invoice_id;
 
-  useEffect(() => {
-    openedAt.current = Date.now();
+  const [shownId, setShownId] = useState(inv.invoice_id);
+
+  // A new document resets the edit state during render, not in an effect.
+  if (shownId !== inv.invoice_id) {
+    setShownId(inv.invoice_id);
     setEdits({});
     setEditing(null);
     setFocus(null);
     setError(null);
+  }
+
+  useEffect(() => {
+    openedAt.current = Date.now();
   }, [inv.invoice_id]);
 
   /* ---- values ------------------------------------------------------------------------------ */

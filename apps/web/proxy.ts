@@ -6,10 +6,10 @@ import { contentSecurityPolicy, newNonce } from "@/lib/security/csp";
 const PROTECTED = [/^\/o(\/|$)/, /^\/capture(\/|$)/];
 
 /**
- * Supabase session refresh (official @supabase/ssr pattern for Next 15) + route protection + the per-request
+ * Supabase session refresh (official @supabase/ssr pattern) + route protection + the per-request
  * CSP nonce. Server Components can't write cookies, so the refreshed tokens are written here.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const nonce = newNonce();
   const csp = contentSecurityPolicy(nonce);
   // Rebuilt after every cookie refresh so the forwarded request carries both the new cookies and the nonce.

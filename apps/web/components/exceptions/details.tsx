@@ -5,6 +5,7 @@ import { useId, useMemo, useState, type ReactNode } from "react";
 import { Button, Chip, Dialog, RiskCallout } from "@/components/ui";
 import { needsRole, useShell } from "@/components/shell";
 import { conf as fmtConf, dateTime, money, shortDate } from "@/lib/format";
+import { useNow } from "@/lib/now";
 import type { DuplicateCopy, ExceptionDetail, OpenPo, VendorRecord } from "@/lib/queries/exceptions";
 import { MatchTable } from "@/components/match/MatchTable";
 import { DecisionRail } from "@/components/match/DecisionRail";
@@ -210,13 +211,14 @@ export function NewVendorDetail({ orgSlug, detail }: DetailProps) {
   const { role, org } = useShell();
   const { decide, busy, error, done } = useDecide(orgSlug, detail.row.exception_id);
   const [dialog, setDialog] = useState<"release" | "reject" | null>(null);
+  const now = useNow();
   const v = detail.vendor;
   const f = detail.invoice?.fields ?? {};
   const num = detail.row.invoice_number ?? "invoice";
   const decided = Boolean(done) || detail.row.status === "resolved";
   const awaiting = detail.row.status === "awaiting_vendor";
   const bankDiffers = Boolean(v?.bank_fingerprint && v?.w9_bank_fingerprint && v.bank_fingerprint !== v.w9_bank_fingerprint);
-  const ageDays = v ? Math.max(0, Math.floor((Date.now() - new Date(v.created_at).getTime()) / 86400000)) : null;
+  const ageDays = v ? Math.max(0, Math.floor((now - new Date(v.created_at).getTime()) / 86400000)) : null;
 
   const rows: Array<{ label: string; file: ReactNode; inv: ReactNode; risk?: boolean }> = [
     { label: "Legal name", file: v?.legal_name ?? v?.display_name ?? "—", inv: (f.remit_to_name?.value as string) ?? (f.vendor_name?.value as string) ?? "—" },
@@ -232,7 +234,7 @@ export function NewVendorDetail({ orgSlug, detail }: DetailProps) {
       label: "Remit address",
       file: addr(v?.remit_address),
       inv: (f.remit_to_address?.value as string) ?? "—",
-      risk: Boolean(v?.remit_address_changed_at && Date.now() - new Date(v.remit_address_changed_at).getTime() < 14 * 86400000),
+      risk: Boolean(v?.remit_address_changed_at && now - new Date(v.remit_address_changed_at).getTime() < 14 * 86400000),
     },
     {
       label: "Vendor record created",

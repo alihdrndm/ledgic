@@ -8,7 +8,7 @@ import { supabaseEnv } from "./env";
 /**
  * Supabase client for Server Components, Server Actions and Route Handlers.
  * Uses the user's session cookies (Next 15 async cookies()), so every query runs under RLS.
- * In Server Components cookie writes throw; that's expected — middleware refreshes the session.
+ * In Server Components cookie writes throw; that's expected — the proxy refreshes the session.
  */
 export async function createClient(): Promise<SupabaseClient<Database>> {
   const cookieStore = await cookies();
@@ -22,7 +22,7 @@ export async function createClient(): Promise<SupabaseClient<Database>> {
         try {
           for (const { name, value, options } of cookiesToSet) cookieStore.set(name, value, options);
         } catch {
-          // Called from a Server Component: ignore (session refresh happens in middleware).
+          // Called from a Server Component: ignore (session refresh happens in the proxy).
         }
       },
     },

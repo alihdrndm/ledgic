@@ -145,6 +145,7 @@ function CopilotPanel({
   const lastPending = useRef<number>(0);
   const turnSeq = useRef(0);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- sessionStorage is only readable after hydration
   useEffect(() => setByok(readByok()), []);
 
   useEffect(() => {
