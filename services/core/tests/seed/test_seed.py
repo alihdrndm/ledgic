@@ -128,15 +128,29 @@ async def test_seed_against_local_supabase():
 
     if sys.platform == "win32" and not isinstance(asyncio.get_running_loop(), asyncio.SelectorEventLoop):
         pytest.skip("psycopg async needs a selector event loop on Windows")
-    from app.db.pool import close_pool, open_pool
+    from app.db.pool import close_pool, connection, open_pool
+    from app.demo.corpus.heroes import PRIOR_SHORT_PAYS
+    from app.demo.corpus.rng import stable_uuid
     from app.demo.seed import seed
+    from app.repo.sql import val
+
+    # The seeded history's own approvals (stable ids): scenarios on the same database add more short-pays.
+    seeded_ids = [
+        stable_uuid("approval", f"prior-short-pay:{sp['invoice_number']}") for sp in PRIOR_SHORT_PAYS
+    ]
 
     await open_pool()
     try:
         first = await seed(TODAY, with_eval=False)
         second = await seed(TODAY, with_eval=False)
+        async with connection() as conn:
+            seeded_short_pays = await val(
+                conn,
+                "select count(*) from public.approvals where action = 'short_pay' and id = any(%s::uuid[])",
+                (seeded_ids,),
+            )
     finally:
         await close_pool()
     assert first["counts"] == second["counts"]
     assert first["counts"]["locations"] == 34
-    assert first["counts"]["short_pays"] == 2
+    assert seeded_short_pays == 2

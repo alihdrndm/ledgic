@@ -86,6 +86,61 @@ jobs:
         if: always()
         run: supabase stop --no-backup
 
+  core-db:
+    name: core (DB-backed + integration tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: services/core
+    env:
+      LLM_MODE: fixture
+      WORKER_ENABLED: "false"
+      REPLAY_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.121.0 # same pin as the db job
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+          cache-dependency-glob: services/core/uv.lock
+      - name: Install dependencies
+        run: uv sync --frozen
+      - name: Start local Supabase (applies all migrations)
+        working-directory: .
+        run: supabase start
+      - name: Point core at the local stack
+        working-directory: .
+        # Local-only keys from `supabase status`; demo passwords are random per run.
+        run: |
+          set -euo pipefail
+          eval "$(supabase status -o env)"
+          viewer_pw="ci-$(openssl rand -hex 16)"
+          elena_pw="ci-$(openssl rand -hex 16)"
+          for v in "$SERVICE_ROLE_KEY" "$JWT_SECRET" "$viewer_pw" "$elena_pw"; do echo "::add-mask::$v"; done
+          {
+            echo "DATABASE_URL=$DB_URL"
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "SUPABASE_JWT_SECRET=$JWT_SECRET"
+            echo "DEMO_VIEWER_PASSWORD=$viewer_pw"
+            echo "DEMO_ELENA_PASSWORD=$elena_pw"
+          } >> "$GITHUB_ENV"
+      - name: Seed the demo org
+        run: uv run python -m app.demo.seed
+      - name: DB-backed unit tests and integration scenarios
+        # Overrides the default `-m 'not integration'` so both sets run; -rs lists any skip with its reason.
+        run: uv run pytest -q -m "integration or not integration" -rs
+      - name: Stop Supabase
+        if: always()
+        working-directory: .
+        run: supabase stop --no-backup
+
   secrets:
     name: secrets scan (gitleaks)
     runs-on: ubuntu-latest
