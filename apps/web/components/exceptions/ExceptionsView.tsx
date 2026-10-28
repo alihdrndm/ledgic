@@ -85,7 +85,8 @@ function ExceptionsInner({ orgSlug, queue, detail, header, sort }: ExceptionsVie
             <EmptyState title="No open exceptions">Everything that needed a person has been decided.</EmptyState>
           ) : (
             <>
-              <div className="xv-scroll">
+              {/* Keyed by exception so every detail's local state (decision, dialog, busy) starts fresh. */}
+              <div className="xv-scroll" key={row.exception_id}>
                 <header className="xd-heading">
                   <h2 className="xd-title">
                     {row.vendor_name ?? "Unknown vendor"} · {row.invoice_number ?? "—"}

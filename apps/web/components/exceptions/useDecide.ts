@@ -16,15 +16,7 @@ export function useDecide(orgSlug: string, exceptionId: string) {
   const [busy, setBusy] = useState<DecisionAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ action: DecisionAction; at: string; comment: string | null } | null>(null);
-  const [shownId, setShownId] = useState(exceptionId);
-
-  // A new exception resets the outcome during render, not in an effect.
-  if (shownId !== exceptionId) {
-    setShownId(exceptionId);
-    setError(null);
-    setDone(null);
-  }
-
+  // Callers render this under a component keyed by exception, so state starts fresh per exception.
   useEffect(() => {
     openedAt.current = Date.now();
     void markExceptionViewed(exceptionId).catch(() => undefined);
