@@ -12,15 +12,21 @@ import { decideException, markExceptionViewed, type DecideExceptionInput, type D
 export function useDecide(orgSlug: string, exceptionId: string) {
   const router = useRouter();
   const { toast } = useToast();
-  const openedAt = useRef(Date.now());
+  const openedAt = useRef(0);
   const [busy, setBusy] = useState<DecisionAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ action: DecisionAction; at: string; comment: string | null } | null>(null);
+  const [shownId, setShownId] = useState(exceptionId);
+
+  // A new exception resets the outcome during render, not in an effect.
+  if (shownId !== exceptionId) {
+    setShownId(exceptionId);
+    setError(null);
+    setDone(null);
+  }
 
   useEffect(() => {
     openedAt.current = Date.now();
-    setError(null);
-    setDone(null);
     void markExceptionViewed(exceptionId).catch(() => undefined);
   }, [exceptionId]);
 

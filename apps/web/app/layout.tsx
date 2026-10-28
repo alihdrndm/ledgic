@@ -21,7 +21,7 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Render per request: Next stamps the middleware's CSP nonce on its inline scripts only when dynamic.
+  // Render per request: Next stamps the proxy's CSP nonce on its inline scripts only when dynamic.
   await connection();
   return (
     <html lang="en" className={archivo.variable}>

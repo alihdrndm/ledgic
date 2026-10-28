@@ -24,7 +24,7 @@
   <a href="https://scorecard.dev/viewer/?uri=github.com/alihdrndm/ledgic"><img src="https://api.securityscorecards.dev/projects/github.com/alihdrndm/ledgic/badge" alt="OpenSSF Scorecard"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-black.svg" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
-  <img src="https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs" alt="Next.js 15">
+  <img src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs" alt="Next.js 16">
   <img src="https://img.shields.io/badge/Supabase-Postgres%20%2B%20pgvector-3ECF8E?logo=supabase&logoColor=white" alt="Supabase">
   <img src="https://img.shields.io/badge/MCP-server-6E56CF" alt="MCP server">
 </p>
@@ -131,7 +131,7 @@ flowchart LR
   subgraph Browser
     U[Operator / visitor]
   end
-  subgraph Vercel["Vercel · apps/web (Next.js 15)"]
+  subgraph Vercel["Vercel · apps/web (Next.js 16)"]
     W[Screens · Copilot panel · /capture]
   end
   subgraph Railway["Railway · services/core (FastAPI, Python 3.12)"]
@@ -199,7 +199,7 @@ Deeper write-ups: [Architecture](docs/ARCHITECTURE.md) · [Agents and RAG](docs/
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | Next.js 15 (App Router, React Server Components, server actions), React 19, TypeScript, `@supabase/ssr`, `decimal.js` |
+| **Frontend** | Next.js 16 (App Router, React Server Components, server actions), React 19, TypeScript, `@supabase/ssr`, `decimal.js` |
 | **Backend** | Python 3.12, FastAPI, pydantic 2, psycopg 3 async pool, APScheduler, rapidfuzz, scipy, Pillow + imagehash, uv |
 | **AI** | OpenAI `gpt-4.1-mini` (vision, structured outputs) via the OpenAI Agents SDK, `text-embedding-3-small` |
 | **MCP** | Official `mcp` Python SDK: streamable HTTP and stdio |

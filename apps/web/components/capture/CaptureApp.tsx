@@ -65,6 +65,7 @@ export function CaptureApp({ org, locations, canUpload, desktop }: CaptureAppPro
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem(locationKey(org.id));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after hydration
       if (saved && locations.some((l) => l.id === saved)) setLocationId(saved);
     } catch {
       /* storage blocked: start unselected */
@@ -122,6 +123,7 @@ export function CaptureApp({ org, locations, canUpload, desktop }: CaptureAppPro
   }, [canUpload, org.id, refreshQueued]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- flushQueue only sets state after an await
     void flushQueue();
     const onOnline = () => void flushQueue();
     window.addEventListener("online", onOnline);

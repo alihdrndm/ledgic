@@ -44,16 +44,22 @@ export function DecisionRail(props: DecisionRailProps) {
   const { role, user, org } = useShell();
   const { toast } = useToast();
   const router = useRouter();
-  const openedAt = useRef(Date.now());
+  const openedAt = useRef(0);
   const [busy, setBusy] = useState<DecisionAction | null>(null);
   const [dialog, setDialog] = useState<"approve" | "dispute" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [local, setLocal] = useState<LocalDecision | null>(null);
+  const [shownId, setShownId] = useState(exceptionId);
+
+  // A new exception resets the local decision during render, not in an effect.
+  if (shownId !== exceptionId) {
+    setShownId(exceptionId);
+    setLocal(null);
+    setError(null);
+  }
 
   useEffect(() => {
     openedAt.current = Date.now();
-    setLocal(null);
-    setError(null);
   }, [exceptionId]);
 
   const erpName = erp.system ? (ERP_LABEL[erp.system] ?? erp.system) : null;

@@ -1,5 +1,5 @@
 // ---- Content-Security-Policy (11-security §4) ------------------------------------------
-// Per-request nonce: middleware mints one, Next reads it from the request's CSP header and stamps it on
+// Per-request nonce: the proxy mints one, Next reads it from the request's CSP header and stamps it on
 // its own inline hydration scripts, so script-src needs no 'unsafe-inline'. 'strict-dynamic' lets those
 // trusted scripts load the app's chunks. Every page renders dynamically (app/layout.tsx), because a
 // statically prerendered page would carry no nonce. Styles keep 'unsafe-inline': React style attributes
