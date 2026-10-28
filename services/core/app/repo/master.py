@@ -207,6 +207,27 @@ async def po_lines(conn: AsyncConnection, po_id: str) -> list[dict[str, Any]]:
     )
 
 
+# Invoices that have committed to paying for their lines; earlier ones still in flight don't consume yet.
+BILLED_STATUSES = ("approved", "posting", "posted")
+
+
+async def invoiced_qty_by_po_line(
+    conn: AsyncConnection, po_id: str, exclude_invoice_id: str
+) -> dict[str, Any]:
+    """Σ invoice_lines.qty already billed against each line of the PO by *other* approved/posted invoices."""
+    rows = await all_(
+        conn,
+        "select il.po_line_id::text as po_line_id, sum(il.qty) as qty "
+        "from invoice_lines il "
+        "join invoices i on i.id = il.invoice_id "
+        "join po_lines pl on pl.id = il.po_line_id "
+        "where pl.po_id = %s and il.invoice_id <> %s and i.status = any(%s::public.invoice_status[]) "
+        "group by il.po_line_id",
+        (po_id, exclude_invoice_id, list(BILLED_STATUSES)),
+    )
+    return {r["po_line_id"]: r["qty"] for r in rows}
+
+
 async def grn_numbers(conn: AsyncConnection, po_id: str) -> list[str]:
     rows = await all_(
         conn, "select grn_number from goods_receipts where po_id = %s order by received_at", (po_id,)
