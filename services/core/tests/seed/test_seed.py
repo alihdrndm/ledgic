@@ -128,15 +128,23 @@ async def test_seed_against_local_supabase():
 
     if sys.platform == "win32" and not isinstance(asyncio.get_running_loop(), asyncio.SelectorEventLoop):
         pytest.skip("psycopg async needs a selector event loop on Windows")
-    from app.db.pool import close_pool, open_pool
-    from app.demo.seed import seed
+    from app.db.pool import close_pool, connection, open_pool
+    from app.demo.seed import ORG_ID, seed
+    from app.repo.sql import val
 
     await open_pool()
     try:
         first = await seed(TODAY, with_eval=False)
         second = await seed(TODAY, with_eval=False)
+        # Only the seeded history: decisions made by integration scenarios on the same database come later.
+        async with connection() as conn:
+            seeded_short_pays = await val(
+                conn,
+                "select count(*) from public.approvals where org_id = %s and action = 'short_pay' and decided_at < %s",
+                (ORG_ID, TODAY),
+            )
     finally:
         await close_pool()
     assert first["counts"] == second["counts"]
     assert first["counts"]["locations"] == 34
-    assert first["counts"]["short_pays"] == 2
+    assert seeded_short_pays == 2

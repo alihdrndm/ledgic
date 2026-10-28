@@ -254,6 +254,18 @@ async def test_search_contracts_degrades_to_text(pool, seed: Seed):
 # ---- the demo org (when seeded): viewer is refused by the DATABASE -------------------------------
 
 
+# One action each exception type accepts (rpc_decide_exception's allow-list).
+VALID_ACTION = {
+    "price_variance": "dispute",
+    "qty_mismatch": "dispute",
+    "unmatched_line": "dispute",
+    "no_po": "reject_invoice",
+    "duplicate": "not_duplicate",
+    "new_vendor_screen": "reject_invoice",
+    "posting_failed": "reject_invoice",
+}
+
+
 @needs_db
 async def test_demo_viewer_decide_denied_by_database(pool):
     if not function_exists("rpc_decide_exception") or not relation_exists("v_exception_queue"):
@@ -269,8 +281,8 @@ async def test_demo_viewer_decide_denied_by_database(pool):
         ).fetchone()
         exc = await (
             await conn.execute(
-                "select id::text as id from public.exceptions where org_id = %s and status <> 'resolved' "
-                "and type <> 'extraction_review' order by opened_at limit 1",
+                "select id::text as id, type::text as type from public.exceptions where org_id = %s "
+                "and status <> 'resolved' and type <> 'extraction_review' order by opened_at limit 1",
                 (auth.DEMO_ORG_ID,),
             )
         ).fetchone()
@@ -283,8 +295,10 @@ async def test_demo_viewer_decide_denied_by_database(pool):
         async with Client(build_server()) as client:
             listed = _data(await client.call_tool("list_exceptions", {"limit": 3}))
             assert listed["total"] >= 1
+            # An action valid for the type, so the refusal comes from the role check, not the action check.
+            action = VALID_ACTION[exc["type"]]
             res = await client.call_tool(
-                "decide_exception", {"exception_id": exc["id"], "action": "dispute", "comment": "pytest"}
+                "decide_exception", {"exception_id": exc["id"], "action": action, "comment": "pytest"}
             )
             assert res.is_error
             assert "Forbidden: Read-only access" in _text(res), _text(res)
