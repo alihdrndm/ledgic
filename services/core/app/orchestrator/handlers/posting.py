@@ -14,7 +14,14 @@ from decimal import Decimal
 from typing import Any
 
 from app.domain import cents, fmt_money
-from app.posting import BillLine, BillRequest, PostingRefused, adapter_for
+from app.domain.gate import TOTAL_TOLERANCE
+from app.posting import (
+    BillLine,
+    BillRequest,
+    PostingRefused,
+    PostingValidationError,
+    adapter_for,
+)
 from app.repo import exceptions as exc_repo
 from app.repo import invoices as inv_repo
 from app.repo import journal
@@ -27,6 +34,15 @@ from ..transitions import FatalStageError, Transition
 from .common import ROLE_LABEL, dec
 
 ZERO = Decimal(0)
+
+# QBO and NetSuite require an account on every expense line, so the synthetic lines are coded from
+# the org's chart of accounts.
+DEFAULT_TAX_GL = "2200"  # Sales Tax Payable
+DEFAULT_FREIGHT_GL = "6300"  # Freight In
+DEFAULT_ROUNDING_GL = "9999"  # Rounding
+# The gate lets lines + tax + freight sit up to 0.02 off the total and a short-pay 0.01 more; any
+# bigger remainder is a data problem, not rounding.
+MAX_ROUNDING = TOTAL_TOLERANCE + Decimal("0.01")
 
 
 def payable_lines(
@@ -61,6 +77,68 @@ def payable_lines(
     return amounts
 
 
+def bill_lines(
+    lines: list[dict[str, Any]],
+    match_rows: dict[str, dict[str, Any]],
+    hold: Decimal,
+    tax: Decimal,
+    freight: Decimal,
+    gls: dict[str, dict[str, Any]],
+    pay: Decimal,
+) -> tuple[BillLine, ...]:
+    """The bill's lines: the invoice's goods lines (short-paid per hold), then tax, freight and the
+    rounding remainder as their own coded lines.
+
+    The ERP checks `TotalAmt` (= pay) against the sum of the line amounts, so the invariant here is
+    Σ amounts = pay. The gate guarantees lines + tax + freight = total, but a confirmed total can
+    drift by up to the gate tolerance and a short-pay by a cent more; that remainder lands on a
+    rounding line, and anything larger is refused before posting."""
+    goods_total = sum((dec(ln["amount"]) or ZERO for ln in lines), ZERO)
+    if hold > goods_total:
+        raise PostingValidationError(
+            f"a {fmt_money(hold)} hold exceeds the goods lines ({fmt_money(goods_total)})"
+        )
+    amounts = payable_lines(lines, match_rows, hold)
+    if any(amount < 0 for amount in amounts):
+        raise PostingValidationError("the short-pay allocation drives a line below zero")
+    out = [
+        BillLine(
+            ln["line_no"],
+            ln["description"],
+            dec(ln["qty"]),
+            dec(ln["unit_price"]),
+            amt,
+            gls.get(str(ln["gl_account_id"]), {}).get("number"),
+            gls.get(str(ln["gl_account_id"]), {}).get("name"),
+        )
+        for ln, amt in zip(lines, amounts, strict=True)
+    ]
+    chart = {str(row["number"]): row for row in gls.values()}
+
+    def coded(label: str, gl_number: str, amount: Decimal) -> BillLine:
+        account = chart.get(gl_number)
+        if account is None:
+            raise PostingValidationError(
+                f"the chart of accounts has no {label.lower()} account ({gl_number})"
+            )
+        line_no = max((bl.line_no for bl in out), default=0) + 1
+        return BillLine(line_no, label, None, None, amount, account["number"], account["name"])
+
+    if tax:
+        out.append(coded("Sales tax", DEFAULT_TAX_GL, tax))
+    if freight:
+        out.append(coded("Freight", DEFAULT_FREIGHT_GL, freight))
+    remainder = cents(pay - sum((bl.amount for bl in out), ZERO))
+    if remainder:
+        if abs(remainder) > MAX_ROUNDING:
+            lines_sum = sum((bl.amount for bl in out), ZERO)
+            raise PostingValidationError(
+                f"the bill lines sum to {fmt_money(lines_sum)} but the bill total is {fmt_money(pay)}"
+            )
+        out.append(coded("Rounding", DEFAULT_ROUNDING_GL, remainder))
+    return tuple(out)
+
+
 async def handle(ctx: StageContext, run: RunRow) -> Transition:
     conn = ctx.conn
     if not run.invoice_id:
@@ -82,23 +160,43 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
     pay = cents(Decimal(pay_s)) if pay_s else total
     lines = await inv_repo.lines(conn, run.invoice_id)
     match_rows = await inv_repo.match_hold_by_line(conn, run.invoice_id)
-    amounts = payable_lines(lines, match_rows, hold)
     gls = {
         str(r["id"]): r
         for r in await all_(conn, "select id, number, name from gl_accounts where org_id = %s", (run.org_id,))
     }
-    bill_lines = tuple(
-        BillLine(
-            ln["line_no"],
-            ln["description"],
-            dec(ln["qty"]),
-            dec(ln["unit_price"]),
-            amt,
-            gls.get(str(ln["gl_account_id"]), {}).get("number"),
-            gls.get(str(ln["gl_account_id"]), {}).get("name"),
+    existing = await exc_repo.posting_row(conn, run.invoice_id, system)
+    prior_attempts = int(existing["attempts"]) if existing else 0
+    label = "QuickBooks" if system == "quickbooks" else "NetSuite"
+    try:
+        bill_lines_ = bill_lines(
+            lines,
+            match_rows,
+            hold,
+            cents(dec(inv["tax"]) or ZERO),
+            cents(dec(inv["freight"]) or ZERO),
+            gls,
+            pay,
         )
-        for ln, amt in zip(lines, amounts, strict=True)
-    )
+    except PostingValidationError as e:
+        await journal.emit_event(
+            conn,
+            org_id=run.org_id,
+            run_id=run.id,
+            stage=Stage.POSTING.value,
+            status="failed",
+            at=ctx.now(),
+            summary=f"Posting rejected — {label} cannot accept the bill",
+            sub=str(e)[:200],
+            detail={
+                "system": system,
+                "attempt": prior_attempts + 1,
+                "error": str(e),
+                "retryable": False,
+            },
+        )
+        return await exhausted(
+            ctx, run, str(e), summary=f"Posting rejected — {label} validation error"
+        )
     memo = f"Ledgic invoice {run.invoice_id}"
     if hold > 0:
         memo += f" · short-paid, {fmt_money(hold)} held per vendor notice"
@@ -113,14 +211,12 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
         invoice_number=inv["invoice_number"],
         invoice_date=inv["invoice_date"],
         due_date=inv["due_date"],
-        lines=bill_lines,
+        lines=bill_lines_,
         pay_amount=pay,
         hold_amount=hold,
         memo=memo,
         duplicate_of=str(inv["duplicate_of"]) if inv["duplicate_of"] else None,
     )
-    existing = await exc_repo.posting_row(conn, run.invoice_id, system)
-    prior_attempts = int(existing["attempts"]) if existing else 0
     inject = int((run.context.get("inject") or {}).get("posting_failures") or 0)
     try:
         res = await adapter.create_bill(req, fail=prior_attempts < inject)
@@ -145,6 +241,28 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
         posted_at=now if res.ok else None,
     )
     if not res.ok:
+        if not res.retryable:  # a validation-type rejection: retrying it five times cannot help
+            err = res.error or "ERP error"
+            await journal.emit_event(
+                conn,
+                org_id=run.org_id,
+                run_id=run.id,
+                stage=Stage.POSTING.value,
+                status="failed",
+                at=now,
+                duration_ms=res.latency_ms,
+                summary=f"Posting rejected — {label} validation error",
+                sub=err[:200],
+                detail={
+                    "system": system,
+                    "attempt": prior_attempts + 1,
+                    "error": err,
+                    "retryable": False,
+                },
+            )
+            return await exhausted(
+                ctx, run, err, summary=f"Posting rejected — {label} validation error"
+            )
         return Transition.retry(
             res.error or "ERP error",
             duration_ms=res.latency_ms,
@@ -169,9 +287,8 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
         },
         at=now,
     )
-    label = "QuickBooks" if system == "quickbooks" else "NetSuite"
     gl_counts: dict[str, int] = {}
-    for bl in bill_lines:
+    for bl in bill_lines_:
         if bl.gl_number:
             k = f"{bl.gl_number} {bl.gl_name}"
             gl_counts[k] = gl_counts.get(k, 0) + 1
@@ -195,8 +312,11 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
     )
 
 
-async def exhausted(ctx: StageContext, run: RunRow, error: str) -> Transition:
-    """After 5 failed attempts: open a posting_failed exception and park (manager can retry)."""
+async def exhausted(
+    ctx: StageContext, run: RunRow, error: str, *, summary: str | None = None
+) -> Transition:
+    """Open a posting_failed exception and park (manager can retry): after 5 failed attempts, or
+    straight away when the ERP rejects the bill as invalid."""
     assert run.invoice_id
     inv = await inv_repo.get_invoice(ctx.conn, run.invoice_id)
     assert inv is not None
@@ -230,7 +350,7 @@ async def exhausted(ctx: StageContext, run: RunRow, error: str) -> Transition:
     )
     return Transition.park(
         exc_id,
-        f"Posting failed — {label} unavailable",
+        summary or f"Posting failed — {label} unavailable",
         f"{fmt_money(at_risk)} not posted · routed to {ROLE_LABEL['ap_manager']}",
         detail={"exception_type": "posting_failed", "system": system, "error": error},
     )

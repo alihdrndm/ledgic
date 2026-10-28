@@ -4,18 +4,20 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
+from types import SimpleNamespace
+from typing import Any
 
 import pytest
 
 from app.demo.corpus import build_catalog, hero_docs
 from app.domain import evaluate_gate
 from app.orchestrator.handlers.extraction import _normalize, gate_inputs, modeled_extraction_ms
-from app.orchestrator.handlers.posting import payable_lines
+from app.orchestrator.handlers.posting import bill_lines, payable_lines
 from app.orchestrator.handlers.screening import _same_hero_other_day, remit_is_new
 from app.orchestrator.routing import PARK, payment_terms, route_resume
 from app.orchestrator.stages import ORDER, Stage, next_of
 from app.orchestrator.transitions import BACKOFF_SECONDS, backoff
-from app.posting import BillLine, BillRequest, MockErp, PostingRefused
+from app.posting import BillLine, BillRequest, MockErp, PostingRefused, PostingValidationError
 
 DAY = date(2026, 10, 14)
 
@@ -149,3 +151,242 @@ async def test_mock_netsuite_and_failure_and_duplicate_block() -> None:
     assert not bad.ok and "503" in (bad.error or "")
     with pytest.raises(PostingRefused):
         await erp.create_bill(_req(duplicate_of="inv-0"))
+
+
+def _line(no: int, amount: str) -> dict[str, Any]:
+    return {
+        "sid": f"s{no}",
+        "line_no": no,
+        "description": f"item {no}",
+        "qty": 1,
+        "unit_price": Decimal(amount),
+        "amount": Decimal(amount),
+        "gl_account_id": 1,
+    }
+
+
+def _chart() -> dict[str, dict[str, Any]]:
+    return {
+        "1": {"id": 1, "number": "5000", "name": "COGS-Food"},
+        "2": {"id": 2, "number": "2200", "name": "Sales Tax Payable"},
+        "3": {"id": 3, "number": "6300", "name": "Freight In"},
+        "4": {"id": 4, "number": "9999", "name": "Rounding"},
+    }
+
+
+def test_bill_lines_sum_to_the_total_with_tax_and_freight() -> None:
+    lines = [_line(1, "824.00"), _line(2, "820.80")]
+    tax, freight = Decimal("41.12"), Decimal("60.00")
+    total = sum((ln["amount"] for ln in lines), Decimal(0)) + tax + freight
+
+    full = bill_lines(lines, {}, Decimal(0), tax, freight, _chart(), total)
+    assert sum((bl.amount for bl in full), Decimal(0)) == total
+    assert [(bl.line_no, bl.description) for bl in full[-2:]] == [(3, "Sales tax"), (4, "Freight")]
+    assert [(bl.gl_number, bl.gl_name) for bl in full[-2:]] == [
+        ("2200", "Sales Tax Payable"),
+        ("6300", "Freight In"),
+    ]
+
+    hold = Decimal("88.00")
+    short = bill_lines(lines, {}, hold, tax, freight, _chart(), total - hold)
+    assert sum((bl.amount for bl in short), Decimal(0)) == total - hold
+
+
+def test_bill_lines_put_a_small_remainder_on_a_rounding_line() -> None:
+    out = bill_lines(
+        [_line(1, "100.00")], {}, Decimal(0), Decimal("8.25"), Decimal(0), _chart(), Decimal("108.26")
+    )
+    assert [(bl.description, bl.amount) for bl in out] == [
+        ("item 1", Decimal("100.00")),
+        ("Sales tax", Decimal("8.25")),
+        ("Rounding", Decimal("0.01")),
+    ]
+    assert sum((bl.amount for bl in out), Decimal(0)) == Decimal("108.26")
+
+
+def test_bill_lines_refuse_a_total_the_lines_cannot_reach() -> None:
+    with pytest.raises(PostingValidationError):
+        bill_lines([_line(1, "100.00")], {}, Decimal(0), Decimal(0), Decimal(0), _chart(), Decimal("140.00"))
+
+
+def test_bill_lines_refuse_a_hold_bigger_than_the_goods_lines() -> None:
+    with pytest.raises(PostingValidationError):
+        bill_lines([_line(1, "100.00")], {}, Decimal("120.00"), Decimal(0), Decimal(0), _chart(), Decimal(0))
+
+
+def test_bill_lines_handle_an_invoice_with_only_tax() -> None:
+    out = bill_lines([], {}, Decimal(0), Decimal("8.25"), Decimal(0), _chart(), Decimal("8.25"))
+    assert [(bl.line_no, bl.description) for bl in out] == [(1, "Sales tax")]
+
+
+def _ctx() -> Any:
+    return SimpleNamespace(
+        conn=None,
+        clock=SimpleNamespace(virtual=True),
+        options=SimpleNamespace(erp_latency=False, fast=True),
+        policy={"sla_hours": 24},
+        now=lambda: datetime(2026, 10, 14, 13, tzinfo=UTC),
+    )
+
+
+def _run() -> Any:
+    return SimpleNamespace(
+        id="run-1",
+        run_number=1,
+        org_id="org",
+        document_id="doc",
+        invoice_id="inv-1",
+        status="posting",
+        current_stage="posting",
+        next_stage=None,
+        attempt=1,
+        context={},
+        wait_exception_id=None,
+        started_at=None,
+    )
+
+
+def _posting_env(monkeypatch: pytest.MonkeyPatch, *, total: str = "1745.92") -> dict[str, Any]:
+    """Stub every repository the posting handler touches, and capture what it writes."""
+    from app.repo import exceptions as exc_repo
+    from app.repo import invoices as inv_repo
+    from app.repo import journal
+
+    inv = {
+        "status": "new",
+        "duplicate_of": None,
+        "entity_erp": "quickbooks",
+        "entity_name": "E",
+        "entity_short_code": "E2",
+        "location_code": "BS",
+        "vendor_id": "v",
+        "vendor_name": "V",
+        "invoice_number": "BD-1",
+        "invoice_date": DAY,
+        "due_date": DAY,
+        "total": total,
+        "tax": "41.12",
+        "freight": "60.00",
+    }
+    lines = [_line(1, "824.00"), _line(2, "820.80")]
+    captured: dict[str, Any] = {"exceptions": [], "postings": [], "events": []}
+
+    async def get_invoice(conn: Any, invoice_id: str) -> dict[str, Any]:
+        return inv
+
+    async def get_lines(conn: Any, invoice_id: str) -> list[dict[str, Any]]:
+        return lines
+
+    async def match_hold(conn: Any, invoice_id: str) -> dict[str, Any]:
+        return {}
+
+    async def chart(conn: Any, sql: str, params: Any) -> list[dict[str, Any]]:
+        return list(_chart().values())
+
+    async def no_posting(conn: Any, invoice_id: str, system: str) -> None:
+        return None
+
+    async def update_invoice(conn: Any, invoice_id: str, **cols: Any) -> None:
+        return None
+
+    async def upsert(conn: Any, **kw: Any) -> None:
+        captured["postings"].append(kw)
+
+    async def create_exception(conn: Any, **kw: Any) -> str:
+        captured["exceptions"].append(kw)
+        return "exc-1"
+
+    async def audit(conn: Any, **kw: Any) -> None:
+        return None
+
+    async def event(conn: Any, **kw: Any) -> int:
+        captured["events"].append(kw)
+        return 1
+
+    monkeypatch.setattr(inv_repo, "get_invoice", get_invoice)
+    monkeypatch.setattr(inv_repo, "lines", get_lines)
+    monkeypatch.setattr(inv_repo, "match_hold_by_line", match_hold)
+    monkeypatch.setattr(inv_repo, "update_invoice", update_invoice)
+    monkeypatch.setattr(exc_repo, "posting_row", no_posting)
+    monkeypatch.setattr(exc_repo, "upsert_posting", upsert)
+    monkeypatch.setattr(exc_repo, "create_exception", create_exception)
+    monkeypatch.setattr(journal, "write_audit", audit)
+    monkeypatch.setattr(journal, "emit_event", event)
+    import app.orchestrator.handlers.posting as posting_mod
+
+    monkeypatch.setattr(posting_mod, "all_", chart)
+    return captured
+
+
+async def test_the_posted_bill_total_matches_the_sum_of_its_lines(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.orchestrator.handlers.posting import handle
+
+    captured = _posting_env(monkeypatch)
+    t = await handle(_ctx(), _run())
+    assert t.kind == "advance"
+    body = captured["postings"][0]["request"]
+    line_sum = sum((Decimal(ln["Amount"]) for ln in body["Line"]), Decimal(0))
+    assert Decimal(body["TotalAmt"]) == line_sum
+    assert all(ln["AccountBasedExpenseLineDetail"]["AccountRef"]["name"] for ln in body["Line"])
+
+
+async def test_a_bill_the_erp_would_reject_is_never_posted(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.orchestrator.handlers.posting import handle
+
+    captured = _posting_env(monkeypatch, total="1800.00")
+
+    async def never(req: Any, *, fail: bool = False) -> Any:  # pragma: no cover - must not run
+        raise AssertionError("posted a bill whose lines cannot reach its total")
+
+    import app.orchestrator.handlers.posting as posting_mod
+
+    monkeypatch.setattr(
+        posting_mod, "adapter_for", lambda system, **kw: SimpleNamespace(create_bill=never)
+    )
+    t = await handle(_ctx(), _run())
+    assert t.kind == "park" and t.detail.get("exception_type") == "posting_failed"
+    assert captured["events"][-1]["detail"]["retryable"] is False
+
+
+async def test_a_non_retryable_posting_failure_is_not_retried(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.orchestrator.handlers.posting import handle
+    from app.posting import PostingResult
+
+    dead = PostingResult(
+        False, "quickbooks", None, None, {"status": 422}, "validation failed", 5, retryable=False
+    )
+    captured = _posting_env(monkeypatch)
+
+    async def create_bill(req: Any, *, fail: bool = False) -> Any:
+        return dead
+
+    import app.orchestrator.handlers.posting as posting_mod
+
+    monkeypatch.setattr(
+        posting_mod, "adapter_for", lambda system, **kw: SimpleNamespace(create_bill=create_bill)
+    )
+    t = await handle(_ctx(), _run())
+    assert t.kind == "park" and t.detail.get("exception_type") == "posting_failed"
+    assert len(captured["exceptions"]) == 1
+    assert captured["events"][-1]["duration_ms"] == 5
+
+
+async def test_a_retryable_posting_failure_still_retries(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app.orchestrator.handlers.posting import handle
+    from app.posting import PostingResult
+
+    async def create_bill(req: Any, *, fail: bool = False) -> Any:
+        return PostingResult(
+            False, "quickbooks", None, None, {"status": 503}, "503 outage", 5, retryable=True
+        )
+
+    import app.orchestrator.handlers.posting as posting_mod
+
+    _posting_env(monkeypatch)
+    monkeypatch.setattr(
+        posting_mod, "adapter_for", lambda system, **kw: SimpleNamespace(create_bill=create_bill)
+    )
+    t = await handle(_ctx(), _run())
+    assert t.kind == "retry"
