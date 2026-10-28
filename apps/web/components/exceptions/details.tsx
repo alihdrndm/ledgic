@@ -5,6 +5,7 @@ import { useId, useMemo, useState, type ReactNode } from "react";
 import { Button, Chip, Dialog, RiskCallout } from "@/components/ui";
 import { needsRole, useShell } from "@/components/shell";
 import { conf as fmtConf, dateTime, money, shortDate } from "@/lib/format";
+import { useNow } from "@/lib/now";
 import type { DuplicateCopy, ExceptionDetail, OpenPo, VendorRecord } from "@/lib/queries/exceptions";
 import { MatchTable } from "@/components/match/MatchTable";
 import { DecisionRail } from "@/components/match/DecisionRail";
@@ -210,7 +211,7 @@ export function NewVendorDetail({ orgSlug, detail }: DetailProps) {
   const { role, org } = useShell();
   const { decide, busy, error, done } = useDecide(orgSlug, detail.row.exception_id);
   const [dialog, setDialog] = useState<"release" | "reject" | null>(null);
-  const [now] = useState(() => Date.now());
+  const now = useNow();
   const v = detail.vendor;
   const f = detail.invoice?.fields ?? {};
   const num = detail.row.invoice_number ?? "invoice";

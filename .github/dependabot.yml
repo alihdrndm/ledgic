@@ -24,10 +24,10 @@ updates:
       npm-minor-patch:
         update-types: [minor, patch]
     ignore:
-      # TypeScript 7 (native compiler) drops the JS API that typescript-eslint and next build load;
-      # typescript-eslint supports <6.1. Lift this once it supports 7.
+      # typescript-eslint supports TypeScript <6.1, and TypeScript 7 (native compiler) drops the
+      # JS API it and next build load. Widen this as typescript-eslint adds support.
       - dependency-name: typescript
-        versions: [">=7"]
+        versions: [">=6.1"]
 
   - package-ecosystem: uv
     directory: /services/core

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "@/components/ui";
 import { age, money } from "@/lib/format";
+import { useNow } from "@/lib/now";
 import type { ExceptionQueueRow } from "@/lib/queries/exceptions";
 import { flatOrder, groupQueue, type QueueSort } from "./sort";
 import "./exceptions.css";
@@ -30,7 +31,7 @@ export function ExceptionQueue({ orgSlug, rows, selectedId, sort }: ExceptionQue
   const groups = useMemo(() => groupQueue(rows, sort), [rows, sort]);
   const order = useMemo(() => flatOrder(groups), [groups]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [now] = useState(() => Date.now());
+  const now = useNow();
   const [revealed, setRevealed] = useState<{ groups: typeof groups; selectedId: typeof selectedId } | null>(null);
   const base = `/o/${orgSlug}/exceptions`;
   const q = sort === "impact" ? "?sort=impact" : "";
