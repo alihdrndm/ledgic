@@ -28,6 +28,7 @@ export default async function ExtractionItem({ params }: { params: Promise<{ org
   ]);
   return (
     <ExtractionReview
+      key={invoice.invoice_id}
       orgSlug={session.context.org.slug}
       invoice={invoice}
       queue={queue.map((q) => ({ invoice_id: q.invoice_id, queue_position: q.queue_position }))}

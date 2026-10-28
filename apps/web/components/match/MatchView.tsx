@@ -173,6 +173,7 @@ function MatchViewInner({ orgSlug, invoice: inv, match, workflowVersion, degrade
           </p>
         </section>
         <DecisionRail
+          key={exc?.id ?? inv.invoice_id}
           orgSlug={orgSlug}
           exceptionId={exc?.id ?? null}
           exceptionStatus={exc?.status ?? null}

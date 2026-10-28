@@ -357,6 +357,7 @@ export function VarianceDetail({ orgSlug, detail }: DetailProps) {
         </p>
       </div>
       <DecisionRail
+        key={detail.row.exception_id}
         orgSlug={orgSlug}
         exceptionId={detail.row.exception_id}
         exceptionStatus={detail.row.status}
