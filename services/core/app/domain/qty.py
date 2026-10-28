@@ -16,7 +16,7 @@ class QtyResult:
     invoiced: Decimal
     received: Decimal | None  # None for two-way vendors
     ordered: Decimal | None
-    prior_invoiced: Decimal  # already billed against this PO line by other approved/posted invoices
+    prior_invoiced: Decimal  # already billed against this PO line by other invoices
     max_orderable: Decimal | None
     over_receipt: bool
     over_order: bool
@@ -70,6 +70,8 @@ def qty_check(
     if ordered is not None:
         parts.append(f"ordered {fmt_qty(ordered)}")
     if match_mode == "two_way":
+        if prior:
+            parts.append(f"already invoiced {fmt_qty(prior)}")
         parts.append(f"invoiced {fmt_qty(inv)}")
         parts.append("two-way, no receipt check")
     else:

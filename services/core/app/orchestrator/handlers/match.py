@@ -118,6 +118,7 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
                 "allowed_amount": tol.allowed if tol else None,
                 "verdict": lm.verdict,
                 "note": lm.note,
+                "payable_qty": lm.qty.payable_qty if lm.qty else None,
             }
         )
     await inv_repo.replace_match(

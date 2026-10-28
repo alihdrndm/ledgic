@@ -207,20 +207,31 @@ async def po_lines(conn: AsyncConnection, po_id: str) -> list[dict[str, Any]]:
     )
 
 
-# Invoices that have committed to paying for their lines; earlier ones still in flight don't consume yet.
-BILLED_STATUSES = ("approved", "posting", "posted")
+# Matched and later: an invoice consumes from the moment it passes match, so two invoices for the same goods
+# can't both pass while the first waits for a decision. Rejected, duplicate and failed invoices consume nothing.
+BILLED_STATUSES = ("matched", "awaiting_decision", "approved", "posting", "posted")
 
 
 async def invoiced_qty_by_po_line(
     conn: AsyncConnection, po_id: str, exclude_invoice_id: str
 ) -> dict[str, Any]:
-    """Σ invoice_lines.qty already billed against each line of the PO by *other* approved/posted invoices."""
+    """Quantity already billed against each line of the PO by *other* invoices (BILLED_STATUSES).
+
+    A line that failed the quantity check on an invoice that was then short-paid consumes only its payable
+    quantity at match time, so the vendor can still bill the balance; everything else consumes what it billed.
+    """
     rows = await all_(
         conn,
-        "select il.po_line_id::text as po_line_id, sum(il.qty) as qty "
+        "select il.po_line_id::text as po_line_id, "
+        " sum(case when mlr.verdict in ('qty_over_receipt', 'qty_over_order') and mlr.payable_qty is not null "
+        "      and exists (select 1 from approvals a join exceptions e on e.id = a.exception_id "
+        "                  where e.invoice_id = i.id and a.action = 'short_pay') "
+        "     then least(il.qty, mlr.payable_qty) else il.qty end) as qty "
         "from invoice_lines il "
         "join invoices i on i.id = il.invoice_id "
         "join po_lines pl on pl.id = il.po_line_id "
+        "left join match_results mr on mr.invoice_id = i.id "
+        "left join match_line_results mlr on mlr.match_result_id = mr.id and mlr.invoice_line_id = il.id "
         "where pl.po_id = %s and il.invoice_id <> %s and i.status = any(%s::public.invoice_status[]) "
         "group by il.po_line_id",
         (po_id, exclude_invoice_id, list(BILLED_STATUSES)),

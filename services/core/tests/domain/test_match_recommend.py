@@ -211,6 +211,8 @@ def test_rebilled_receipt_routes_to_qty_exception() -> None:
     assert again.lines[0].verdict == "qty_over_receipt"
     assert again.reason == "butter invoiced 10, received 10, 10 already invoiced"
     assert again.lines[0].hold_amount == Decimal("500.00")
+    # A possible re-bill is not a short delivery: no short-pay recommendation, a person decides.
+    assert recommend(again, invoice_total="500.00") is None
 
 
 def test_rule3_qty_short_receipt() -> None:

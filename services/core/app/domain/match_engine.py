@@ -54,7 +54,7 @@ class MatchLineInput:
     po_unit_price: Decimal | None = None  # None (and po_qty None) → line not paired to a PO line
     po_qty: Decimal | None = None
     grn_qty: Decimal | None = None  # Σ grn_lines.qty_received for the PO line
-    prior_invoiced_qty: Decimal = ZERO  # billed against the PO line by other approved/posted invoices
+    prior_invoiced_qty: Decimal = ZERO  # already billed against the PO line by other invoices
     contract_prices: tuple[ContractPrice, ...] = ()
     invoice_line_id: str | None = None
     po_line_id: str | None = None

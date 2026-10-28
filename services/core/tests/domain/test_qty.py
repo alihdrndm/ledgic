@@ -67,6 +67,7 @@ def test_split_order_remaining_quantity_two_way() -> None:
     assert qty_check("5", None, "10", match_mode="two_way", prior_invoiced="5").passes
     r = qty_check("6", None, "10", match_mode="two_way", prior_invoiced="5")
     assert r.over_order and r.payable_qty == Decimal(5)
+    assert r.note == "ordered 10 · already invoiced 5 · invoiced 6 · two-way, no receipt check"
 
 
 def test_no_prior_keeps_the_original_note() -> None:

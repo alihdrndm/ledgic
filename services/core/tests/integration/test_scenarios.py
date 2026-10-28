@@ -18,7 +18,19 @@ from app.main import create_app
 from app.repo import master
 from app.repo.sql import all_, one, val
 
-from .conftest import ORG, confirm, decide, drive, events, hero_docs, invoice_of, release, reset_hero, run_row
+from .conftest import (
+    ORG,
+    USERS,
+    confirm,
+    decide,
+    drive,
+    events,
+    hero_docs,
+    invoice_of,
+    release,
+    reset_hero,
+    run_row,
+)
 
 pytestmark = [pytest.mark.integration, pytest.mark.usefixtures("db")]
 
@@ -71,6 +83,27 @@ async def test_posted_invoice_consumes_its_po_lines() -> None:
             expected[ln["po_line_id"]] = expected.get(ln["po_line_id"], Decimal(0)) + ln["qty"]
     assert expected and all(for_others.get(k, Decimal(0)) >= v for k, v in expected.items())
     assert all(for_itself.get(k, Decimal(0)) == for_others[k] - v for k, v in expected.items())
+
+    # A line short-paid on quantity consumes only its payable quantity, so the vendor can bill the balance.
+    line = next(ln for ln in lines if ln["po_line_id"] and ln["qty"] > 1)
+    async with connection() as conn, conn.transaction(force_rollback=True):
+        await conn.execute(
+            "update match_line_results set verdict = 'qty_over_receipt', payable_qty = %s "
+            "where invoice_line_id = (select id from invoice_lines where invoice_id = %s and po_line_id = %s limit 1)",
+            (line["qty"] - 1, inv["id"], line["po_line_id"]),
+        )
+        exc_id = await val(
+            conn,
+            "insert into exceptions (org_id, invoice_id, type, reason, sla_due_at, status) "
+            "values (%s, %s, 'qty_mismatch', 'pytest', now(), 'resolved') returning id",
+            (ORG, inv["id"]),
+        )
+        await conn.execute(
+            "insert into approvals (org_id, exception_id, actor_id, action) values (%s, %s, %s, 'short_pay')",
+            (ORG, exc_id, USERS["elena"]),
+        )
+        short_paid = await master.invoiced_qty_by_po_line(conn, str(inv["po_id"]), str(uuid.uuid4()))
+    assert short_paid[line["po_line_id"]] == for_others[line["po_line_id"]] - 1
 
 
 async def test_pr2214_smudge_confirm_resume_posts() -> None:
