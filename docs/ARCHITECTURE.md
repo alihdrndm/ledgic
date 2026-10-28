@@ -9,7 +9,7 @@ from the original spec is recorded in [DECISIONS.md](DECISIONS.md).
 
 | Component | Where | Runs on | Responsibility |
 |---|---|---|---|
-| Web console | `apps/web` | Vercel Hobby | Next.js 15 App Router. Server components read Supabase with the **user's JWT** (RLS applies). Server actions call the decision RPCs. Route handlers proxy the copilot (SSE), uploads and search to core. The browser never talks to core directly. |
+| Web console | `apps/web` | Vercel Hobby | Next.js 16 App Router. Server components read Supabase with the **user's JWT** (RLS applies). Server actions call the decision RPCs. Route handlers proxy the copilot (SSE), uploads and search to core. The browser never talks to core directly. |
 | Core service | `services/core` | Railway (one replica, Dockerfile) | One FastAPI process that hosts the REST API, the orchestrator worker, the scheduler and the MCP server. |
 | Database | `supabase/migrations` | Supabase Free | Postgres 15 with pgvector, pg_trgm, pgcrypto, pg_cron. Holds all state, the security model (RLS, RPCs), KPI views and the audit chain. Also Auth, Storage (`documents` bucket) and Realtime. |
 | LLM provider | `services/core/app/ai/gateway.py` | OpenAI | `gpt-4.1-mini` (vision + agents), `text-embedding-3-small` @ 512 dims. Called only for live uploads, live drafts and copilot answers, always metered and capped. |

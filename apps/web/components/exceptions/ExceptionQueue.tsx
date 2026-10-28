@@ -30,15 +30,17 @@ export function ExceptionQueue({ orgSlug, rows, selectedId, sort }: ExceptionQue
   const groups = useMemo(() => groupQueue(rows, sort), [rows, sort]);
   const order = useMemo(() => flatOrder(groups), [groups]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [now] = useState(() => Date.now());
+  const [revealed, setRevealed] = useState<{ groups: typeof groups; selectedId: typeof selectedId } | null>(null);
   const base = `/o/${orgSlug}/exceptions`;
   const q = sort === "impact" ? "?sort=impact" : "";
 
   // Keep the selected item visible even when it is past the first three of its group.
-  useEffect(() => {
-    if (!selectedId) return;
-    const g = groups.find((x) => x.items.some((i) => i.exception_id === selectedId));
+  if (revealed?.groups !== groups || revealed.selectedId !== selectedId) {
+    setRevealed({ groups, selectedId });
+    const g = selectedId ? groups.find((x) => x.items.some((i) => i.exception_id === selectedId)) : undefined;
     if (g && g.items.findIndex((i) => i.exception_id === selectedId) >= PER_GROUP) setExpanded((e) => ({ ...e, [g.type]: true }));
-  }, [groups, selectedId]);
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -55,7 +57,6 @@ export function ExceptionQueue({ orgSlug, rows, selectedId, sort }: ExceptionQue
     return () => window.removeEventListener("keydown", onKey);
   }, [order, selectedId, router, base, q]);
 
-  const now = Date.now();
   return (
     <section className="xq" aria-label="Exception queue">
       <header className="xq-head">

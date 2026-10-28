@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 // ---- Security headers (11-security §4) -------------------------------------------------
-// The Content-Security-Policy is per request (nonce), so middleware sets it (lib/security/csp.ts).
+// The Content-Security-Policy is per request (nonce), so the proxy sets it (lib/security/csp.ts).
 const isDev = process.env.NODE_ENV !== "production";
 
 function securityHeaders() {

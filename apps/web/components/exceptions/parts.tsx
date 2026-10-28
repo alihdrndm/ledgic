@@ -117,11 +117,12 @@ export function AuditStrip({
   open: boolean;
   tz: string;
 }) {
-  let lastDay = "";
-  const parts = entries.slice(-12).map((a) => {
+  const recent = entries.slice(-12);
+  const parts = recent.map((a, i) => {
     const day = shortDate(a.at, tz);
-    const stamp = day === lastDay ? time(a.at, tz, { seconds: false }) : `${day} ${time(a.at, tz, { seconds: false })}`;
-    lastDay = day;
+    const prev = recent[i - 1];
+    const sameDay = prev !== undefined && shortDate(prev.at, tz) === day;
+    const stamp = sameDay ? time(a.at, tz, { seconds: false }) : `${day} ${time(a.at, tz, { seconds: false })}`;
     return `${stamp} ${describe(a, type, names)}`;
   });
   if (open) parts.push("decision pending, and it will record actor and timestamp.");
