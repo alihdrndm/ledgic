@@ -64,7 +64,7 @@ The demo replays a full business day on a schedule (America/New_York) and resets
 
 An invoice moves through seven stages. Each one is a step in a **durable workflow**, which means its progress is saved in the database, so a crash or a deploy never loses an invoice halfway.
 
-1. **Intake.** Email PDFs, vendor portals, EDI and phone photos from the receiving dock. Every file is SHA-256 hashed, so a supplier who sends the same invoice twice never creates a second payment.
+1. **Intake.** Upload a PDF or use mobile `/capture` to submit a photo. Email, vendor portal and EDI rows in the demo are replayed documents, not live integrations. Uploaded files are SHA-256 hashed, so a supplier who sends the same invoice twice never creates a second payment.
 2. **AI invoice extraction.** A vision model reads the document into a strict schema: header fields and every line item, each with a **confidence score** and the box on the page where it found it. A confidence gate (document 0.90, every field 0.75) decides whether a person must look.
 3. **Enrichment.** Fuzzy vendor matching with aliases, purchase order linking, GL coding per line (nearest neighbours over past coded invoices), legal entity and location.
 4. **Duplicate and fraud screening.** Invoice-number similarity, amount and date, line overlap and a perceptual image hash catch duplicates. Bank details that differ from the W-9, a brand-new vendor, no PO and a changed remit address raise a fraud score.
@@ -294,9 +294,9 @@ Finance software is only as good as its controls, so most of Ledgic's rules live
 
 | Suite | Tests | Command |
 |---|---|---|
-| Core unit tests: decimal money math with property-based tests, orchestrator, AI agents, guards and citations, RAG, MCP, API | **328** | `cd services/core && uv run pytest` |
-| Core integration scenarios against local Supabase: touchless, smudge then resume, short-pay, duplicate merge, fraud release, posting retry, re-delivery | **8** | `uv run pytest -m integration` |
-| Database (pgTAP): RLS isolation, audit immutability and chain, decision limits and segregation of duties, KPI views | **113** | `npx supabase test db` |
+| Core tests (default run: 338 passed, 21 skipped) | **359** | `cd services/core && uv run pytest` |
+| Core integration tests against local Supabase (8 pipeline scenarios + 1 demo-seed check) | **9** | `uv run pytest -m integration` |
+| Database (pgTAP): assertions for RLS isolation, audit immutability and chain, decision limits and segregation of duties, KPI views | **126** | `npx supabase test db` |
 | Web: types, lint and design tokens | | `pnpm typecheck && pnpm lint && pnpm --filter @ledgic/web check:tokens` |
 | End to end: Playwright smoke, layout and axe accessibility at 1280 and 1600 px | | `pnpm test:e2e` |
 
