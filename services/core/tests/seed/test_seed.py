@@ -47,7 +47,7 @@ def test_master_rows(cat):
     assert len(m["locations"]) == 34
     assert len(m["entities"]) == 3
     assert {r["code"] for r in m["locations"]} >= {"RS", "BS", "CM", "LS", "OM", "PH", "SB", "CS"}
-    assert len(m["gl_accounts"]) == 3 * 5
+    assert len(m["gl_accounts"]) == 3 * 8
     shrimp = next(it for it in cat.items if it.description == "Shrimp 16/20 IQF 2lb × 10")
     cp = next(p for p in m["contract_prices"] if p["item_id"] == shrimp.id)
     assert cp["unit_price"] == Decimal("3.68") and cp["clause_ref"] == "4.2"
