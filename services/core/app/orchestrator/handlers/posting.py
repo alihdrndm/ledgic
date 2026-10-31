@@ -10,6 +10,7 @@ fail while the invoice has fewer than N posting attempts.
 
 from __future__ import annotations
 
+from dataclasses import replace
 from decimal import Decimal
 from typing import Any
 
@@ -35,14 +36,30 @@ from .common import ROLE_LABEL, dec
 
 ZERO = Decimal(0)
 
-# QBO and NetSuite require an account on every expense line, so the synthetic lines are coded from
-# the org's chart of accounts.
-DEFAULT_TAX_GL = "2200"  # Sales Tax Payable
+# QBO and NetSuite require an account on every expense line. Purchase-side sales tax is part of the
+# cost of what was bought, so it is allocated across the goods lines (each keeps its own GL) rather
+# than posted to Sales Tax Payable (2200): debiting that liability would understate what the
+# business owes the state. Freight and the rounding remainder get their own lines when the chart has
+# the account, and otherwise fold into the largest goods line so charts seeded before those accounts
+# existed keep posting.
 DEFAULT_FREIGHT_GL = "6300"  # Freight In
 DEFAULT_ROUNDING_GL = "9999"  # Rounding
 # The gate lets lines + tax + freight sit up to 0.02 off the total and a short-pay 0.01 more; any
 # bigger remainder is a data problem, not rounding.
 MAX_ROUNDING = TOTAL_TOLERANCE + Decimal("0.01")
+
+
+def _allocate(total: Decimal, weights: list[Decimal]) -> list[Decimal]:
+    """Split `total` pro rata across `weights`, in cents. The rounding remainder lands on the
+    largest weight, so the shares always sum to `total` exactly."""
+    shares = [ZERO for _ in weights]
+    denom = sum(weights, ZERO)
+    if total == 0 or denom == 0:
+        return shares
+    shares = [cents(total * w / denom) for w in weights]
+    idx = max(range(len(weights)), key=lambda i: weights[i])
+    shares[idx] = cents(shares[idx] + total - sum(shares, ZERO))
+    return shares
 
 
 def payable_lines(
@@ -86,13 +103,14 @@ def bill_lines(
     gls: dict[str, dict[str, Any]],
     pay: Decimal,
 ) -> tuple[BillLine, ...]:
-    """The bill's lines: the invoice's goods lines (short-paid per hold), then tax, freight and the
-    rounding remainder as their own coded lines.
+    """The bill's lines: the invoice's goods lines (short-paid per hold, with purchase tax allocated
+    across them), then freight and the rounding remainder — as their own coded lines when the chart
+    has the account, folded into the largest goods line when it does not.
 
     The ERP checks `TotalAmt` (= pay) against the sum of the line amounts, so the invariant here is
     Σ amounts = pay. The gate guarantees lines + tax + freight = total, but a confirmed total can
     drift by up to the gate tolerance and a short-pay by a cent more; that remainder lands on a
-    rounding line, and anything larger is refused before posting."""
+    rounding line (or the largest line), and anything larger is refused before posting."""
     goods_total = sum((dec(ln["amount"]) or ZERO for ln in lines), ZERO)
     if hold > goods_total:
         raise PostingValidationError(
@@ -115,19 +133,36 @@ def bill_lines(
     ]
     chart = {str(row["number"]): row for row in gls.values()}
 
+    def fold(label: str, amount: Decimal) -> None:
+        """Put `amount` on the largest line, which keeps that line's own GL account."""
+        if not out:
+            raise PostingValidationError(f"the invoice has {label.lower()} but no goods line to carry it")
+        idx = max(range(len(out)), key=lambda i: out[i].amount)
+        out[idx] = replace(out[idx], amount=cents(out[idx].amount + amount))
+
     def coded(label: str, gl_number: str, amount: Decimal) -> BillLine:
-        account = chart.get(gl_number)
-        if account is None:
-            raise PostingValidationError(
-                f"the chart of accounts has no {label.lower()} account ({gl_number})"
-            )
+        account = chart[gl_number]
         line_no = max((bl.line_no for bl in out), default=0) + 1
         return BillLine(line_no, label, None, None, amount, account["number"], account["name"])
 
     if tax:
-        out.append(coded("Sales tax", DEFAULT_TAX_GL, tax))
+        # Pro rata by payable amount, so a short-paid line carries less tax. Fall back to the
+        # invoice amounts when every line is held in full, and to the largest line when even those
+        # are zero.
+        weights = [bl.amount for bl in out]
+        if sum(weights, ZERO) == 0:
+            weights = [dec(ln["amount"]) or ZERO for ln in lines]
+        if sum(weights, ZERO) == 0:
+            fold("sales tax", tax)
+        else:
+            for i, share in enumerate(_allocate(tax, weights)):
+                if share:
+                    out[i] = replace(out[i], amount=cents(out[i].amount + share))
     if freight:
-        out.append(coded("Freight", DEFAULT_FREIGHT_GL, freight))
+        if DEFAULT_FREIGHT_GL in chart:
+            out.append(coded("Freight", DEFAULT_FREIGHT_GL, freight))
+        else:
+            fold("freight", freight)
     remainder = cents(pay - sum((bl.amount for bl in out), ZERO))
     if remainder:
         if abs(remainder) > MAX_ROUNDING:
@@ -135,7 +170,10 @@ def bill_lines(
             raise PostingValidationError(
                 f"the bill lines sum to {fmt_money(lines_sum)} but the bill total is {fmt_money(pay)}"
             )
-        out.append(coded("Rounding", DEFAULT_ROUNDING_GL, remainder))
+        if DEFAULT_ROUNDING_GL in chart:
+            out.append(coded("Rounding", DEFAULT_ROUNDING_GL, remainder))
+        else:
+            fold("rounding", remainder)
     return tuple(out)
 
 
@@ -194,9 +232,7 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
                 "retryable": False,
             },
         )
-        return await exhausted(
-            ctx, run, str(e), summary=f"Posting rejected — {label} validation error"
-        )
+        return await exhausted(ctx, run, str(e), summary=f"Posting rejected — {label} validation error")
     memo = f"Ledgic invoice {run.invoice_id}"
     if hold > 0:
         memo += f" · short-paid, {fmt_money(hold)} held per vendor notice"
@@ -260,9 +296,7 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
                     "retryable": False,
                 },
             )
-            return await exhausted(
-                ctx, run, err, summary=f"Posting rejected — {label} validation error"
-            )
+            return await exhausted(ctx, run, err, summary=f"Posting rejected — {label} validation error")
         return Transition.retry(
             res.error or "ERP error",
             duration_ms=res.latency_ms,
@@ -312,9 +346,7 @@ async def handle(ctx: StageContext, run: RunRow) -> Transition:
     )
 
 
-async def exhausted(
-    ctx: StageContext, run: RunRow, error: str, *, summary: str | None = None
-) -> Transition:
+async def exhausted(ctx: StageContext, run: RunRow, error: str, *, summary: str | None = None) -> Transition:
     """Open a posting_failed exception and park (manager can retry): after 5 failed attempts, or
     straight away when the ERP rejects the bill as invalid."""
     assert run.invoice_id

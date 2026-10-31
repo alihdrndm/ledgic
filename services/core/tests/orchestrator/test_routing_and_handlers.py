@@ -24,7 +24,15 @@ DAY = date(2026, 10, 14)
 
 def test_stage_order() -> None:
     assert [s.value for s in ORDER] == [
-        "intake", "extraction", "review", "enrichment", "screening", "match", "approval", "posting", "close",
+        "intake",
+        "extraction",
+        "review",
+        "enrichment",
+        "screening",
+        "match",
+        "approval",
+        "posting",
+        "close",
     ]
     assert next_of(Stage.MATCH) == Stage.APPROVAL and next_of(Stage.CLOSE) is None
 
@@ -101,14 +109,19 @@ def test_payable_lines_short_pay_hero() -> None:
 
 def test_payable_lines_qty_short() -> None:
     lines = [{"sid": "l1", "amount": Decimal("100.00"), "unit_price": Decimal("10.00")}]
-    rows = {"l1": {"verdict": "qty_over_receipt", "expected_amount": Decimal("100.00"), "grn_qty": Decimal(8)}}
+    rows = {
+        "l1": {"verdict": "qty_over_receipt", "expected_amount": Decimal("100.00"), "grn_qty": Decimal(8)}
+    }
     assert payable_lines(lines, rows, Decimal("20.00")) == [Decimal("80.00")]
 
 
 def test_remit_is_new() -> None:
     now = datetime(2026, 10, 14, 14, tzinfo=UTC)
-    old = {"created_at": now - timedelta(days=500), "remit_address_changed_at": None,
-           "remit_address": {"name": "X", "line1": "10 Port Rd", "city_state_zip": "Secaucus, NJ 07094"}}
+    old = {
+        "created_at": now - timedelta(days=500),
+        "remit_address_changed_at": None,
+        "remit_address": {"name": "X", "line1": "10 Port Rd", "city_state_zip": "Secaucus, NJ 07094"},
+    }
     assert not remit_is_new(old, "10 Port Rd, Secaucus, NJ 07094", now)
     assert remit_is_new(old, "PO Box 4411, Dover, DE 19901", now)
     young = {**old, "created_at": now - timedelta(days=4)}
@@ -116,17 +129,31 @@ def test_remit_is_new() -> None:
 
 
 def test_same_hero_other_day_is_not_a_duplicate() -> None:
-    assert _same_hero_other_day({"hero": "PR-2201", "demo_day": "2026-10-14"}, {"hero": "PR-2201", "demo_day": "2026-10-13"})
-    assert not _same_hero_other_day({"hero": "PR-2201", "demo_day": "2026-10-14"}, {"hero": "PR-2201", "demo_day": "2026-10-14"})
+    assert _same_hero_other_day(
+        {"hero": "PR-2201", "demo_day": "2026-10-14"}, {"hero": "PR-2201", "demo_day": "2026-10-13"}
+    )
+    assert not _same_hero_other_day(
+        {"hero": "PR-2201", "demo_day": "2026-10-14"}, {"hero": "PR-2201", "demo_day": "2026-10-14"}
+    )
     assert not _same_hero_other_day({}, {"hero": "PR-2201"})
 
 
 def _req(**over) -> BillRequest:  # type: ignore[no-untyped-def]
     base = dict(
-        invoice_id="inv-1", posting_key="ledgic-inv-1", vendor_id="v", vendor_name="Broadline Distributor",
-        entity_short_code="E2", entity_ref=None, location_code="BS", invoice_number="BD-104882",
-        invoice_date=DAY, due_date=DAY, lines=(BillLine(1, "Oil", Decimal(4), Decimal("38.17"), Decimal("152.68"), "5000", "COGS-Food"),),
-        pay_amount=Decimal("152.68"), hold_amount=Decimal(0), memo="m",
+        invoice_id="inv-1",
+        posting_key="ledgic-inv-1",
+        vendor_id="v",
+        vendor_name="Broadline Distributor",
+        entity_short_code="E2",
+        entity_ref=None,
+        location_code="BS",
+        invoice_number="BD-104882",
+        invoice_date=DAY,
+        due_date=DAY,
+        lines=(BillLine(1, "Oil", Decimal(4), Decimal("38.17"), Decimal("152.68"), "5000", "COGS-Food"),),
+        pay_amount=Decimal("152.68"),
+        hold_amount=Decimal(0),
+        memo="m",
     )
     base.update(over)
     return BillRequest(**base)
@@ -181,15 +208,35 @@ def test_bill_lines_sum_to_the_total_with_tax_and_freight() -> None:
 
     full = bill_lines(lines, {}, Decimal(0), tax, freight, _chart(), total)
     assert sum((bl.amount for bl in full), Decimal(0)) == total
-    assert [(bl.line_no, bl.description) for bl in full[-2:]] == [(3, "Sales tax"), (4, "Freight")]
-    assert [(bl.gl_number, bl.gl_name) for bl in full[-2:]] == [
-        ("2200", "Sales Tax Payable"),
+    # Purchase tax is allocated across the goods lines, which keep their own GL; it never posts to
+    # Sales Tax Payable (2200). Freight gets its own coded line.
+    assert [bl.description for bl in full] == ["item 1", "item 2", "Freight"]
+    assert [(bl.gl_number, bl.gl_name) for bl in full] == [
+        ("5000", "COGS-Food"),
+        ("5000", "COGS-Food"),
         ("6300", "Freight In"),
     ]
+    assert full[2].amount == freight
 
     hold = Decimal("88.00")
     short = bill_lines(lines, {}, hold, tax, freight, _chart(), total - hold)
     assert sum((bl.amount for bl in short), Decimal(0)) == total - hold
+
+
+def test_bill_lines_allocate_tax_across_goods_lines_pro_rata() -> None:
+    lines = [_line(1, "100.00"), _line(2, "50.00"), _line(3, "50.00")]
+    tax = Decimal("10.00")
+    total = sum((ln["amount"] for ln in lines), Decimal(0)) + tax
+
+    out = bill_lines(lines, {}, Decimal(0), tax, Decimal(0), _chart(), total)
+
+    # 10.00 splits 5.00 / 2.50 / 2.50 by amount.
+    assert [(bl.description, bl.amount) for bl in out] == [
+        ("item 1", Decimal("105.00")),
+        ("item 2", Decimal("52.50")),
+        ("item 3", Decimal("52.50")),
+    ]
+    assert sum((bl.amount for bl in out), Decimal(0)) == total
 
 
 def test_bill_lines_put_a_small_remainder_on_a_rounding_line() -> None:
@@ -197,11 +244,29 @@ def test_bill_lines_put_a_small_remainder_on_a_rounding_line() -> None:
         [_line(1, "100.00")], {}, Decimal(0), Decimal("8.25"), Decimal(0), _chart(), Decimal("108.26")
     )
     assert [(bl.description, bl.amount) for bl in out] == [
-        ("item 1", Decimal("100.00")),
-        ("Sales tax", Decimal("8.25")),
+        ("item 1", Decimal("108.25")),
         ("Rounding", Decimal("0.01")),
     ]
+    assert out[-1].gl_number == "9999"
     assert sum((bl.amount for bl in out), Decimal(0)) == Decimal("108.26")
+
+
+def test_bill_lines_fold_missing_accounts_into_the_largest_goods_line() -> None:
+    """Charts seeded before 6300/9999 existed keep posting: freight and the remainder land on the
+    largest goods line, which keeps its own GL, and the lines still sum to the total."""
+    chart = {"1": {"id": 1, "number": "5000", "name": "COGS-Food"}}
+    lines = [_line(1, "100.00"), _line(2, "40.00")]
+    freight = Decimal("15.00")
+    total = sum((ln["amount"] for ln in lines), Decimal(0)) + freight
+    pay = total + Decimal("0.02")  # a confirmed total drifting by the gate tolerance
+
+    out = bill_lines(lines, {}, Decimal(0), Decimal(0), freight, chart, pay)
+
+    assert [bl.description for bl in out] == ["item 1", "item 2"]
+    assert [(bl.gl_number, bl.gl_name) for bl in out] == [("5000", "COGS-Food")] * 2
+    assert out[0].amount == Decimal("115.02")  # largest line: freight 15.00 + remainder 0.02
+    assert out[1].amount == Decimal("40.00")
+    assert sum((bl.amount for bl in out), Decimal(0)) == pay
 
 
 def test_bill_lines_refuse_a_total_the_lines_cannot_reach() -> None:
@@ -214,9 +279,9 @@ def test_bill_lines_refuse_a_hold_bigger_than_the_goods_lines() -> None:
         bill_lines([_line(1, "100.00")], {}, Decimal("120.00"), Decimal(0), Decimal(0), _chart(), Decimal(0))
 
 
-def test_bill_lines_handle_an_invoice_with_only_tax() -> None:
-    out = bill_lines([], {}, Decimal(0), Decimal("8.25"), Decimal(0), _chart(), Decimal("8.25"))
-    assert [(bl.line_no, bl.description) for bl in out] == [(1, "Sales tax")]
+def test_bill_lines_refuse_tax_without_goods_lines_to_carry_it() -> None:
+    with pytest.raises(PostingValidationError):
+        bill_lines([], {}, Decimal(0), Decimal("8.25"), Decimal(0), _chart(), Decimal("8.25"))
 
 
 def _ctx() -> Any:
@@ -342,9 +407,7 @@ async def test_a_bill_the_erp_would_reject_is_never_posted(monkeypatch: pytest.M
 
     import app.orchestrator.handlers.posting as posting_mod
 
-    monkeypatch.setattr(
-        posting_mod, "adapter_for", lambda system, **kw: SimpleNamespace(create_bill=never)
-    )
+    monkeypatch.setattr(posting_mod, "adapter_for", lambda system, **kw: SimpleNamespace(create_bill=never))
     t = await handle(_ctx(), _run())
     assert t.kind == "park" and t.detail.get("exception_type") == "posting_failed"
     assert captured["events"][-1]["detail"]["retryable"] is False
