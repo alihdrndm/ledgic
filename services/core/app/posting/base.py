@@ -103,6 +103,10 @@ class PostingRefused(Exception):
     """The adapter refuses to post (e.g. the invoice is a duplicate copy). Never retried."""
 
 
+class PostingValidationError(Exception):
+    """The bill cannot be built as a valid ERP document (missing account, lines that miss the total)."""
+
+
 class ErpAdapter(Protocol):
     system: str
     label: str

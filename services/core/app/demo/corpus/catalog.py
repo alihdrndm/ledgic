@@ -267,7 +267,10 @@ GL_ACCOUNTS = [
     ("5010", "COGS-Beverage", "expense"),
     ("6100", "Janitorial & Supplies", "expense"),
     ("6200", "Smallwares & Equipment", "expense"),
+    ("6300", "Freight In", "expense"),
+    ("9999", "Rounding", "expense"),
     ("2000", "Accounts Payable", "liability"),
+    ("2200", "Sales Tax Payable", "liability"),
 ]
 
 # key, display, category, match_mode, terms, prefix, template, gl, taxable, prints_bank, tagline, city
