@@ -51,9 +51,7 @@ def parse_payment_terms(text: str | None) -> PaymentTerms | None:
         return PaymentTerms(discount_pct=None, discount_days=None, net_days=0)
     match = _NET_ONLY.match(normalised)
     if match:
-        return PaymentTerms(
-            discount_pct=None, discount_days=None, net_days=int(match["net_days"])
-        )
+        return PaymentTerms(discount_pct=None, discount_days=None, net_days=int(match["net_days"]))
     for pattern in (_SLASH, _PERCENT):
         match = pattern.match(normalised)
         if match:
