@@ -4,11 +4,11 @@ import type { ChannelTodayRow, ExtractionModel, StageTodayRow } from "@/lib/quer
 import { policyMoney, policyPct } from "./labels";
 import styles from "./pipeline.module.css";
 
-const INTAKE_ROWS: { channel: ChannelTodayRow["channel"]; label: string; always: boolean }[] = [
-  { channel: "email", label: "Email PDFs", always: true },
+const INTAKE_ROWS: { channel: ChannelTodayRow["channel"]; label: string; always: boolean; simulated?: boolean }[] = [
+  { channel: "email", label: "Email PDFs", always: true, simulated: true },
   { channel: "photo", label: "Photo OCR", always: true },
-  { channel: "portal", label: "Vendor portals", always: true },
-  { channel: "edi", label: "EDI 810", always: true },
+  { channel: "portal", label: "Vendor portals", always: true, simulated: true },
+  { channel: "edi", label: "EDI 810", always: true, simulated: true },
   { channel: "upload", label: "Uploads", always: false },
 ];
 
@@ -39,9 +39,17 @@ export function StageGrid({ stages: s, channels, model }: StageGridProps) {
     <div className="stage-grid">
       <StageCol title="01 Intake">
         {INTAKE_ROWS.filter((r) => r.always || (byChannel.get(r.channel) ?? 0) > 0).map((r) => (
-          <KeyValueRow key={r.channel} label={r.label} value={n(byChannel.get(r.channel))} />
+          <KeyValueRow
+            key={r.channel}
+            label={
+              <>
+                {r.label} {r.simulated && <small>(simulated in demo)</small>}
+              </>
+            }
+            value={n(byChannel.get(r.channel))}
+          />
         ))}
-        <div className="stage-col-foot">Uploads and dock photos · every file hashed and stored before parsing.</div>
+        <div className="stage-col-foot">File uploads and mobile capture · every file hashed and stored before parsing.</div>
       </StageCol>
 
       <StageCol title="02 Extraction">
