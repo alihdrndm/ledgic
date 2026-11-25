@@ -20,7 +20,7 @@ from .envelope import ApiError, ok
 
 log = logging.getLogger("ledgic.api.admin")
 router = APIRouter()
-VERSION = os.environ.get("RAILWAY_GIT_COMMIT_SHA") or os.environ.get("GIT_SHA") or "dev"
+VERSION = os.environ.get("GIT_SHA") or "dev"
 
 
 @router.get("/health")

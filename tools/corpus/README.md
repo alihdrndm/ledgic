@@ -1,7 +1,7 @@
 # Synthetic corpus
 
 Everything in the Northside demo tenant is generated from code, reproducible from seed `20260713`
-(`docs/handoff/13-demo-data.md`). The generator lives inside the core package so the Railway service
+(`docs/handoff/13-demo-data.md`). The generator lives inside the core package so the core service
 can render documents at runtime: `services/core/app/demo/corpus/`. This folder holds a thin CLI.
 
 ```bash

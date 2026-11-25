@@ -134,7 +134,7 @@ flowchart LR
   subgraph Vercel["Vercel · apps/web (Next.js 16)"]
     W[Screens · Copilot panel · /capture]
   end
-  subgraph Railway["Railway · services/core (FastAPI, Python 3.12)"]
+  subgraph Lightsail["AWS Lightsail · services/core (FastAPI, Python 3.12)"]
     API[REST API /v1]
     ORCH[Durable orchestrator<br/>worker + state machine]
     AI[AI gateway<br/>extraction · resolution · copilot]
@@ -205,7 +205,7 @@ Deeper write-ups: [Architecture](docs/ARCHITECTURE.md) · [Agents and RAG](docs/
 | **MCP** | Official `mcp` Python SDK: streamable HTTP and stdio |
 | **Database** | Supabase Postgres with pgvector, pg_trgm, pgcrypto, pg_cron, Auth, Storage and Realtime |
 | **Testing** | pytest + hypothesis, pgTAP, Playwright + axe |
-| **Hosting** | Vercel (web), Railway (core, Docker), Supabase |
+| **Hosting** | Vercel (web), AWS Lightsail containers (core, Docker), Supabase |
 | **CI and security** | GitHub Actions, CodeQL, OpenSSF Scorecard, gitleaks, Dependabot |
 
 ## Run Ledgic locally
@@ -284,9 +284,9 @@ Finance software is only as good as its controls, so most of Ledgic's rules live
 - **Supply chain:** CodeQL code scanning, dependency review, OpenSSF Scorecard, Dependabot, SHA-pinned GitHub Actions and full-history secret scanning with gitleaks.
 - **Responsible disclosure:** report vulnerabilities privately through [GitHub security advisories](https://github.com/alihdrndm/ledgic/security/advisories/new). Details in [SECURITY.md](SECURITY.md).
 
-## Cost: $0 infrastructure, a hard AI cap
+## Cost: one small container, a hard AI cap
 
-- **Free tiers:** Supabase Free, Vercel Hobby and a single Railway service.
+- **Infrastructure:** Supabase Free and Vercel Hobby, plus one fixed-price Lightsail container for the core.
 - **$0.50 a day, hard limit:** every model call atomically reserves its estimated cost in Postgres before it runs, then settles the real cost from token usage. When the cap is reached, AI calls stop and the app keeps working on deterministic paths.
 - **Bring your own key:** visitors can pass their own OpenAI key for a single request. It is used once and never stored.
 

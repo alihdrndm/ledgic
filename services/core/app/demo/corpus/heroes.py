@@ -1,6 +1,6 @@
 """The five hero cases (13-demo-data §4), authored to match contracts/fixtures.json exactly.
 
-Constants are embedded (the Railway image does not ship ``contracts/``); a test asserts they equal
+Constants are embedded (the core image does not ship ``contracts/``); a test asserts they equal
 fixtures.json.
 """
 

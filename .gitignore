@@ -24,7 +24,6 @@ playwright-report/
 test-results/
 .DS_Store
 .coverage.*
-.railway/
 *.pem
 *.key
 apps/web/e2e/.auth/

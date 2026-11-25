@@ -6,7 +6,7 @@ Set them in the provider dashboards or CLIs.
 | Piece | Host | Production URL |
 |---|---|---|
 | Web (`apps/web`) | Vercel Hobby | https://ledgic-pearl.vercel.app |
-| Core (`services/core`) | Railway | https://core-production-f996.up.railway.app (`/health`, `/mcp`) |
+| Core (`services/core`) | AWS Lightsail container service `ledgic-core` (us-east-1) | the service's default domain (`/health`, `/mcp`) |
 | Database, Auth, Storage, Realtime | Supabase Free | the project's dashboard |
 
 ## 1. Deploy
@@ -42,28 +42,48 @@ uv run python -m app.mcp.tokens demo               # mint MCP_DEMO_TOKEN for the
 
 All four commands are idempotent.
 
-### 1.2 Railway (core)
+### 1.2 Lightsail (core)
 
-The repo-root `railway.json` builds `services/core/Dockerfile` with the **repo root as build context**,
-because the image also needs `tools/corpus/kb`, `tools/corpus/fixtures` and `contracts/fixtures.json`.
-It runs one replica, health-checks `/health` and restarts on failure. `.railwayignore` keeps the web app,
-docs and Supabase files out of the upload.
+One container service, `ledgic-core`, in `us-east-1` (next to Supabase): power **Micro** (0.25 vCPU, 1 GB),
+scale **1**. Keep scale at 1. The price is fixed, and **a disabled service still bills**: only deleting it stops
+the cost (its domain is lost).
+
+One-time setup, in the AWS console:
+
+1. Create the container service with the settings above. Skip the first deployment.
+2. Create an IAM user for deploys, with MFA and no access keys. Attach `SignInLocalDevelopmentAccess` and a
+   policy that only allows pushing images, creating deployments and reading container services:
+   [`tools/deploy/deployer-policy.json`](../tools/deploy/deployer-policy.json). It cannot create, resize or
+   delete services.
+3. Install Docker, AWS CLI 2.32 or newer, and the
+   [`lightsailctl` plugin](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-install-software.html).
+4. Put the variables from §2 in `.env.production.core` in the repo root (git-ignored).
+
+Each deploy, from a clean checkout of `main`:
 
 ```bash
-railway login
-railway link                 # select the ledgic project / core service
-railway up                   # or connect the GitHub repo for deploy-on-push from main
+aws login                                        # short-lived credentials, as the deploy user
+python tools/deploy/core_lightsail.py --check    # validates .env.production.core, no AWS calls
+python tools/deploy/core_lightsail.py            # build, push, deploy, wait, check /health
 ```
 
-Set the variables from §2 in the service's **Variables** tab. Railway provides `PORT` and
-`RAILWAY_GIT_COMMIT_SHA` (shown as `version` in `/health`).
+The script builds `services/core/Dockerfile` with the **repo root as build context**, because the image also
+needs `tools/corpus/kb`, `tools/corpus/fixtures` and `contracts/fixtures.json`. It sets `PORT` and `GIT_SHA`
+(shown as `version` in `/health`).
+
+> Lightsail returns a deployment's environment in API responses. Always pass `--query` when you run
+> `aws lightsail get-container-services`, `get-container-service-deployments` or
+> `create-container-service-deployment` by hand.
 
 Check the deploy:
 
 ```bash
-curl -s https://core-production-f996.up.railway.app/health
+curl -s https://<core-domain>/health
 # expect "status":"ok", "db":true, "worker":{"alive":true,...}, "scheduler":{"leader":true,...}
 ```
+
+Roll back: Lightsail console → `ledgic-core` → Deployments → **Modify and redeploy** on an earlier version.
+Logs are kept for 3 days.
 
 ### 1.3 Vercel (web)
 
@@ -87,7 +107,7 @@ curl -s https://core-production-f996.up.railway.app/health
 Names only. Local values go in `.env` (core, read from the repo root) and `apps/web/.env.local` (web).
 `.env.example` lists the local defaults.
 
-### Core (Railway)
+### Core (Lightsail)
 
 | Variable | Required | Purpose |
 |---|---|---|
@@ -97,7 +117,7 @@ Names only. Local values go in `.env` (core, read from the repo root) and `apps/
 | `SUPABASE_JWT_SECRET` | yes* | Local HS256 verification of user JWTs. If absent, core falls back to `GET /auth/v1/user`. |
 | `CORE_HMAC_SECRET` | yes | Signs admin calls from operator tooling. At least 32 characters; core refuses to start with the placeholder. |
 | `CORS_ORIGINS` | yes | Comma-separated allowed origins (the Vercel URL) |
-| `LLM_MODE` | yes | `fixture` (no OpenAI calls) or `live` |
+| `LLM_MODE` | yes | `fixture` (no OpenAI calls) or `live`. The deploy script refuses `OPENAI_API_KEY` in fixture mode, and needs an explicit `LLM_DAILY_CAP_USD` in live mode. |
 | `OPENAI_API_KEY` | live only | Owner's key, capped by `LLM_DAILY_CAP_USD` |
 | `LLM_MODEL` | no | default `gpt-4.1-mini` |
 | `EMBED_MODEL`, `EMBED_DIMS` | no | default `text-embedding-3-small`, `512` |
@@ -137,12 +157,12 @@ Rotate on suspicion of exposure, and whenever someone with access leaves.
 
 | Secret | Steps |
 |---|---|
-| `CORE_HMAC_SECRET` | Generate a new random value (`openssl rand -hex 32`). Set it in Railway and redeploy core. The web app does not use it. Signatures made with the old value fail with `INVALID_SIGNATURE`. |
-| `OPENAI_API_KEY` | Create a new key in the OpenAI dashboard, set it on Railway, redeploy, then revoke the old key. Keep the monthly usage limit in the OpenAI dashboard. |
-| `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_JWT_SECRET` / anon key | Rotate in Supabase → Project Settings → API (rotating the JWT secret re-issues the anon and service keys and signs everyone out). Update Railway (`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`) and Vercel (`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`), then redeploy both. |
-| Database password | Reset in Supabase → Database settings, update `DATABASE_URL` on Railway, redeploy. |
+| `CORE_HMAC_SECRET` | Generate a new random value (`openssl rand -hex 32`). Set it in `.env.production.core` and redeploy core. The web app does not use it. Signatures made with the old value fail with `INVALID_SIGNATURE`. |
+| `OPENAI_API_KEY` | Create a new key in the OpenAI dashboard, set it in `.env.production.core`, redeploy, then revoke the old key. Keep the monthly usage limit in the OpenAI dashboard. |
+| `SUPABASE_SERVICE_ROLE_KEY` / `SUPABASE_JWT_SECRET` / anon key | Rotate in Supabase → Project Settings → API (rotating the JWT secret re-issues the anon and service keys and signs everyone out). Update `.env.production.core` (`SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`) and Vercel (`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`), then redeploy both. |
+| Database password | Reset in Supabase → Database settings, update `DATABASE_URL` in `.env.production.core`, redeploy. |
 | Demo passwords | Change `DEMO_VIEWER_PASSWORD` / `DEMO_ELENA_PASSWORD` on Vercel **and** wherever the seed runs, then re-run `uv run python -m app.demo.seed` to update the Auth users. Redeploy Vercel. |
-| `MCP_DEMO_TOKEN` | Set a new value on Railway and redeploy (it is upserted at startup). List and revoke the old one: `uv run python -m app.mcp.tokens list` then `… tokens revoke --id <id>`. Update the token in the README. |
+| `MCP_DEMO_TOKEN` | Set a new value in `.env.production.core` and redeploy (it is upserted at startup). List and revoke the old one: `uv run python -m app.mcp.tokens list` then `… tokens revoke --id <id>`. Update the token in the README. |
 | Personal MCP tokens | `uv run python -m app.mcp.tokens revoke --id <id>`. Takes effect on the next request. |
 
 If a secret was ever committed, rotating it is mandatory. Rewriting git history is not enough.
@@ -154,7 +174,7 @@ exceptions and purges data older than 30 days. To fully reset the demo org on de
 admin endpoint:
 
 ```bash
-CORE=https://core-production-f996.up.railway.app
+CORE=https://<core-domain>
 BODY='{"backfill_days":30}'
 T=$(date +%s)
 SIG=$(printf '%s.POST./v1/admin/reset-demo.%s' "$T" "$BODY" | openssl dgst -sha256 -hmac "$CORE_HMAC_SECRET" | sed 's/^.* //')
@@ -181,8 +201,8 @@ idempotent) and `POST /v1/admin/replay/tick` (force a replay tick).
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `/health` `status: degraded`, `db: false` | `DATABASE_URL` wrong, or an IPv6-only direct host from Railway | Use the Supabase **session pooler** connection string (IPv4) |
-| `/health` `worker.alive: false` | Worker loops crashed, or `WORKER_ENABLED=false` | Check Railway logs for `ledgic.worker`. Restart the service. Runs are durable and resume after restart. |
+| `/health` `status: degraded`, `db: false` | `DATABASE_URL` wrong, or the IPv6-only direct host | Use the Supabase **session pooler** connection string (IPv4) |
+| `/health` `worker.alive: false` | Worker loops crashed, or `WORKER_ENABLED=false` | Check the Lightsail container log for `ledgic.worker`. Restart the service. Runs are durable and resume after restart. |
 | Decisions don't resume runs | `LISTEN` not possible (transaction pooler) | Switch to the session pooler. The 2 s poll still advances runs, only more slowly. |
 | Scheduler `leader: false` on the only replica | Advisory lock held by a stale session | It frees itself when the old connection dies. Restart core if it persists. |
 | Operations KPIs never change | `pg_cron` missing and the scheduler is not leader | Enable `pg_cron`, or check the scheduler. Run `select public.refresh_kpis();` manually. |

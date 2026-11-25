@@ -53,7 +53,7 @@ In scope:
   `supabase/migrations`.
 - **MCP server**: `services/core/app/mcp` (streamable HTTP at `/mcp` and the `ledgic-mcp` stdio entry point),
   including token handling and scopes.
-- **Hosted demo**: https://ledgic-pearl.vercel.app and https://core-production-f996.up.railway.app, within the
+- **Hosted demo**: https://ledgic-pearl.vercel.app and the core service behind it, within the
   rules below.
 
 Out of scope:
@@ -66,7 +66,7 @@ Out of scope:
 - The Supabase anon key in the web app. It is public by design; access is enforced by row-level security.
   An RLS bypass *using* the anon key is in scope.
 - The demo login buttons, and the read-only access they grant, which are intentional.
-- Vulnerabilities in third-party services (Supabase, Vercel, Railway, OpenAI, GitHub) themselves. Report
+- Vulnerabilities in third-party services (Supabase, Vercel, AWS, OpenAI, GitHub) themselves. Report
   those to the vendor.
 - Missing security headers or best-practice suggestions without a demonstrated impact.
 

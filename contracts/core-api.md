@@ -1,6 +1,6 @@
 # Core API (frozen contract) — `services/core` (FastAPI, Python 3.12)
 
-Base URL: `CORE_URL` (Railway in prod, `http://localhost:8000` locally). OpenAPI at `/openapi.json`.
+Base URL: `CORE_URL` (the Lightsail endpoint in prod, `http://localhost:8000` locally). OpenAPI at `/openapi.json`.
 
 ## Envelope
 Every JSON response (except `/mcp` and SSE streams):
