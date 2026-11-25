@@ -67,7 +67,7 @@ class DemoUser:
     password_env: str | None = None
 
 
-# contracts/fixtures.json "users" (embedded: the Railway image does not ship contracts/; a test checks equality)
+# contracts/fixtures.json "users" (embedded: the core image does not ship contracts/; a test checks equality)
 USERS: tuple[DemoUser, ...] = (
     DemoUser(
         "elena",

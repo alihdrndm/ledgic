@@ -10,7 +10,7 @@ from the original spec is recorded in [DECISIONS.md](DECISIONS.md).
 | Component | Where | Runs on | Responsibility |
 |---|---|---|---|
 | Web console | `apps/web` | Vercel Hobby | Next.js 16 App Router. Server components read Supabase with the **user's JWT** (RLS applies). Server actions call the decision RPCs. Route handlers proxy the copilot (SSE), uploads and search to core. The browser never talks to core directly. |
-| Core service | `services/core` | Railway (one replica, Dockerfile) | One FastAPI process that hosts the REST API, the orchestrator worker, the scheduler and the MCP server. |
+| Core service | `services/core` | AWS Lightsail container service (one node, Dockerfile) | One FastAPI process that hosts the REST API, the orchestrator worker, the scheduler and the MCP server. |
 | Database | `supabase/migrations` | Supabase Free | Postgres 15 with pgvector, pg_trgm, pgcrypto, pg_cron. Holds all state, the security model (RLS, RPCs), KPI views and the audit chain. Also Auth, Storage (`documents` bucket) and Realtime. |
 | LLM provider | `services/core/app/ai/gateway.py` | OpenAI | `gpt-4.1-mini` (vision + agents), `text-embedding-3-small` @ 512 dims. Called only for live uploads, live drafts and copilot answers, always metered and capped. |
 | Corpus + KB | `services/core/app/demo/corpus`, `tools/corpus` | in core | Deterministic synthetic invoices (PDF and degraded dock photos), labels, the knowledge base markdown, and recorded hero outputs. |
@@ -199,8 +199,9 @@ the same operations under HMAC.
 - **Supabase Free (500 MB DB, 1 GB storage):** 30-day rolling demo data, purged nightly. Non-hero
   documents' files are dropped after 7 days. Synthetic PDFs are under 10 KB each. Scheduler activity
   keeps the project from pausing. Demo logins use a password grant, so no auth email quota is used.
-- **Railway:** one replica, about 300 MB RAM. No OpenCV, torch or onnx (embeddings come from the API, and
-  image work uses Pillow and pypdfium2). Health check `/health`, restart on failure.
+- **Lightsail:** one fixed-price container node, about 300 MB RAM. No OpenCV, torch or onnx (embeddings come from the API, and
+  image work uses Pillow and pypdfium2). Health check `/health`; a failed
+  deployment leaves the previous version serving.
 - **Vercel Hobby:** server components and route handlers only, with no long-running work. SSE for the
   copilot is proxied from core.
 - **OpenAI:** a $0.50/day cap in the database, plus a monthly limit set in the provider dashboard.

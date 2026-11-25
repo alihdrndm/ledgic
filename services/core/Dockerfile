@@ -30,7 +30,9 @@ COPY tools/corpus/fixtures /srv/tools/corpus/fixtures
 COPY contracts/fixtures.json /srv/contracts/fixtures.json
 RUN uv sync --frozen --no-dev
 
-RUN useradd --system --uid 10001 --home /srv ledgic && chown -R ledgic /srv
+# /srv stays root-owned: the app writes no files, so its code is read-only at runtime (and chown -R would
+# store the whole virtualenv a second time).
+RUN useradd --system --uid 10001 --home /srv ledgic
 USER ledgic
 
 ENV PATH="/srv/.venv/bin:$PATH" \

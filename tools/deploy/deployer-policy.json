@@ -1,0 +1,28 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DeployCore",
+      "Effect": "Allow",
+      "Action": [
+        "lightsail:CreateContainerServiceDeployment",
+        "lightsail:RegisterContainerImage"
+      ],
+      "Resource": "arn:aws:lightsail:us-east-1:*:ContainerService/*"
+    },
+    {
+      "Sid": "ReadAndPushHaveNoResourceScope",
+      "Effect": "Allow",
+      "Action": [
+        "lightsail:CreateContainerServiceRegistryLogin",
+        "lightsail:GetContainerAPIMetadata",
+        "lightsail:GetContainerImages",
+        "lightsail:GetContainerLog",
+        "lightsail:GetContainerServiceDeployments",
+        "lightsail:GetContainerServiceMetricData",
+        "lightsail:GetContainerServices"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
